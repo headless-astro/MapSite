@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "resources": [
+    {
+      "id": "type_plant",
+      "name": "Plant",
+      "order": 0,
+      "kind": "group",
+      "icon": "ic_plant",
+      "children": [
+        { "id": "res_berry", "name": "Berry", "order": 0, "kind": "resource", "icon": "ic_berry" },
+        { "id": "res_mushroom", "name": "Mushroom", "order": 1, "kind": "resource", "icon": "ic_mush" }
+      ]
+    },
+    {
+      "id": "type_animal",
+      "name": "Animal",
+      "order": 1,
+      "kind": "group",
+      "icon": "ic_animal",
+      "children": [
+        {
+          "id": "sub_fishing",
+          "name": "Fishing",
+          "order": 0,
+          "kind": "group",
+          "icon": "ic_fish",
+          "children": [
+            { "id": "res_crableg", "name": "Crab Leg", "order": 0, "kind": "resource", "icon": "ic_crab" },
+            { "id": "res_fish", "name": "Fish", "order": 1, "kind": "resource", "icon": "ic_fish" }
+          ]
+        },
+        {
+          "id": "sub_hunting",
+          "name": "Hunting",
+          "order": 1,
+          "kind": "group",
+          "icon": "ic_hunt",
+          "children": [
+            { "id": "res_venison", "name": "Venison", "order": 0, "kind": "resource", "icon": "ic_deer" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "type_mineral",
+      "name": "Mineral",
+      "order": 2,
+      "kind": "group",
+      "icon": "ic_pick",
+      "children": [
+        {
+          "id": "sub_gem",
+          "name": "Gemstone",
+          "order": 0,
+          "kind": "group",
+          "icon": "ic_gem",
+          "children": [
+            { "id": "res_ruby", "name": "Ruby", "order": 0, "kind": "resource", "icon": "ic_ruby" },
+            { "id": "res_sapphire", "name": "Sapphire", "order": 1, "kind": "resource", "icon": "ic_sapph" }
+          ]
+        },
+        {
+          "id": "sub_ore",
+          "name": "Ore",
+          "order": 1,
+          "kind": "group",
+          "icon": "ic_ore",
+          "children": [
+            { "id": "res_iron", "name": "Iron", "order": 0, "kind": "resource", "icon": "ic_iron" }
+          ]
+        }
+      ]
+    }
+  ],
+  "npcTypes": [
+    { "id": "npct_merchant", "name": "Merchant", "order": 0, "icon": "ic_coin" },
+    { "id": "npct_guard", "name": "Guard", "order": 1, "icon": "ic_shield" },
+    { "id": "npct_trainer", "name": "Trainer", "order": 2, "icon": "ic_book" }
+  ],
+  "icons": {
+    "ic_plant": { "type": "emoji", "value": "🌿" },
+    "ic_berry": { "type": "emoji", "value": "🫐" },
+    "ic_mush": { "type": "emoji", "value": "🍄" },
+    "ic_animal": { "type": "emoji", "value": "🐾" },
+    "ic_fish": { "type": "emoji", "value": "🐟" },
+    "ic_crab": { "type": "emoji", "value": "🦀" },
+    "ic_hunt": { "type": "emoji", "value": "🏹" },
+    "ic_deer": { "type": "emoji", "value": "🦌" },
+    "ic_pick": { "type": "emoji", "value": "⛏️" },
+    "ic_gem": { "type": "emoji", "value": "💎" },
+    "ic_ruby": { "type": "emoji", "value": "🔴" },
+    "ic_sapph": { "type": "emoji", "value": "🔵" },
+    "ic_ore": { "type": "emoji", "value": "🪨" },
+    "ic_iron": { "type": "emoji", "value": "⚙️" },
+    "ic_coin": { "type": "emoji", "value": "🪙" },
+    "ic_shield": { "type": "emoji", "value": "🛡️" },
+    "ic_book": { "type": "emoji", "value": "📘" }
+  }
+}

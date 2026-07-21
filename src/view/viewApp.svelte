@@ -1,0 +1,128 @@
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import { MapController } from '../map/mapController';
+  import { installFlushHandlers } from '../state/playerState';
+  import {
+    initApp,
+    resetWorld,
+    status,
+    errorMsg,
+    warnings,
+    toast,
+    renderState,
+  } from './store';
+  import WorldSwitcher from './WorldSwitcher.svelte';
+  import SearchTree from './SearchTree.svelte';
+  import NpcFilter from './NpcFilter.svelte';
+  import AreaFilter from './AreaFilter.svelte';
+
+  let mapEl: HTMLDivElement;
+  let ctl: MapController | null = null;
+  let collapsed = $state(false);
+  let lastWorldId: string | null = null;
+  let showWarnings = $state(false);
+
+  onMount(() => {
+    installFlushHandlers();
+    ctl = new MapController(mapEl);
+
+    const unsub = renderState.subscribe(({ world, catalog, search }) => {
+      if (!ctl || !world || !catalog) return;
+      if (world.id !== lastWorldId) {
+        ctl.setWorld({ world, catalog });
+        lastWorldId = world.id;
+      }
+      ctl.applySearch(search);
+    });
+
+    const onResize = () => ctl?.invalidateSize();
+    window.addEventListener('resize', onResize);
+
+    void initApp();
+
+    return () => {
+      unsub();
+      window.removeEventListener('resize', onResize);
+      ctl?.destroy();
+      ctl = null;
+    };
+  });
+
+  // Re-measure the map when the sidebar collapses/expands.
+  $effect(() => {
+    void collapsed;
+    setTimeout(() => ctl?.invalidateSize(), 220);
+  });
+
+  // Auto-dismiss transient toasts.
+  $effect(() => {
+    const t = $toast;
+    if (!t) return;
+    const id = setTimeout(() => toast.set(null), 3500);
+    return () => clearTimeout(id);
+  });
+</script>
+
+<div class="app-shell">
+  <div class="map-root" bind:this={mapEl}></div>
+
+  {#if collapsed}
+    <button class="btn sidebar-toggle" title="Show panel" onclick={() => (collapsed = false)}>
+      ☰
+    </button>
+  {/if}
+
+  <aside class="sidebar" class:collapsed>
+    <div class="sidebar-header">
+      <h1>Arelith Map</h1>
+      <button
+        class="btn small"
+        style="margin-left:auto"
+        title="Hide panel"
+        onclick={() => (collapsed = true)}>‹</button
+      >
+    </div>
+
+    <div class="sidebar-body">
+      {#if $status === 'loading'}
+        <div class="section muted">Loading map data…</div>
+      {:else if $status === 'error'}
+        <div class="section">
+          <div class="status-toast error" style="position:static">
+            Failed to load: {$errorMsg}
+          </div>
+        </div>
+      {:else}
+        <WorldSwitcher />
+        <SearchTree />
+        <NpcFilter />
+        <AreaFilter />
+
+        <div class="section">
+          <div class="row">
+            <button class="btn small" onclick={resetWorld}>Reset this world's progress</button>
+          </div>
+          {#if $warnings.length}
+            <div style="margin-top:8px">
+              <button class="btn small" onclick={() => (showWarnings = !showWarnings)}>
+                {$warnings.length} data warning{$warnings.length === 1 ? '' : 's'}
+                {showWarnings ? '▾' : '▸'}
+              </button>
+              {#if showWarnings}
+                <ul class="muted" style="font-size:12px; margin:6px 0 0; padding-left:16px">
+                  {#each $warnings as w (w)}
+                    <li>{w}</li>
+                  {/each}
+                </ul>
+              {/if}
+            </div>
+          {/if}
+        </div>
+      {/if}
+    </div>
+  </aside>
+
+  {#if $toast}
+    <div class="status-toast" class:error={$toast.error}>{$toast.msg}</div>
+  {/if}
+</div>

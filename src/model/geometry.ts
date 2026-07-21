@@ -1,0 +1,126 @@
+// Pure geometry helpers. NO Leaflet / DOM imports, so this is unit-testable in a
+// plain node environment. The map layer wraps `worldToLatLng` outputs in
+// L.latLng(); everything else stays in world units.
+//
+// World units: origin top-left, x→right, y→DOWN.
+
+import type { Vec2 } from './types';
+
+/** CRS.Simple mapping: world [x,y] → Leaflet [lat,lng] = [-y, x]. */
+export function worldToLatLng([x, y]: Vec2): [number, number] {
+  return [-y, x];
+}
+
+/** Inverse of worldToLatLng: Leaflet [lat,lng] → world [x,y] = [lng, -lat]. */
+export function latLngToWorld([lat, lng]: [number, number]): Vec2 {
+  return [lng, -lat];
+}
+
+export function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * t;
+}
+
+function lerp2(a: Vec2, b: Vec2, t: number): Vec2 {
+  return [lerp(a[0], b[0], t), lerp(a[1], b[1], t)];
+}
+
+/**
+ * Bilinear interpolation over a quad [TL, TR, BR, BL] with (u, v) in [0,1]²,
+ * where u runs left→right and v runs top→bottom. This is how a marker's
+ * normalized `uv` becomes a world position, so it always tracks the tile's
+ * current placement (move/scale/rotate/skew all carry markers automatically).
+ */
+export function bilinear(
+  corners: [Vec2, Vec2, Vec2, Vec2],
+  u: number,
+  v: number,
+): Vec2 {
+  const [tl, tr, br, bl] = corners;
+  const top = lerp2(tl, tr, u);
+  const bottom = lerp2(bl, br, u);
+  return lerp2(top, bottom, v);
+}
+
+/**
+ * Corners for a rectangle centered at `center` with `size` [w,h], rotated by
+ * `rotDeg` clockwise (visually, since y points down). Order: TL, TR, BR, BL.
+ */
+export function cornersFromCenter(
+  center: Vec2,
+  size: Vec2,
+  rotDeg = 0,
+): [Vec2, Vec2, Vec2, Vec2] {
+  const [cx, cy] = center;
+  const hw = size[0] / 2;
+  const hh = size[1] / 2;
+  const local: Vec2[] = [
+    [-hw, -hh], // TL
+    [hw, -hh], // TR
+    [hw, hh], // BR
+    [-hw, hh], // BL
+  ];
+  const rad = (rotDeg * Math.PI) / 180;
+  const cos = Math.cos(rad);
+  const sin = Math.sin(rad);
+  const out = local.map(([lx, ly]): Vec2 => {
+    // Standard rotation; with y-down this rotates clockwise on screen.
+    const rx = lx * cos - ly * sin;
+    const ry = lx * sin + ly * cos;
+    return [cx + rx, cy + ry];
+  });
+  return out as [Vec2, Vec2, Vec2, Vec2];
+}
+
+/** Axis-aligned bounding box of a set of points, in world units. */
+export function boundsOf(points: Vec2[]): { min: Vec2; max: Vec2 } {
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const [x, y] of points) {
+    if (x < minX) minX = x;
+    if (y < minY) minY = y;
+    if (x > maxX) maxX = x;
+    if (y > maxY) maxY = y;
+  }
+  return { min: [minX, minY], max: [maxX, maxY] };
+}
+
+/** World-unit bounding box of a cell's quad. */
+export function cellBounds(corners: [Vec2, Vec2, Vec2, Vec2]): {
+  min: Vec2;
+  max: Vec2;
+} {
+  return boundsOf(corners);
+}
+
+/** Do two AABBs (in world units) overlap, with an optional pad on `a`? */
+export function boundsIntersect(
+  a: { min: Vec2; max: Vec2 },
+  b: { min: Vec2; max: Vec2 },
+  pad = 0,
+): boolean {
+  return (
+    a.min[0] - pad <= b.max[0] &&
+    a.max[0] + pad >= b.min[0] &&
+    a.min[1] - pad <= b.max[1] &&
+    a.max[1] + pad >= b.min[1]
+  );
+}
+
+/**
+ * Is this quad an axis-aligned rectangle (within `eps`)? Lets the renderer pick
+ * a cheaper path when true, though the transform renderer handles both.
+ */
+export function isAxisAligned(
+  corners: [Vec2, Vec2, Vec2, Vec2],
+  eps = 1e-6,
+): boolean {
+  const [tl, tr, br, bl] = corners;
+  return (
+    Math.abs(tl[1] - tr[1]) < eps && // top edge horizontal
+    Math.abs(bl[1] - br[1]) < eps && // bottom edge horizontal
+    Math.abs(tl[0] - bl[0]) < eps && // left edge vertical
+    Math.abs(tr[0] - br[0]) < eps // right edge vertical
+  );
+}

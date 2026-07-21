@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "app": "arelith-map",
+  "catalog": "catalog.json",
+  "worlds": [
+    {
+      "id": "wld_surface",
+      "slug": "surface",
+      "name": "Surface",
+      "data": "worlds/wld_surface.json"
+    },
+    {
+      "id": "wld_underdark",
+      "slug": "underdark",
+      "name": "Underdark",
+      "data": "worlds/wld_underdark.json"
+    }
+  ]
+}

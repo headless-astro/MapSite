@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "id": "wld_surface",
+  "slug": "surface",
+  "name": "Surface",
+  "view": { "minZoom": -6, "maxZoom": 4, "fitAll": true },
+  "config": {
+    "searchRespectsReveal": true,
+    "declutter": { "enabled": false, "hideMarkersBelowZoom": null }
+  },
+  "areas": [
+    { "id": "area_swamp", "name": "The Mire", "order": 0 },
+    { "id": "area_forest", "name": "Whisper Wood", "order": 1 }
+  ],
+  "cells": [
+    {
+      "id": "cell_pond",
+      "name": "Old Mill Pond",
+      "areaId": "area_swamp",
+      "order": 0,
+      "image": { "src": "assets/wld_surface/img/pond.png", "hash": "pond", "mime": "image/png", "naturalSize": [256, 256] },
+      "geometry": { "corners": [[0, 0], [900, 0], [900, 900], [0, 900]], "z": 0 },
+      "hidden": false,
+      "defaultReveal": { "resources": true, "npcs": true },
+      "unlock": { "keywords": [] },
+      "markers": [
+        { "id": "mrk_p1", "kind": "resource", "refId": "res_berry", "uv": [0.31, 0.42] },
+        { "id": "mrk_p2", "kind": "resource", "refId": "res_crableg", "uv": [0.66, 0.71], "nameOverride": "Big crab under the dock" },
+        { "id": "mrk_p3", "kind": "npc", "refId": "npct_merchant", "uv": [0.2, 0.8], "nameOverride": "Fishmonger Gale" }
+      ]
+    },
+    {
+      "id": "cell_mill",
+      "name": "Ruined Mill",
+      "areaId": "area_swamp",
+      "order": 1,
+      "image": { "src": "assets/wld_surface/img/mill.png", "hash": "mill", "mime": "image/png", "naturalSize": [256, 256] },
+      "geometry": { "corners": [[1000, 0], [1900, 0], [1900, 900], [1000, 900]], "z": 0 },
+      "hidden": false,
+      "defaultReveal": { "resources": true, "npcs": true },
+      "unlock": { "keywords": [] },
+      "markers": [
+        { "id": "mrk_m1", "kind": "resource", "refId": "res_fish", "uv": [0.4, 0.5] },
+        { "id": "mrk_m2", "kind": "resource", "refId": "res_iron", "uv": [0.72, 0.3] }
+      ]
+    },
+    {
+      "id": "cell_crypt",
+      "name": "Sunken Crypt",
+      "areaId": "area_swamp",
+      "order": 2,
+      "image": { "src": "assets/wld_surface/img/crypt.png", "hash": "crypt", "mime": "image/png", "naturalSize": [256, 256] },
+      "geometry": { "corners": [[400, 1000], [1100, 1000], [1100, 1700], [400, 1700]], "z": 1 },
+      "hidden": true,
+      "defaultReveal": { "resources": false, "npcs": false },
+      "unlock": { "keywords": ["drowned-key", "crypt-sigil"] },
+      "markers": [
+        { "id": "mrk_c1", "kind": "npc", "refId": "npct_merchant", "uv": [0.5, 0.5], "nameOverride": "Bog Peddler" },
+        { "id": "mrk_c2", "kind": "resource", "refId": "res_ruby", "uv": [0.3, 0.62] }
+      ]
+    },
+    {
+      "id": "cell_glade",
+      "name": "Berry Glade",
+      "areaId": "area_forest",
+      "order": 0,
+      "image": { "src": "assets/wld_surface/img/glade.png", "hash": "glade", "mime": "image/png", "naturalSize": [256, 256] },
+      "geometry": { "corners": [[2100, 0], [3000, 0], [3000, 900], [2100, 900]], "z": 0 },
+      "hidden": false,
+      "defaultReveal": { "resources": true, "npcs": true },
+      "unlock": { "keywords": [] },
+      "markers": [
+        { "id": "mrk_g1", "kind": "resource", "refId": "res_berry", "uv": [0.2, 0.3] },
+        { "id": "mrk_g2", "kind": "resource", "refId": "res_berry", "uv": [0.75, 0.55] },
+        { "id": "mrk_g3", "kind": "resource", "refId": "res_venison", "uv": [0.5, 0.82] },
+        { "id": "mrk_g4", "kind": "npc", "refId": "npct_trainer", "uv": [0.4, 0.15], "nameOverride": "Forester Wynn" }
+      ]
+    },
+    {
+      "id": "cell_oak",
+      "name": "The Old Oak (rotated)",
+      "areaId": "area_forest",
+      "order": 1,
+      "image": { "src": "assets/wld_surface/img/oak.png", "hash": "oak", "mime": "image/png", "naturalSize": [256, 256] },
+      "geometry": {
+        "corners": [[2453.6, 753.6], [3146.4, 1153.6], [2746.4, 1846.4], [2053.6, 1446.4]],
+        "z": 0
+      },
+      "hidden": false,
+      "defaultReveal": { "resources": true, "npcs": true },
+      "unlock": { "keywords": [] },
+      "markers": [
+        { "id": "mrk_o1", "kind": "resource", "refId": "res_mushroom", "uv": [0.5, 0.5] },
+        { "id": "mrk_o2", "kind": "resource", "refId": "res_sapphire", "uv": [0.3, 0.3], "note": "Wedged in the roots." }
+      ]
+    },
+    {
+      "id": "cell_shore",
+      "name": "Whispering Shore",
+      "areaId": "area_forest",
+      "order": 2,
+      "image": { "src": "assets/wld_surface/img/shore.png", "hash": "shore", "mime": "image/png", "naturalSize": [256, 256] },
+      "geometry": { "corners": [[3200, 0], [4100, 0], [4100, 900], [3200, 900]], "z": 0 },
+      "hidden": false,
+      "defaultReveal": { "resources": true, "npcs": true },
+      "unlock": { "keywords": [] },
+      "markers": [
+        { "id": "mrk_s1", "kind": "resource", "refId": "res_fish", "uv": [0.5, 0.5] },
+        { "id": "mrk_s2", "kind": "resource", "refId": "res_crableg", "uv": [0.3, 0.7] }
+      ]
+    }
+  ]
+}

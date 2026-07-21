@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "id": "wld_underdark",
+  "slug": "underdark",
+  "name": "Underdark",
+  "view": { "minZoom": -6, "maxZoom": 4, "fitAll": true },
+  "config": {
+    "searchRespectsReveal": true,
+    "declutter": { "enabled": false, "hideMarkersBelowZoom": null }
+  },
+  "areas": [{ "id": "area_caves", "name": "The Deep Caverns", "order": 0 }],
+  "cells": [
+    {
+      "id": "cell_cavern",
+      "name": "Glittering Cavern",
+      "areaId": "area_caves",
+      "order": 0,
+      "image": { "src": "assets/wld_underdark/img/cavern.png", "hash": "cavern", "mime": "image/png", "naturalSize": [256, 256] },
+      "geometry": { "corners": [[0, 0], [900, 0], [900, 900], [0, 900]], "z": 0 },
+      "hidden": false,
+      "defaultReveal": { "resources": true, "npcs": true },
+      "unlock": { "keywords": [] },
+      "markers": [
+        { "id": "mrk_uc1", "kind": "resource", "refId": "res_ruby", "uv": [0.35, 0.4] },
+        { "id": "mrk_uc2", "kind": "resource", "refId": "res_iron", "uv": [0.7, 0.6] },
+        { "id": "mrk_uc3", "kind": "npc", "refId": "npct_guard", "uv": [0.5, 0.5], "nameOverride": "Svirfneblin Sentry" }
+      ]
+    },
+    {
+      "id": "cell_mush",
+      "name": "Fungal Grotto",
+      "areaId": "area_caves",
+      "order": 1,
+      "image": { "src": "assets/wld_underdark/img/mush.png", "hash": "mush", "mime": "image/png", "naturalSize": [256, 256] },
+      "geometry": { "corners": [[1000, 0], [1900, 0], [1900, 900], [1000, 900]], "z": 0 },
+      "hidden": false,
+      "defaultReveal": { "resources": true, "npcs": true },
+      "unlock": { "keywords": [] },
+      "markers": [
+        { "id": "mrk_um1", "kind": "resource", "refId": "res_mushroom", "uv": [0.3, 0.4] },
+        { "id": "mrk_um2", "kind": "resource", "refId": "res_mushroom", "uv": [0.65, 0.65] },
+        { "id": "mrk_um3", "kind": "npc", "refId": null, "uv": [0.5, 0.2], "nameOverride": "A lone Myconid" }
+      ]
+    }
+  ]
+}
