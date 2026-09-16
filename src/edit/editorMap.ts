@@ -4,15 +4,25 @@
 // renderer (createTileOverlay) so what you place is what players will see.
 
 import L from 'leaflet';
-import { DEFAULT_MARKER_SIZE, type Catalog, type Id, type Vec2, type World } from '../model/types';
+import {
+  DEFAULT_MARKER_SIZE,
+  type Catalog,
+  type ConnectionEnd,
+  type Id,
+  type Vec2,
+  type World,
+} from '../model/types';
 import { bilinear, latLngToWorld, worldToLatLng } from '../model/geometry';
 import { createTileOverlay, cellCornersToLatLng } from '../map/cellLayer';
+import { LINK_COLOR, LinkLayerManager, connectionShape } from '../map/linkLayer';
 import { getIcon, indexTaxonomy, resolveResourceIconId } from '../model/taxonomy';
 import { PlacementController } from './placement';
+import { LinkHandleController } from './linkHandles';
 import { assetObjectUrl, iconImgUrl, isRasterImage } from './draftStore';
 
 const CELLS_PANE = 'edit-cells'; // 350
 const SEL_PANE = 'edit-select'; // 400
+const LINKS_PANE = 'edit-links'; // 500 (cell connections)
 const MARK_PANE = 'edit-markers'; // 600
 const HANDLE_PANE = 'edit-handles'; // 690
 
@@ -56,6 +66,12 @@ export interface EditorMapCallbacks {
   onDropFiles: (files: File[], worldPoint: Vec2) => void;
   onGeometryChange: (cellId: Id, corners: Corners) => void;
   onSelect: (cellId: Id) => void;
+  /** A connection line was clicked (select mode only). */
+  onSelectLink: (linkId: Id) => void;
+  /** An end handle of the selected connection was dropped here; return false to snap it back. */
+  onLinkEndDrop: (linkId: Id, which: 'from' | 'to', worldPoint: Vec2) => boolean;
+  onLinkViaChange: (linkId: Id, via: Vec2[]) => void;
+  onLinkViaInsert: (linkId: Id, index: number, worldPoint: Vec2) => void;
 }
 
 const toLL = (p: Vec2) => L.latLng(worldToLatLng(p));
@@ -69,6 +85,11 @@ export class EditorMap {
   private markerDots: L.Marker[] = [];
   private selOutline: L.Polygon | null = null;
   private checkedOutlines = new Map<Id, L.Polygon>();
+  private links: LinkLayerManager;
+  private linkHandles: LinkHandleController;
+  private selectedLink: Id | null = null;
+  private pendingLink: ConnectionEnd | null = null;
+  private pendingDot: L.CircleMarker | null = null;
   private placement: PlacementController;
   private placedFor: Id | null = null;
   private framed = false;
@@ -96,11 +117,28 @@ export class EditorMap {
     for (const [p, z] of [
       [CELLS_PANE, 350],
       [SEL_PANE, 400],
+      [LINKS_PANE, 500],
       [MARK_PANE, 600],
       [HANDLE_PANE, 690],
     ] as [string, number][]) {
       this.map.createPane(p).style.zIndex = String(z);
     }
+    this.links = new LinkLayerManager(this.map, LINKS_PANE, {
+      interactive: true,
+      onClick: (id) => {
+        if (!this.placing && !this.multiSelect) this.cb.onSelectLink(id);
+      },
+    });
+    this.linkHandles = new LinkHandleController(this.map, HANDLE_PANE, {
+      onLive: (shape) => this.selectedLink && this.links.preview(this.selectedLink, shape),
+      onEndDrop: (which, at) => {
+        if (!this.selectedLink) return;
+        // A rejected drop leaves the world unchanged, so nothing re-renders: snap back by hand.
+        if (!this.cb.onLinkEndDrop(this.selectedLink, which, at)) this.renderLinkHandles();
+      },
+      onViaChange: (via) => this.selectedLink && this.cb.onLinkViaChange(this.selectedLink, via),
+      onViaInsert: (index, at) => this.selectedLink && this.cb.onLinkViaInsert(this.selectedLink, index, at),
+    });
     this.map.setView(L.latLng(0, 0), -2);
 
     // Grid backdrop (default tilePane, z-index 200 → below the cells pane).
@@ -122,8 +160,15 @@ export class EditorMap {
     this.setupDnd(container);
   }
 
-  render(world: World | null, catalog: Catalog, selectedId: Id | null, checked: ReadonlySet<Id> = NO_IDS): void {
+  render(
+    world: World | null,
+    catalog: Catalog,
+    selectedId: Id | null,
+    checked: ReadonlySet<Id> = NO_IDS,
+    selectedLink: Id | null = null,
+  ): void {
     this.world = world;
+    this.selectedLink = selectedLink;
     if (!world) {
       this.clearAll();
       return;
@@ -194,6 +239,10 @@ export class EditorMap {
     this.renderMarkers(world, catalog);
     this.renderSelection(world, selectedId);
     this.renderChecked(world, checked);
+    this.links.setWorld(world);
+    this.links.setSelected(selectedLink);
+    this.renderLinkHandles();
+    this.renderPendingLink();
 
     if (!this.framed && world.cells.length) {
       this.frame(world);
@@ -270,6 +319,42 @@ export class EditorMap {
     } else {
       this.placement.update(cell.geometry.corners);
     }
+  }
+
+  /** Handles for the selected connection, rebuilt from the current world. */
+  private renderLinkHandles(): void {
+    const conn = this.selectedLink ? this.world?.connections?.find((l) => l.id === this.selectedLink) : undefined;
+    const shape = conn && this.world ? connectionShape(this.world, conn) : null;
+    if (!shape) {
+      this.linkHandles.hide();
+      return;
+    }
+    this.linkHandles.show(shape);
+    this.links.preview(conn!.id, shape);
+  }
+
+  /** Connect mode: the start point chosen so far (null when none). Drawn as a ring on the tile. */
+  setPendingLink(end: ConnectionEnd | null): void {
+    this.pendingLink = end;
+    this.renderPendingLink();
+  }
+
+  private renderPendingLink(): void {
+    this.pendingDot?.remove();
+    this.pendingDot = null;
+    const end = this.pendingLink;
+    const cell = end ? this.world?.cells.find((c) => c.id === end.cellId) : undefined;
+    if (!end || !cell) return;
+    const pos = bilinear(cell.geometry.corners, end.uv[0], end.uv[1]);
+    this.pendingDot = L.circleMarker(toLL(pos), {
+      pane: HANDLE_PANE,
+      interactive: false,
+      radius: 7,
+      color: LINK_COLOR,
+      weight: 3,
+      fillColor: '#fff',
+      fillOpacity: 1,
+    }).addTo(this.map);
   }
 
   /** Orange outline on every ticked cell (multi-select mode); reconciled in place. */
@@ -408,6 +493,10 @@ export class EditorMap {
     this.selOutline = null;
     for (const poly of this.checkedOutlines.values()) poly.remove();
     this.checkedOutlines.clear();
+    this.links.clear();
+    this.linkHandles.hide();
+    this.pendingDot?.remove();
+    this.pendingDot = null;
     this.placement.hide();
     this.placedFor = null;
   }

@@ -6,6 +6,8 @@ import { get, writable } from 'svelte/store';
 import type {
   Catalog,
   Cell,
+  Connection,
+  ConnectionEnd,
   Id,
   Marker,
   TaxNode,
@@ -20,12 +22,19 @@ import { db, extFromMime, hashBlob, type AssetBlob } from './db';
 export type EditMode =
   | { kind: 'select' }
   | { kind: 'addResource'; refId: Id }
-  | { kind: 'addNpc'; refId: Id | null };
+  | { kind: 'addNpc'; refId: Id | null }
+  /** Drawing a connection: `from` is set after the first tile click. */
+  | { kind: 'connect'; from: ConnectionEnd | null };
 
 export const catalog = writable<Catalog>(emptyCatalog());
 export const worlds = writable<World[]>([]);
 export const activeWorldId = writable<Id | null>(null);
 export const selectedCellId = writable<Id | null>(null);
+/** The connection whose handles are shown on the map. Never set together with a selected cell. */
+export const selectedLinkId = writable<Id | null>(null);
+selectedCellId.subscribe((id) => {
+  if (id !== null) selectedLinkId.set(null);
+});
 export const editMode = writable<EditMode>({ kind: 'select' });
 /** Multi-select mode: lists show tick boxes and tile clicks toggle cells, for bulk deletes. */
 export const multiSelect = writable(false);
@@ -137,6 +146,7 @@ export async function loadProject(
   worlds.set(nextWorlds);
   activeWorldId.set(nextWorlds[0]?.id ?? null);
   selectedCellId.set(null);
+  selectedLinkId.set(null);
   clearChecked();
   await persistNow();
 }
@@ -150,6 +160,7 @@ export async function resetDraft(): Promise<void> {
   worlds.set([]);
   activeWorldId.set(null);
   selectedCellId.set(null);
+  selectedLinkId.set(null);
   clearChecked();
 }
 
@@ -212,6 +223,7 @@ export function addWorld(name: string): Id {
     config: { searchRespectsReveal: true, declutter: { enabled: false, hideMarkersBelowZoom: null } },
     areas: [],
     cells: [],
+    connections: [],
   };
   worlds.update((ws) => [...ws, world]);
   activeWorldId.set(id);
@@ -235,6 +247,7 @@ export function deleteWorld(id: Id): void {
   if (get(activeWorldId) === id) {
     activeWorldId.set(get(worlds)[0]?.id ?? null);
     selectedCellId.set(null);
+    selectedLinkId.set(null);
     clearChecked();
   }
   schedulePersist();
@@ -243,6 +256,7 @@ export function deleteWorld(id: Id): void {
 export function setActiveWorld(id: Id): void {
   activeWorldId.set(id);
   selectedCellId.set(null);
+  selectedLinkId.set(null);
   clearChecked();
 }
 
@@ -336,7 +350,14 @@ export function updateCell(cellId: Id, patch: Partial<Cell>): void {
 
 export function deleteCells(ids: Id[]): void {
   const gone = new Set(ids);
-  updateActiveWorld((w) => ({ ...w, cells: w.cells.filter((c) => !gone.has(c.id)) }));
+  updateActiveWorld((w) => ({
+    ...w,
+    cells: w.cells.filter((c) => !gone.has(c.id)),
+    // A connection can't outlive either of its cells.
+    connections: (w.connections ?? []).filter((l) => !gone.has(l.from.cellId) && !gone.has(l.to.cellId)),
+  }));
+  const link = get(selectedLinkId);
+  if (link && !activeWorld()?.connections?.some((l) => l.id === link)) selectedLinkId.set(null);
   const sel = get(selectedCellId);
   if (sel && gone.has(sel)) selectedCellId.set(null);
   uncheck(ids);
@@ -350,7 +371,7 @@ export function deleteCell(cellId: Id): void {
 // --------------------------------------------------------------------------
 export function addMarkerAtWorldPoint(worldPos: Vec2): void {
   const mode = get(editMode);
-  if (mode.kind === 'select') return;
+  if (mode.kind !== 'addResource' && mode.kind !== 'addNpc') return;
   const w = activeWorld();
   if (!w) return;
   const cell = topCellAt(w, worldPos);
@@ -403,6 +424,114 @@ export function deleteMarkers(cellId: Id, ids: Id[]): void {
 }
 export function deleteMarker(cellId: Id, markerId: Id): void {
   deleteMarkers(cellId, [markerId]);
+}
+
+// --------------------------------------------------------------------------
+// Connections (drawn links between cells)
+// --------------------------------------------------------------------------
+/** Connect mode click: the first click on a tile fixes the start, the second (on another tile) creates the link. */
+export function connectAtWorldPoint(worldPos: Vec2): void {
+  const mode = get(editMode);
+  if (mode.kind !== 'connect') return;
+  const w = activeWorld();
+  if (!w) return;
+  const cell = topCellAt(w, worldPos);
+  if (!cell) {
+    editorToast.set('Click on a tile.');
+    return;
+  }
+  const end: ConnectionEnd = { cellId: cell.id, uv: clampUv(invBilinearAffine(cell.geometry.corners, worldPos)) };
+  if (!mode.from) {
+    editMode.set({ kind: 'connect', from: end });
+    return;
+  }
+  if (mode.from.cellId === cell.id) {
+    editorToast.set('Pick a point on a different tile for the other end.');
+    return;
+  }
+  const from = mode.from;
+  const link: Connection = { id: newId('lnk'), from, to: end };
+  updateActiveWorld((world) => ({ ...world, connections: [...(world.connections ?? []), link] }));
+  editMode.set({ kind: 'connect', from: null });
+  const fromName = w.cells.find((c) => c.id === from.cellId)?.name ?? 'cell';
+  editorToast.set(`Connected ${fromName} → ${cell.name}. Click a tile to start another, or Done.`);
+}
+
+/** Set or clear (empty string) the midpoint label. */
+export function setConnectionLabel(id: Id, label: string): void {
+  const text = label.trim();
+  updateActiveWorld((w) => ({
+    ...w,
+    connections: (w.connections ?? []).map((l) => {
+      if (l.id !== id) return l;
+      const { label: _drop, ...rest } = l;
+      return text ? { ...rest, label: text } : rest;
+    }),
+  }));
+}
+
+export function deleteConnections(ids: Id[]): void {
+  const gone = new Set(ids);
+  updateActiveWorld((w) => ({ ...w, connections: (w.connections ?? []).filter((l) => !gone.has(l.id)) }));
+  if (gone.has(get(selectedLinkId) ?? '')) selectedLinkId.set(null);
+  uncheck(ids);
+}
+export function deleteConnection(id: Id): void {
+  deleteConnections([id]);
+}
+
+/** Select a connection for editing on the map (clears any selected cell). */
+export function selectLink(id: Id | null): void {
+  if (id) selectedCellId.set(null);
+  selectedLinkId.set(id);
+}
+
+function updateConnection(id: Id, fn: (l: Connection) => Connection): void {
+  updateActiveWorld((w) => ({ ...w, connections: (w.connections ?? []).map((l) => (l.id === id ? fn(l) : l)) }));
+}
+
+/**
+ * Drop an end at a world point: it re-anchors to whichever tile is under the point.
+ * Returns false (and leaves the link unchanged) when there is no tile, or it is the
+ * other end's tile.
+ */
+export function moveConnectionEnd(id: Id, which: 'from' | 'to', worldPos: Vec2): boolean {
+  const w = activeWorld();
+  const link = w?.connections?.find((l) => l.id === id);
+  if (!w || !link) return false;
+  const cell = topCellAt(w, worldPos);
+  if (!cell) {
+    editorToast.set('Drop the end on a tile.');
+    return false;
+  }
+  if (cell.id === (which === 'from' ? link.to : link.from).cellId) {
+    editorToast.set('Both ends of a connection can’t be on the same tile.');
+    return false;
+  }
+  const end: ConnectionEnd = { cellId: cell.id, uv: clampUv(invBilinearAffine(cell.geometry.corners, worldPos)) };
+  updateConnection(id, (l) => ({ ...l, [which]: end }));
+  return true;
+}
+
+/** Replace the bend points (world units); an empty list straightens the line. */
+export function setConnectionVia(id: Id, via: Vec2[]): void {
+  updateConnection(id, (l) => {
+    const { via: _drop, ...rest } = l;
+    return via.length ? { ...rest, via: via.map((p): Vec2 => [p[0], p[1]]) } : rest;
+  });
+}
+
+export function insertConnectionVia(id: Id, index: number, at: Vec2): void {
+  const link = activeWorld()?.connections?.find((l) => l.id === id);
+  if (!link) return;
+  const via = (link.via ?? []).slice();
+  via.splice(index, 0, [at[0], at[1]]);
+  setConnectionVia(id, via);
+}
+
+function clampUv(uv: Vec2): Vec2 {
+  const clamp = (n: number) => Math.min(1, Math.max(0, n));
+  return [clamp(uv[0]), clamp(uv[1])];
 }
 
 // --------------------------------------------------------------------------

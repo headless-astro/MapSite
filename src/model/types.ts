@@ -101,6 +101,24 @@ export interface World {
   };
   areas: Area[];
   cells: Cell[]; // markers are embedded in their cell
+  /** Drawn links between cells (an exit on one map leading into another). */
+  connections?: Connection[];
+}
+
+/** One end of a connection: a normalized anchor point inside a cell's image ([0.5, 0.5] = centre). */
+export interface ConnectionEnd {
+  cellId: Id;
+  uv: Vec2;
+}
+
+export interface Connection {
+  id: Id;
+  from: ConnectionEnd;
+  to: ConnectionEnd;
+  /** Bend points in world units, in order from `from` to `to`; the line is drawn as a smooth curve through them. */
+  via?: Vec2[];
+  /** Optional short text shown at the midpoint, e.g. "ladder down". */
+  label?: string;
 }
 
 export interface Area {

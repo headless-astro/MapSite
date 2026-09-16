@@ -16,6 +16,8 @@ export interface DialogOptions {
   cancelLabel?: string;
   /** Style the OK button as destructive. */
   danger?: boolean;
+  /** Prompt only: let the user submit an empty value (e.g. to clear a label). */
+  allowEmpty?: boolean;
 }
 
 interface Base extends DialogOptions {
@@ -57,7 +59,7 @@ export function confirmDialog(message: string, opts: DialogOptions = {}): Promis
   return new Promise((resolve) => show({ kind: 'confirm', message, ...opts, settle: once(resolve) }));
 }
 
-/** Resolves the trimmed, non-empty text on OK, or null on Cancel or Escape. */
+/** Resolves the trimmed text on OK (non-empty unless `allowEmpty`), or null on Cancel or Escape. */
 export function promptDialog(message: string, initial = '', opts: DialogOptions = {}): Promise<string | null> {
   return new Promise((resolve) => show({ kind: 'prompt', message, initial, ...opts, settle: once(resolve) }));
 }

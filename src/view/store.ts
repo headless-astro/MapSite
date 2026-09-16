@@ -51,6 +51,7 @@ export const toast = writable<{ msg: string; error?: boolean } | null>(null);
 export interface DisplayPrefs {
   cellLabels: boolean;
   areaRegions: boolean;
+  connections: boolean;
 }
 const DISPLAY_KEY = `${STORAGE_PREFIX}:display`;
 
@@ -59,12 +60,16 @@ function loadDisplayPrefs(): DisplayPrefs {
     const raw = localStorage.getItem(DISPLAY_KEY);
     if (raw) {
       const p = JSON.parse(raw) as Partial<DisplayPrefs>;
-      return { cellLabels: p.cellLabels ?? true, areaRegions: p.areaRegions ?? true };
+      return {
+        cellLabels: p.cellLabels ?? true,
+        areaRegions: p.areaRegions ?? true,
+        connections: p.connections ?? true,
+      };
     }
   } catch {
     // ignore (private mode / corrupt) → defaults
   }
-  return { cellLabels: true, areaRegions: true };
+  return { cellLabels: true, areaRegions: true, connections: true };
 }
 
 export const displayPrefs = writable<DisplayPrefs>(loadDisplayPrefs());

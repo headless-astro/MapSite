@@ -156,6 +156,13 @@ input[type="checkbox"].tri { accent-color: var(--accent); }
 .marker-icon img { width: calc(var(--marker-size) * 0.62); height: calc(var(--marker-size) * 0.62); object-fit: contain; }
 .map-tile { image-rendering: auto; }
 
+/* cell connection label (midpoint pill on the dashed line) */
+.leaflet-tooltip.link-label {
+  background: #3b6fd4; color: #fff; border: 0; border-radius: 10px;
+  padding: 1px 8px; font-size: 11px; font-weight: 600; box-shadow: var(--shadow);
+}
+.leaflet-tooltip.link-label::before { display: none; }
+
 /* ---- Persistent cell name label (bottom-right corner of each tile) ---- */
 .cell-label-icon { background: none; border: none; }
 .cell-label {
@@ -284,6 +291,15 @@ input[type="checkbox"].tri { accent-color: var(--accent); }
 .edit-handle.rotate { border-color: #8a4fd0; }
 .edit-handle.scale { border-color: #d08a2a; cursor: nwse-resize; }
 .edit-handle.move { cursor: move; }
+/* connection handles: ends and bends are draggable rings, "+" inserts a bend */
+.edit-handle.link-end { border-color: #3b6fd4; width: 18px; height: 18px; margin: -9px 0 0 -9px; }
+.edit-handle.link-via {
+  border-color: #3b6fd4; background: #3b6fd4; width: 14px; height: 14px; margin: -7px 0 0 -7px;
+}
+.edit-handle.link-mid {
+  width: 16px; height: 16px; margin: -8px 0 0 -8px; font-size: 12px; line-height: 1;
+  border: 1px dashed #3b6fd4; color: #3b6fd4; background: rgba(255, 255, 255, 0.9); cursor: copy;
+}
 
 /* editor marker dots */
 .edit-marker {
@@ -340,6 +356,11 @@ label.struct-cell { display: flex; align-items: center; gap: 6px; }
 .insp-check { display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 3px 0; cursor: pointer; }
 .insp-marker { display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 2px 0; }
 .insp-marker .tname { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.linkbtn {
+  background: none; border: 0; padding: 0; font: inherit; color: var(--accent);
+  cursor: pointer; text-decoration: underline dotted;
+}
+.linkbtn:hover { text-decoration: underline; }
 .insp-marker .msize {
   width: 52px; font: inherit; font-size: 12px; padding: 1px 4px;
   background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 5px;

@@ -33,7 +33,7 @@
     if (!dlg) return;
     if (dlg.kind === 'prompt') {
       const v = value.trim();
-      if (v) dlg.settle(v);
+      if (v || dlg.allowEmpty) dlg.settle(v);
     } else if (dlg.kind === 'confirm') dlg.settle(true);
     else dlg.settle();
   }
@@ -103,7 +103,7 @@
               type="submit"
               class="btn accent"
               class:danger={dlg.danger}
-              disabled={dlg.kind === 'prompt' && !value.trim()}
+              disabled={dlg.kind === 'prompt' && !dlg.allowEmpty && !value.trim()}
               use:autofocus={dlg.kind !== 'prompt'}
             >
               {dlg.okLabel ?? 'OK'}

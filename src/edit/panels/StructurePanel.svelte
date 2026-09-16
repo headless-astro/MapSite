@@ -17,6 +17,7 @@
     renameWorld,
     deleteWorld,
     setMarkerSize,
+    editMode,
   } from '../draftStore';
   import { confirmDialog, promptDialog } from '../dialog';
   import { plural } from '../plural';
@@ -105,6 +106,12 @@
       <button class="btn small" onclick={newArea}>+ Area</button>
       <button class="btn small" onclick={() => renameWorldPrompt(world.id, world.name)}>Rename world</button>
       <button class="btn small" onclick={() => removeWorld(world.id, world.name)}>Delete world</button>
+      <button
+        class="btn small"
+        class:accent={$editMode.kind === 'connect'}
+        title="Draw a link between two tiles: click the start point on one tile, then the end point on another"
+        onclick={() => editMode.set({ kind: 'connect', from: null })}>Connect cells</button
+      >
     </div>
     <label class="insp-row" style="margin-bottom:6px" title="Diameter of every marker on this world's map, for you and for players">
       <span style="width:auto">Marker size</span>

@@ -11,6 +11,7 @@ export type IdPrefix =
   | 'area'
   | 'cell'
   | 'mrk' // marker
+  | 'lnk' // connection between two cells
   | 'type' // taxonomy group (a "type")
   | 'sub' // taxonomy group (a "subtype")
   | 'res' // taxonomy resource (leaf)

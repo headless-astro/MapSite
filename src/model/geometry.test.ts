@@ -9,9 +9,27 @@ import {
   invBilinearAffine,
   isAxisAligned,
   latLngToWorld,
+  smoothPath,
   worldToLatLng,
 } from './geometry';
 import type { Vec2 } from './types';
+
+describe('smoothPath', () => {
+  it('leaves a two-point line alone', () => {
+    expect(smoothPath([[0, 0], [10, 0]])).toEqual([[0, 0], [10, 0]]);
+  });
+  it('passes through every control point and bends between them', () => {
+    const pts: Vec2[] = [[0, 0], [10, 10], [20, 0]];
+    const path = smoothPath(pts, 4);
+    expect(path).toHaveLength(2 * 4 + 1);
+    expect(path[0]).toEqual([0, 0]);
+    expect(path[4][0]).toBeCloseTo(10);
+    expect(path[4][1]).toBeCloseTo(10);
+    expect(path[8]).toEqual([20, 0]);
+    // A sample between the first two control points lies off the straight chord.
+    expect(path[2][1]).toBeGreaterThan(0);
+  });
+});
 
 describe('worldToLatLng / latLngToWorld', () => {
   it('maps [x,y] → [-y, x] and round-trips', () => {

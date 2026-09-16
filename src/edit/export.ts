@@ -25,6 +25,7 @@ function canonWorld(w: World): World {
   return {
     ...w,
     areas: byId(w.areas),
+    connections: byId(w.connections ?? []),
     cells: byId(w.cells).map((c) => ({ ...c, markers: byId(c.markers) })),
   };
 }

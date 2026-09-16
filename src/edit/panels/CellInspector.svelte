@@ -10,13 +10,17 @@
     deleteMarker,
     deleteMarkers,
     setMarkerSizeOverride,
+    deleteConnection,
+    deleteConnections,
+    setConnectionLabel,
+    selectLink,
     multiSelect,
     checkedIds,
     toggleChecked,
     uncheck,
   } from '../draftStore';
-  import { DEFAULT_MARKER_SIZE, MARKER_SIZE_MAX, MARKER_SIZE_MIN } from '../../model/types';
-  import { confirmDialog } from '../dialog';
+  import { DEFAULT_MARKER_SIZE, MARKER_SIZE_MAX, MARKER_SIZE_MIN, type Connection } from '../../model/types';
+  import { confirmDialog, promptDialog } from '../dialog';
   import { plural } from '../plural';
   import BulkRow from './BulkRow.svelte';
 
@@ -36,6 +40,38 @@
       danger: true,
     });
     if (ok) deleteMarkers(cellId, ids);
+  }
+
+  // Connections touching this cell, shown from this cell's point of view.
+  const links = $derived(
+    (world?.connections ?? []).filter((l) => l.from.cellId === cell?.id || l.to.cellId === cell?.id),
+  );
+  const checkedLinkIds = $derived(links.filter((l) => $checkedIds.has(l.id)).map((l) => l.id));
+  function otherEnd(l: Connection): { arrow: string; cellId: string; name: string } {
+    const cellId = l.from.cellId === cell?.id ? l.to.cellId : l.from.cellId;
+    return {
+      arrow: l.from.cellId === cell?.id ? '→' : '←',
+      cellId,
+      name: world?.cells.find((c) => c.id === cellId)?.name ?? '(missing cell)',
+    };
+  }
+  async function editLabel(l: Connection) {
+    const n = await promptDialog('Label shown on the line (leave blank for none)', l.label ?? '', {
+      title: 'Connection label',
+      okLabel: 'Save',
+      allowEmpty: true,
+    });
+    if (n !== null) setConnectionLabel(l.id, n);
+  }
+  async function deleteCheckedLinks() {
+    const ids = checkedLinkIds;
+    if (!ids.length) return;
+    const ok = await confirmDialog(`Delete ${plural(ids.length, 'connection')}?`, {
+      title: 'Delete selected',
+      okLabel: 'Delete',
+      danger: true,
+    });
+    if (ok) deleteConnections(ids);
   }
 
   /** Size box: blank = follow the world default. */
@@ -183,6 +219,45 @@
             onchange={(e) => onSizeInput(cell.id, m.id, (e.target as HTMLInputElement).value)}
           />
           <button class="iconbtn danger" title="Delete marker" onclick={() => deleteMarker(cell.id, m.id)}>del</button>
+        {/if}
+      </div>
+    {/each}
+
+    <h2 style="margin-top:12px">Connections ({links.length})</h2>
+    {#if !links.length}
+      <div class="muted" style="font-size:12px">
+        Use "Connect cells" in the Structure panel, then click a point on this tile and one on another.
+      </div>
+    {:else if $multiSelect}
+      <BulkRow
+        summary={checkedLinkIds.length ? plural(checkedLinkIds.length, 'connection') : ''}
+        ondelete={deleteCheckedLinks}
+        onclear={() => uncheck(checkedLinkIds)}
+      />
+    {/if}
+    {#each links as l (l.id)}
+      {@const other = otherEnd(l)}
+      <div class="insp-marker">
+        {#if $multiSelect}
+          <input
+            type="checkbox"
+            class="pick"
+            checked={$checkedIds.has(l.id)}
+            onchange={() => toggleChecked(l.id)}
+            aria-label={`Select connection to ${other.name}`}
+          />
+        {/if}
+        <span class="tname">
+          {other.arrow}
+          <button class="linkbtn" title="Go to this cell" onclick={() => selectedCellId.set(other.cellId)}>
+            {other.name}
+          </button>
+          {#if l.label}<span class="muted">· {l.label}</span>{/if}
+        </span>
+        {#if !$multiSelect}
+          <button class="iconbtn" title="Select on the map to bend or move it" onclick={() => selectLink(l.id)}>shape</button>
+          <button class="iconbtn" title="Edit label" onclick={() => editLabel(l)}>label</button>
+          <button class="iconbtn danger" title="Delete connection" onclick={() => deleteConnection(l.id)}>del</button>
         {/if}
       </div>
     {/each}

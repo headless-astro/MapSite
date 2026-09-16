@@ -14,11 +14,17 @@
     editorToast,
     addCellFromFile,
     addMarkerAtWorldPoint,
+    connectAtWorldPoint,
     updateCellGeometry,
     addWorld,
     multiSelect,
     checkedIds,
     toggleCellChecked,
+    selectedLinkId,
+    selectLink,
+    moveConnectionEnd,
+    setConnectionVia,
+    insertConnectionVia,
   } from './draftStore';
   import { importFromPublishedSite } from './import';
   import { promptDialog } from './dialog';
@@ -26,6 +32,7 @@
   import StructurePanel from './panels/StructurePanel.svelte';
   import TaxonomyPanel from './panels/TaxonomyPanel.svelte';
   import CellInspector from './panels/CellInspector.svelte';
+  import LinkInspector from './panels/LinkInspector.svelte';
   import DialogHost from './panels/DialogHost.svelte';
 
   let mapEl: HTMLDivElement;
@@ -34,19 +41,29 @@
   onMount(() => {
     em = new EditorMap(mapEl, {
       onPick: (wp, cellId) => {
-        if (get(editMode).kind !== 'select') addMarkerAtWorldPoint(wp);
+        const mode = get(editMode);
+        if (mode.kind === 'connect') connectAtWorldPoint(wp);
+        else if (mode.kind !== 'select') addMarkerAtWorldPoint(wp);
         else if (get(multiSelect)) {
           if (cellId) toggleCellChecked(cellId);
-        } else selectedCellId.set(cellId);
+        } else {
+          selectedCellId.set(cellId);
+          if (!cellId) selectLink(null); // empty-map click clears both kinds of selection
+        }
       },
       onSelect: (cellId) => selectedCellId.set(cellId),
       onDropFiles: (files, wp) => {
         for (const f of files) void addCellFromFile(f, wp);
       },
       onGeometryChange: (cellId, corners) => updateCellGeometry(cellId, corners),
+      onSelectLink: (id) => selectLink(id),
+      onLinkEndDrop: (id, which, at) => moveConnectionEnd(id, which, at),
+      onLinkViaChange: (id, via) => setConnectionVia(id, via),
+      onLinkViaInsert: (id, index, at) => insertConnectionVia(id, index, at),
     });
 
-    const render = () => em?.render(activeWorld(), get(catalog), get(selectedCellId), get(checkedIds));
+    const render = () =>
+      em?.render(activeWorld(), get(catalog), get(selectedCellId), get(checkedIds), get(selectedLinkId));
     const unsubs = [
       worlds.subscribe(render),
       catalog.subscribe(render),
@@ -55,9 +72,12 @@
         render();
       }),
       selectedCellId.subscribe(render),
+      selectedLinkId.subscribe(render),
       checkedIds.subscribe(render),
       editMode.subscribe((m) => {
-        if (em) em.placing = m.kind !== 'select';
+        if (!em) return;
+        em.placing = m.kind !== 'select';
+        em.setPendingLink(m.kind === 'connect' ? m.from : null);
       }),
       multiSelect.subscribe((on) => {
         if (em) em.multiSelect = on;
@@ -138,9 +158,20 @@
     <aside class="editor-right">
       <div class="editor-scroll"><CellInspector /></div>
     </aside>
+  {:else if $selectedLinkId}
+    <aside class="editor-right">
+      <div class="editor-scroll"><LinkInspector /></div>
+    </aside>
   {/if}
 
-  {#if $editMode.kind !== 'select'}
+  {#if $editMode.kind === 'connect'}
+    <div class="place-banner">
+      {$editMode.from
+        ? 'Now click the destination point on another tile.'
+        : 'Connecting cells — click the start point on a tile.'}
+      <button class="btn small" onclick={() => editMode.set({ kind: 'select' })}>Done</button>
+    </div>
+  {:else if $editMode.kind !== 'select'}
     <div class="place-banner">
       Placing a marker — click on a tile.
       <button class="btn small" onclick={() => editMode.set({ kind: 'select' })}>Done</button>

@@ -170,6 +170,34 @@ export function invBilinearAffine(corners: [Vec2, Vec2, Vec2, Vec2], p: Vec2): V
 }
 
 /** Push each polygon vertex outward from the centroid by `pad` world units. */
+/**
+ * A smooth open curve through every one of `points` (Catmull-Rom spline), sampled
+ * `segments` times per span. Two points come back as the straight segment itself.
+ * Used to draw bent cell connections.
+ */
+export function smoothPath(points: Vec2[], segments = 8): Vec2[] {
+  if (points.length < 3) return points.map((p): Vec2 => [p[0], p[1]]);
+  const n = points.length;
+  const out: Vec2[] = [];
+  for (let i = 0; i < n - 1; i++) {
+    const p0 = points[Math.max(0, i - 1)];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[Math.min(n - 1, i + 2)];
+    for (let s = 0; s < segments; s++) out.push(catmullRom(p0, p1, p2, p3, s / segments));
+  }
+  out.push([points[n - 1][0], points[n - 1][1]]);
+  return out;
+}
+
+function catmullRom(p0: Vec2, p1: Vec2, p2: Vec2, p3: Vec2, t: number): Vec2 {
+  const t2 = t * t;
+  const t3 = t2 * t;
+  const f = (a: number, b: number, c: number, d: number) =>
+    0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3);
+  return [f(p0[0], p1[0], p2[0], p3[0]), f(p0[1], p1[1], p2[1], p3[1])];
+}
+
 export function expandPolygon(points: Vec2[], pad: number): Vec2[] {
   if (points.length === 0) return [];
   const cx = points.reduce((s, p) => s + p[0], 0) / points.length;

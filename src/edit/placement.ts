@@ -117,7 +117,10 @@ export class PlacementController {
   private makeHandle(kind: 'move' | 'rotate' | 'scale', at: Vec2): L.Marker {
     const glyph = kind === 'move' ? '✥' : kind === 'rotate' ? '↻' : '⤡';
     const icon = L.divIcon({ className: '', html: `<div class="edit-handle ${kind}">${glyph}</div>`, iconSize: [0, 0] });
-    return L.marker(toLL(at), { draggable: true, icon, pane: this.pane, keyboard: false }).addTo(this.map);
+    const h = L.marker(toLL(at), { draggable: true, icon, pane: this.pane, keyboard: false }).addTo(this.map);
+    // A click without a drag must not bubble to the map as an empty-map click (which deselects the tile).
+    h.on('click', (e: L.LeafletMouseEvent) => L.DomEvent.stop(e));
+    return h;
   }
 
   private clear(): void {

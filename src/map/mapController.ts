@@ -18,15 +18,18 @@ import {
 import { CellLayerManager } from './cellLayer';
 import { MarkerLayerManager } from './markerLayer';
 import { AreaLayerManager } from './areaLayer';
+import { LinkLayerManager } from './linkLayer';
 import { buildCellPopup, type CellRevealHandlers } from './cellPopup';
 
 const CELLS_PANE = 'map-cells'; // z 350
 const AREAS_PANE = 'map-areas'; // z 330 (region outlines, below tiles)
 const LABELS_PANE = 'map-cell-labels'; // z 450 (above tiles, below markers)
+const LINKS_PANE = 'map-links'; // z 460 (cell connections: above labels, below markers)
 
 export interface DisplayPrefs {
   cellLabels: boolean;
   areaRegions: boolean;
+  connections: boolean;
 }
 
 export class MapController {
@@ -34,12 +37,13 @@ export class MapController {
   private cells: CellLayerManager;
   private markers: MarkerLayerManager;
   private areas: AreaLayerManager;
+  private links: LinkLayerManager;
 
   private world: World | null = null;
   private search: SearchState | null = null;
   private reveal: RevealState = emptyRevealState();
   private revealHandlers: CellRevealHandlers | null = null;
-  private prefs: DisplayPrefs = { cellLabels: true, areaRegions: true };
+  private prefs: DisplayPrefs = { cellLabels: true, areaRegions: true, connections: true };
 
   constructor(container: HTMLElement) {
     this.map = L.map(container, {
@@ -57,10 +61,12 @@ export class MapController {
     this.makePane(AREAS_PANE, 330);
     this.makePane(CELLS_PANE, 350);
     this.makePane(LABELS_PANE, 450);
+    this.makePane(LINKS_PANE, 460);
 
     this.areas = new AreaLayerManager(this.map, AREAS_PANE);
     this.cells = new CellLayerManager(this.map, CELLS_PANE, LABELS_PANE);
     this.markers = new MarkerLayerManager(this.map, 'markerPane');
+    this.links = new LinkLayerManager(this.map, LINKS_PANE);
     this.cells.setCellClickHandler((cell) => this.handleCellClick(cell));
 
     // Give the map a view immediately so getBounds()/culling never runs on an
@@ -109,6 +115,8 @@ export class MapController {
     this.areas.setVisible(this.prefs.areaRegions);
 
     this.markers.setWorld(world, catalog);
+    this.links.setWorld(world);
+    this.links.setVisible(this.prefs.connections);
     this.applyPredicate();
   }
 
@@ -121,11 +129,12 @@ export class MapController {
     this.applyPredicate();
   }
 
-  /** Toggle persistent cell labels / area region outlines. */
+  /** Toggle persistent cell labels / area region outlines / cell connections. */
   setDisplayPrefs(prefs: DisplayPrefs): void {
     this.prefs = prefs;
     this.cells.setLabelsVisible(prefs.cellLabels);
     this.areas.setVisible(prefs.areaRegions);
+    this.links.setVisible(prefs.connections);
   }
 
   private applyPredicate(): void {
@@ -135,6 +144,12 @@ export class MapController {
     this.markers.setVisible((m, c) =>
       world && search ? markerVisible(m, c, reveal, search, world) : true,
     );
+    // A connection shows only while both of its tiles render (R1), so it can't hint at a hidden cell.
+    const byId = new Map((world?.cells ?? []).map((c) => [c.id, c] as const));
+    this.links.setCellVisible((id) => {
+      const cell = byId.get(id);
+      return !!cell && tileVisible(cell, reveal);
+    });
   }
 
   private handleCellClick(cell: Cell): void {
@@ -170,6 +185,7 @@ export class MapController {
     this.cells.clear();
     this.markers.clear();
     this.areas.clear();
+    this.links.clear();
     this.map.remove();
   }
 }

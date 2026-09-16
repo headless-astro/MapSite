@@ -20,4 +20,12 @@
     />
     <span class="tname">Area outlines</span>
   </label>
+  <label class="area-item">
+    <input
+      type="checkbox"
+      checked={$displayPrefs.connections}
+      onchange={(e) => setDisplayPref('connections', (e.target as HTMLInputElement).checked)}
+    />
+    <span class="tname">Cell connections</span>
+  </label>
 </div>

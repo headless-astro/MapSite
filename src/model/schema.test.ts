@@ -132,6 +132,42 @@ describe('validateWorld (defensive repair)', () => {
     expect(warnings).toHaveLength(2);
   });
 
+  it('keeps connections between real cells and drops broken ones', () => {
+    const raw = {
+      schemaVersion: 1,
+      id: 'w',
+      slug: 'w',
+      name: 'W',
+      view: { minZoom: -4, maxZoom: 4 },
+      config: { searchRespectsReveal: true, declutter: { enabled: false, hideMarkersBelowZoom: null } },
+      areas: [],
+      cells: [baseCell({ id: 'a', areaId: null }), baseCell({ id: 'b', areaId: null })],
+      connections: [
+        { id: 'ok', from: { cellId: 'a', uv: [0.9, 1.7] }, to: { cellId: 'b', uv: [0.1, 0.5] }, label: ' door ' },
+        { id: 'orphan', from: { cellId: 'a', uv: [0.5, 0.5] }, to: { cellId: 'zzz', uv: [0.5, 0.5] } },
+        { id: 'self', from: { cellId: 'a', uv: [0.5, 0.5] }, to: { cellId: 'a', uv: [0.5, 0.5] } },
+        { id: 'nouv', from: { cellId: 'b' }, to: { cellId: 'a', uv: 'x' } },
+        {
+          id: 'bent',
+          from: { cellId: 'a', uv: [0.5, 0.5] },
+          to: { cellId: 'b', uv: [0.5, 0.5] },
+          via: [[10, 20], 'junk', [1, NaN], [30, 40]],
+        },
+      ],
+    };
+    const { value, warnings } = validateWorld(raw, catalog);
+    expect(value.connections?.map((c) => c.id)).toEqual(['ok', 'nouv', 'bent']);
+    expect(value.connections?.[0]).toEqual({
+      id: 'ok',
+      from: { cellId: 'a', uv: [0.9, 1] },
+      to: { cellId: 'b', uv: [0.1, 0.5] },
+      label: 'door',
+    });
+    expect(value.connections?.[1].from.uv).toEqual([0.5, 0.5]);
+    expect(value.connections?.[2].via).toEqual([[10, 20], [30, 40]]);
+    expect(warnings).toHaveLength(3);
+  });
+
   it('cascades area defaultReveal to a cell that lacks its own', () => {
     const raw = {
       schemaVersion: 1,

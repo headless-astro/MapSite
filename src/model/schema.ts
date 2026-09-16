@@ -6,7 +6,7 @@
 // unusable (not an object / missing required arrays).
 
 import { MARKER_SIZE_MAX, MARKER_SIZE_MIN, SCHEMA_VERSION } from './types';
-import type { Catalog, Cell, Manifest, Marker, TaxNode, World } from './types';
+import type { Catalog, Cell, Connection, Manifest, Marker, TaxNode, Vec2, World } from './types';
 import { indexTaxonomy } from './taxonomy';
 
 export interface ValidationResult<T> {
@@ -160,7 +160,55 @@ export function validateWorld(
     cell.markers = kept;
   }
 
+  // Connections: both ends must be real, distinct cells; anchors are clamped into the tile.
+  const cellIds = new Set(world.cells.map((c) => c.id));
+  const links: Connection[] = [];
+  const rawLinks: unknown[] = Array.isArray(world.connections) ? world.connections : [];
+  for (const raw of rawLinks) {
+    const c = raw as Partial<Connection> | null;
+    const from = c?.from;
+    const to = c?.to;
+    if (typeof c?.id !== 'string' || !from || !to || !cellIds.has(from.cellId) || !cellIds.has(to.cellId)) {
+      warnings.push(`Connection ${JSON.stringify(c?.id ?? '?')} references a missing cell; dropped.`);
+      continue;
+    }
+    if (from.cellId === to.cellId) {
+      warnings.push(`Connection ${c.id} links cell ${from.cellId} to itself; dropped.`);
+      continue;
+    }
+    const via = cleanVia(c.via, c.id, warnings);
+    links.push({
+      id: c.id,
+      from: { cellId: from.cellId, uv: clampUv(from.uv) },
+      to: { cellId: to.cellId, uv: clampUv(to.uv) },
+      ...(via.length ? { via } : {}),
+      ...(typeof c.label === 'string' && c.label.trim() ? { label: c.label.trim() } : {}),
+    });
+  }
+  world.connections = links;
+
   return { value: world, warnings };
+}
+
+/** Bend points must be finite [x, y] pairs; anything else is dropped with a warning. */
+function cleanVia(via: unknown, id: string, warnings: string[]): Vec2[] {
+  if (via === undefined) return [];
+  const list = Array.isArray(via) ? via : [];
+  const ok = list.filter(
+    (p): p is Vec2 => Array.isArray(p) && p.length === 2 && p.every((n) => typeof n === 'number' && Number.isFinite(n)),
+  );
+  if (!Array.isArray(via) || ok.length !== list.length) {
+    warnings.push(`Connection ${id} has malformed bend points; dropped the bad ones.`);
+  }
+  return ok.map((p): Vec2 => [p[0], p[1]]);
+}
+
+function clampUv(uv: unknown): Vec2 {
+  if (!Array.isArray(uv) || uv.length !== 2 || !uv.every((n) => typeof n === 'number' && Number.isFinite(n))) {
+    return [0.5, 0.5];
+  }
+  const clamp = (n: number) => Math.min(1, Math.max(0, n));
+  return [clamp(uv[0]), clamp(uv[1])];
 }
 
 /** A usable px size, or undefined (with a warning) when the value can't be used. */
