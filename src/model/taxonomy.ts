@@ -1,7 +1,15 @@
 // Taxonomy helpers — the operations that make the variable-depth type→subtype→
-// resource tree "just work" for search. Pure; no Leaflet / DOM.
+// leaf forests (resources, locations, enemies) "just work" for search. Pure; no
+// Leaflet / DOM. Node ids are unique across the three forests, so one index
+// serves them all and callers only need the id.
 
-import type { Catalog, Icon, Id, NpcType, TaxNode } from './types';
+import { TAX_FIELD, TAX_KINDS } from './types';
+import type { Catalog, Icon, Id, NpcType, TaxKind, TaxNode } from './types';
+
+/** The forest for a kind (missing field → empty). */
+export function forestOf(catalog: Catalog, kind: TaxKind): TaxNode[] {
+  return catalog[TAX_FIELD[kind]] ?? [];
+}
 
 /** Depth-first walk over a forest; `visit` receives each node and its ancestor path. */
 export function walkTax(
@@ -16,10 +24,10 @@ export function walkTax(
 }
 
 /**
- * All resource-leaf ids at or beneath `node`:
- * - a resource → [its own id]
- * - a group    → every resource in its subtree (incl. resources sitting directly
- *   under a type with no subtype, e.g. "Berry" under "Plant").
+ * All leaf ids at or beneath `node`:
+ * - a leaf  → [its own id]
+ * - a group → every leaf in its subtree (incl. leaves sitting directly under a
+ *   type with no subtype, e.g. "Berry" under "Plant").
  * This is what a search-tree selection resolves to, at ANY depth.
  */
 export function subtreeResourceIds(node: TaxNode): Id[] {
@@ -32,35 +40,49 @@ export function subtreeResourceIds(node: TaxNode): Id[] {
   return out;
 }
 
-/** Every resource-leaf id in the whole catalog forest. */
-export function allResourceIds(catalog: Catalog): Id[] {
+/** Every leaf id in one forest of the catalog. */
+export function allLeafIds(catalog: Catalog, kind: TaxKind): Id[] {
   const out: Id[] = [];
-  walkTax(catalog.resources, (n) => {
+  walkTax(forestOf(catalog, kind), (n) => {
     if (n.kind === 'resource') out.push(n.id);
   });
   return out;
 }
 
-/** Index for O(1) lookups: id → node, id → ancestor path (root-first, excl. self). */
+/** Every resource-leaf id in the catalog (kept for callers that only know resources). */
+export function allResourceIds(catalog: Catalog): Id[] {
+  return allLeafIds(catalog, 'resource');
+}
+
+/** Index for O(1) lookups across all forests: id → node, id → ancestor path, id → forest. */
 export interface TaxIndex {
   byId: Map<Id, TaxNode>;
   pathById: Map<Id, TaxNode[]>;
+  /** Which forest a node belongs to. */
+  kindOf: Map<Id, TaxKind>;
+  /** Leaf ids per forest. */
+  leafIds: Record<TaxKind, Set<Id>>;
+  /** Alias of leafIds.resource. */
   resourceIds: Set<Id>;
 }
 
 export function indexTaxonomy(catalog: Catalog): TaxIndex {
   const byId = new Map<Id, TaxNode>();
   const pathById = new Map<Id, TaxNode[]>();
-  const resourceIds = new Set<Id>();
-  walkTax(catalog.resources, (n, path) => {
-    byId.set(n.id, n);
-    pathById.set(n.id, path);
-    if (n.kind === 'resource') resourceIds.add(n.id);
-  });
-  return { byId, pathById, resourceIds };
+  const kindOf = new Map<Id, TaxKind>();
+  const leafIds: Record<TaxKind, Set<Id>> = { resource: new Set(), location: new Set(), enemy: new Set() };
+  for (const kind of TAX_KINDS) {
+    walkTax(forestOf(catalog, kind), (n, path) => {
+      byId.set(n.id, n);
+      pathById.set(n.id, path);
+      kindOf.set(n.id, kind);
+      if (n.kind === 'resource') leafIds[kind].add(n.id);
+    });
+  }
+  return { byId, pathById, kindOf, leafIds, resourceIds: leafIds.resource };
 }
 
-/** Resolve a display name for a resource/NPC-type id, or a fallback. */
+/** Resolve a display name for a taxonomy node id (any forest), or a fallback. */
 export function resolveResourceName(
   index: TaxIndex,
   id: Id | null,
@@ -71,8 +93,8 @@ export function resolveResourceName(
 }
 
 /**
- * Resolve an icon id for a resource, walking up ancestors if the leaf has none
- * (a resource → its subtype → its type). Returns the icon id or undefined.
+ * Resolve an icon id for a taxonomy node, walking up ancestors if the leaf has
+ * none (a leaf → its subtype → its type). Returns the icon id or undefined.
  */
 export function resolveResourceIconId(
   index: TaxIndex,

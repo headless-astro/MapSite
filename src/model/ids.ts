@@ -14,7 +14,9 @@ export type IdPrefix =
   | 'lnk' // connection between two cells
   | 'type' // taxonomy group (a "type")
   | 'sub' // taxonomy group (a "subtype")
-  | 'res' // taxonomy resource (leaf)
+  | 'res' // taxonomy leaf in the resources forest
+  | 'loc' // taxonomy leaf in the locations forest
+  | 'enm' // taxonomy leaf in the enemies forest
   | 'npct' // npc type
   | 'ic'; // icon
 

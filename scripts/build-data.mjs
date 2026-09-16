@@ -41,7 +41,7 @@ function build() {
   const catalogPath = join(SRC, 'catalog.json');
   const catalog = existsSync(catalogPath)
     ? readJson(catalogPath)
-    : { schemaVersion: 1, resources: [], npcTypes: [], icons: {} };
+    : { schemaVersion: 1, resources: [], locations: [], enemies: [], npcTypes: [], icons: {} };
   writeJson(join(OUT, 'catalog.json'), catalog);
 
   // Each world folder = world.json (metadata) + cells/<cellId>.json (one per cell).

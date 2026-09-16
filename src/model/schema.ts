@@ -5,9 +5,9 @@
 // than crashing the map. It throws only when a document is fundamentally
 // unusable (not an object / missing required arrays).
 
-import { MARKER_SIZE_MAX, MARKER_SIZE_MIN, SCHEMA_VERSION } from './types';
-import type { Catalog, Cell, Connection, Manifest, Marker, TaxNode, Vec2, World } from './types';
-import { indexTaxonomy } from './taxonomy';
+import { MARKER_SIZE_MAX, MARKER_SIZE_MIN, SCHEMA_VERSION, TAX_KINDS } from './types';
+import type { Catalog, Cell, Connection, Manifest, Marker, RevealDefaults, TaxNode, Vec2, World } from './types';
+import { forestOf, indexTaxonomy } from './taxonomy';
 
 export interface ValidationResult<T> {
   value: T;
@@ -51,6 +51,8 @@ export function validateCatalog(raw: unknown): ValidationResult<Catalog> {
   checkVersion('Catalog', raw.schemaVersion, warnings);
   const catalog = raw as unknown as Catalog;
   if (!Array.isArray(catalog.npcTypes)) catalog.npcTypes = [];
+  if (!Array.isArray(catalog.locations)) catalog.locations = [];
+  if (!Array.isArray(catalog.enemies)) catalog.enemies = [];
   if (!catalog.icons || typeof catalog.icons !== 'object') catalog.icons = {};
 
   // Defense-in-depth: constrain icons so a hand-edited catalog can't smuggle a
@@ -68,18 +70,18 @@ export function validateCatalog(raw: unknown): ValidationResult<Catalog> {
     }
   }
 
-  // Warn about resource nodes that carry children (should be groups instead).
-  const flagChildrenOnResource = (nodes: TaxNode[]) => {
+  // Warn about leaf nodes that carry children (should be groups instead).
+  const flagChildrenOnLeaf = (nodes: TaxNode[]) => {
     for (const n of nodes) {
       if (n.kind === 'resource' && n.children && n.children.length) {
         warnings.push(
           `Resource "${n.name}" (${n.id}) has children; children of a resource are ignored in search.`,
         );
       }
-      if (n.children) flagChildrenOnResource(n.children);
+      if (n.children) flagChildrenOnLeaf(n.children);
     }
   };
-  flagChildrenOnResource(catalog.resources);
+  for (const kind of TAX_KINDS) flagChildrenOnLeaf(forestOf(catalog, kind));
   return { value: catalog, warnings };
 }
 
@@ -119,13 +121,10 @@ export function validateWorld(
       );
       cell.areaId = null;
     }
-    // Apply area-level defaultReveal cascade where the cell didn't set its own.
+    // Per-kind reveal defaults: the cell's own keys win, then the area's, then "revealed".
     const area = cell.areaId ? world.areas.find((a) => a.id === cell.areaId) : undefined;
-    if (!cell.defaultReveal) {
-      cell.defaultReveal = area?.defaultReveal
-        ? { ...area.defaultReveal }
-        : { resources: true, npcs: true };
-    }
+    const allRevealed: Required<RevealDefaults> = { resources: true, npcs: true, locations: true, enemies: true };
+    cell.defaultReveal = { ...allRevealed, ...(area?.defaultReveal ?? {}), ...(cell.defaultReveal ?? {}) };
     if (typeof cell.hidden !== 'boolean') {
       cell.hidden = area?.hidden ?? false;
     }
@@ -141,18 +140,10 @@ export function validateWorld(
       }
     }
 
-    // Marker → invalid ref: drop marker + warn.
+    // Marker → invalid ref (or a ref into the wrong forest): drop marker + warn.
     const kept: Marker[] = [];
     for (const m of cell.markers ?? []) {
-      if (m.kind === 'resource') {
-        if (m.refId && tax.resourceIds.has(m.refId)) {
-          kept.push(m);
-        } else {
-          warnings.push(
-            `Resource marker ${m.id} on cell ${cell.id} has invalid resource ref ${m.refId}; dropped.`,
-          );
-        }
-      } else {
+      if (m.kind === 'npc') {
         // NPC markers may have refId === null (unique untyped NPC).
         if (m.refId === null || npcTypeIds.has(m.refId)) {
           kept.push(m);
@@ -161,6 +152,16 @@ export function validateWorld(
             `NPC marker ${m.id} on cell ${cell.id} has invalid npcType ref ${m.refId}; dropped.`,
           );
         }
+      } else if (m.kind === 'resource' || m.kind === 'location' || m.kind === 'enemy') {
+        if (m.refId && tax.leafIds[m.kind].has(m.refId)) {
+          kept.push(m);
+        } else {
+          warnings.push(
+            `${m.kind} marker ${m.id} on cell ${cell.id} has invalid ${m.kind} ref ${m.refId}; dropped.`,
+          );
+        }
+      } else {
+        warnings.push(`Marker ${m.id} on cell ${cell.id} has unknown kind ${JSON.stringify(m.kind)}; dropped.`);
       }
     }
     for (const m of kept) {

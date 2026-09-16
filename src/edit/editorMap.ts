@@ -15,7 +15,8 @@ import {
 import { bilinear, latLngToWorld, worldToLatLng } from '../model/geometry';
 import { createTileOverlay, cellCornersToLatLng } from '../map/cellLayer';
 import { LINK_COLOR, LinkLayerManager, connectionShape } from '../map/linkLayer';
-import { getIcon, indexTaxonomy, resolveResourceIconId } from '../model/taxonomy';
+import { KIND_GLYPH, markerIconId } from '../map/markerLayer';
+import { getIcon, indexTaxonomy } from '../model/taxonomy';
 import { PlacementController } from './placement';
 import { LinkHandleController } from './linkHandles';
 import { assetObjectUrl, iconImgUrl, isRasterImage } from './draftStore';
@@ -257,18 +258,12 @@ export class EditorMap {
     for (const cell of world.cells) {
       for (const marker of cell.markers) {
         const pos = bilinear(cell.geometry.corners, marker.uv[0], marker.uv[1]);
-        const iconId =
-          marker.kind === 'resource'
-            ? resolveResourceIconId(tax, marker.refId)
-            : catalog.npcTypes.find((t) => t.id === marker.refId)?.icon;
-        const iconDef = getIcon(catalog, iconId);
+        const iconDef = getIcon(catalog, markerIconId(marker, catalog, tax));
         const inner = iconDef
           ? iconDef.type === 'img'
             ? `<img src="${escHtml(iconImgUrl(iconDef.value))}" alt="" />`
             : escHtml(iconDef.value)
-          : marker.kind === 'npc'
-            ? '◆'
-            : '●';
+          : KIND_GLYPH[marker.kind];
         const style = marker.size ? ` style="--marker-size:${Number(marker.size)}px"` : '';
         const icon = L.divIcon({
           className: '',

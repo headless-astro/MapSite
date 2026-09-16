@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  cellReveals,
   cloneReveal,
   emptyRevealState,
   globalReveal,
@@ -13,8 +14,8 @@ import {
 import { emptySearchState } from './searchController';
 import type { Cell, Marker, World } from '../model/types';
 
-function marker(id: string, kind: 'resource' | 'npc', extra: Partial<Marker> = {}): Marker {
-  return { id, kind, refId: kind === 'resource' ? 'res_x' : 'npct_x', uv: [0.5, 0.5], ...extra };
+function marker(id: string, kind: Marker['kind'], extra: Partial<Marker> = {}): Marker {
+  return { id, kind, refId: `${kind}_x`, uv: [0.5, 0.5], ...extra };
 }
 function cell(
   id: string,
@@ -84,6 +85,30 @@ describe('R2/R3/R4 markerRevealed', () => {
     // Re-setting back to the default clears the exception (minimal storage).
     const r2 = setCellReveal(r, cHushed, 'resources', false);
     expect(r2.cellRevealResources.has('c_hushed')).toBe(false);
+  });
+});
+
+describe('locations and enemies follow the same per-kind rules', () => {
+  it('a kind the author never set defaults to revealed, and can be overridden per cell', () => {
+    const c = cell('c', 'a1', false, { resources: false, npcs: false }, [
+      marker('m_loc', 'location'),
+      marker('m_enm', 'enemy'),
+    ]);
+    const r = emptyRevealState();
+    expect(cellReveals(c, r, 'locations')).toBe(true);
+    expect(markerRevealed(c.markers[0], c, r)).toBe(true);
+    expect(markerRevealed(c.markers[1], c, r)).toBe(true);
+    // resources on this cell are still hidden by their own default
+    expect(markerRevealed(marker('m_res', 'resource'), c, r)).toBe(false);
+
+    const hiddenEnemies = setCellReveal(r, c, 'enemies', false);
+    expect(markerRevealed(c.markers[1], c, hiddenEnemies)).toBe(false);
+    expect(markerRevealed(c.markers[0], c, hiddenEnemies)).toBe(true);
+    expect(hiddenEnemies.cellRevealEnemies.get('c')).toBe(false);
+
+    const w: World = { ...world, cells: [c] };
+    expect(globalTriState(w, r, 'enemies')).toBe('on');
+    expect(globalTriState(w, globalReveal(w, r, 'enemies', false), 'enemies')).toBe('off');
   });
 });
 

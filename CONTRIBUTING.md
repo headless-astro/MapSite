@@ -27,8 +27,8 @@ npm install
    - **Drag image files onto the map** to add tiles. Select a tile to **move / scale /
      rotate** it with the handles.
    - Use the **Structure** panel to organise worlds → areas → cells.
-   - Use the **Resources / NPC types** panel to manage the taxonomy, then click
-     **place** and click a tile to drop a marker.
+   - Use the **Resources / Locations / Enemies / NPC types** panels to manage the taxonomy,
+     then click **place** and click a tile to drop a marker.
    - Select a tile to edit its name, area, spoiler flags, and reveal defaults.
 5. **Export:** click **Export ZIP**. The ZIP is a complete snapshot of the map: `data-src/`
    (one file per cell) and `public/assets/` (every image still in use).

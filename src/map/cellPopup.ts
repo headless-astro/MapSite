@@ -3,11 +3,12 @@
 // Leaflet handles anchoring/positioning while the store stays the source of
 // truth. Rebuilt fresh each open, so it always reflects current reveal state.
 
-import type { Area, Cell, Id } from '../model/types';
-import { cellRevealsNpcs, cellRevealsResources, type RevealState } from '../logic/revealController';
+import { KIND_LABEL, MARKER_KINDS, REVEAL_KEY } from '../model/types';
+import type { Area, Cell, Id, RevealKey } from '../model/types';
+import { cellReveals, type RevealState } from '../logic/revealController';
 
 export interface CellRevealHandlers {
-  toggleCellReveal: (cellId: Id, kind: 'resources' | 'npcs', value: boolean) => void;
+  toggleCellReveal: (cellId: Id, kind: RevealKey, value: boolean) => void;
   /** A rendered tile was clicked (the side panel shows its notes). */
   onCellSelected?: (cellId: Id) => void;
 }
@@ -39,16 +40,21 @@ export function buildCellPopup(
     root.appendChild(h);
   }
 
-  root.appendChild(
-    revealRow('Reveal resources', cellRevealsResources(cell, reveal), (v) =>
-      handlers.toggleCellReveal(cell.id, 'resources', v),
-    ),
-  );
-  root.appendChild(
-    revealRow('Reveal NPCs', cellRevealsNpcs(cell, reveal), (v) =>
-      handlers.toggleCellReveal(cell.id, 'npcs', v),
-    ),
-  );
+  // One reveal toggle per kind of marker this tile actually has.
+  const kindsHere = MARKER_KINDS.filter((k) => cell.markers.some((m) => m.kind === k));
+  if (!kindsHere.length) {
+    const none = document.createElement('div');
+    none.className = 'cp-sub muted';
+    none.textContent = 'No markers on this tile.';
+    root.appendChild(none);
+  }
+  for (const k of kindsHere) {
+    const key = REVEAL_KEY[k];
+    const label = `Reveal ${k === 'npc' ? 'NPCs' : KIND_LABEL[k].many.toLowerCase()}`;
+    root.appendChild(
+      revealRow(label, cellReveals(cell, reveal, key), (v) => handlers.toggleCellReveal(cell.id, key, v)),
+    );
+  }
   return root;
 }
 

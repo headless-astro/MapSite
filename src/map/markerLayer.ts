@@ -7,7 +7,7 @@
 // the tile — and only markers inside the padded viewport are mounted.
 
 import L from 'leaflet';
-import type { Catalog, Cell, Id, Marker, World } from '../model/types';
+import type { Catalog, Cell, Id, Marker, MarkerKind, World } from '../model/types';
 import { bilinear, worldToLatLng } from '../model/geometry';
 import { assetUrl } from '../paths';
 import {
@@ -18,6 +18,22 @@ import {
   resolveResourceName,
   type TaxIndex,
 } from '../model/taxonomy';
+
+/** Fallback glyph per kind when neither the leaf nor its ancestors define an icon. */
+export const KIND_GLYPH: Record<MarkerKind, string> = { resource: '●', npc: '◆', location: '▲', enemy: '✖' };
+
+/** Display name for a marker: its override, else its leaf/type name. */
+export function markerLabel(marker: Marker, catalog: Catalog, tax: TaxIndex): string {
+  if (marker.nameOverride) return marker.nameOverride;
+  return marker.kind === 'npc' ? npcTypeName(catalog, marker.refId) : resolveResourceName(tax, marker.refId);
+}
+
+/** Icon id for a marker: a typed NPC's type icon, or the leaf's icon (inherited up the tree). */
+export function markerIconId(marker: Marker, catalog: Catalog, tax: TaxIndex): Id | undefined {
+  return marker.kind === 'npc'
+    ? catalog.npcTypes.find((t) => t.id === marker.refId)?.icon
+    : resolveResourceIconId(tax, marker.refId);
+}
 
 export interface MarkerEntry {
   marker: Marker;
@@ -37,8 +53,12 @@ export class MarkerLayerManager {
   private rafHandle: number | null = null;
 
   // Inverted indexes for targeted updates / counts (built once per world).
-  readonly byResource = new Map<Id, MarkerEntry[]>();
-  readonly byNpcType = new Map<Id, MarkerEntry[]>();
+  readonly byRef: Record<MarkerKind, Map<Id, MarkerEntry[]>> = {
+    resource: new Map(),
+    npc: new Map(),
+    location: new Map(),
+    enemy: new Map(),
+  };
   readonly byArea = new Map<Id, MarkerEntry[]>();
   readonly byCell = new Map<Id, MarkerEntry[]>();
 
@@ -55,7 +75,7 @@ export class MarkerLayerManager {
       for (const marker of cell.markers) {
         const worldPos = bilinear(cell.geometry.corners, marker.uv[0], marker.uv[1]);
         const latLng = L.latLng(worldToLatLng(worldPos));
-        const label = this.labelFor(marker, catalog, tax);
+        const label = markerLabel(marker, catalog, tax);
         const iconHtml = this.iconHtmlFor(marker, catalog, tax);
         const entry: MarkerEntry = {
           marker,
@@ -69,11 +89,7 @@ export class MarkerLayerManager {
         this.entries.push(entry);
         pushIndex(this.byCell, cell.id, entry);
         if (cell.areaId) pushIndex(this.byArea, cell.areaId, entry);
-        if (marker.kind === 'resource' && marker.refId) {
-          pushIndex(this.byResource, marker.refId, entry);
-        } else if (marker.kind === 'npc' && marker.refId) {
-          pushIndex(this.byNpcType, marker.refId, entry);
-        }
+        if (marker.refId) pushIndex(this.byRef[marker.kind], marker.refId, entry);
       }
     }
     this.refresh();
@@ -116,8 +132,7 @@ export class MarkerLayerManager {
     }
     for (const e of this.entries) if (e.leaflet) e.leaflet.remove();
     this.entries = [];
-    this.byResource.clear();
-    this.byNpcType.clear();
+    for (const m of Object.values(this.byRef)) m.clear();
     this.byArea.clear();
     this.byCell.clear();
   }
@@ -134,21 +149,10 @@ export class MarkerLayerManager {
     return m;
   }
 
-  private labelFor(marker: Marker, catalog: Catalog, tax: TaxIndex): string {
-    if (marker.nameOverride) return marker.nameOverride;
-    return marker.kind === 'resource'
-      ? resolveResourceName(tax, marker.refId)
-      : npcTypeName(catalog, marker.refId);
-  }
-
   private iconHtmlFor(marker: Marker, catalog: Catalog, tax: TaxIndex): string {
-    const iconId =
-      marker.kind === 'resource'
-        ? resolveResourceIconId(tax, marker.refId)
-        : catalog.npcTypes.find((t) => t.id === marker.refId)?.icon;
-    const icon = getIcon(catalog, iconId);
-    const cls = marker.kind === 'npc' ? 'marker-icon npc' : 'marker-icon';
-    let inner = marker.kind === 'npc' ? '◆' : '●';
+    const icon = getIcon(catalog, markerIconId(marker, catalog, tax));
+    const cls = `marker-icon ${marker.kind}`;
+    let inner = KIND_GLYPH[marker.kind];
     if (icon) {
       // Escape BOTH branches: icon.value is contributor-controlled and flows into
       // innerHTML via Leaflet's divIcon. Emoji are visually unaffected by escaping;

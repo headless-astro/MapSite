@@ -19,7 +19,13 @@ function canonTax(nodes: TaxNode[]): TaxNode[] {
   return byId(nodes).map((n) => (n.children ? { ...n, children: canonTax(n.children) } : n));
 }
 function canonCatalog(c: Catalog): Catalog {
-  return { ...c, resources: canonTax(c.resources), npcTypes: byId(c.npcTypes) };
+  return {
+    ...c,
+    resources: canonTax(c.resources),
+    locations: canonTax(c.locations ?? []),
+    enemies: canonTax(c.enemies ?? []),
+    npcTypes: byId(c.npcTypes),
+  };
 }
 function canonWorld(w: World): World {
   return {

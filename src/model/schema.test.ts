@@ -15,6 +15,8 @@ const catalog: Catalog = {
       children: [{ id: 'res_berry', name: 'Berry', order: 0, kind: 'resource' }],
     },
   ],
+  locations: [{ id: 'loc_crypt', name: 'Crypt', order: 0, kind: 'resource' }],
+  enemies: [{ id: 'enm_wolf', name: 'Wolf', order: 0, kind: 'resource' }],
   npcTypes: [{ id: 'npct_merchant', name: 'Merchant', order: 0 }],
   icons: {},
 };
@@ -59,6 +61,40 @@ describe('validateWorld (defensive repair)', () => {
     const kept = value.cells[0].markers.map((m) => m.id);
     expect(kept).toEqual(['ok', 'nullnpc']);
     expect(warnings.length).toBe(2);
+  });
+
+  it('validates location and enemy markers against their own forests', () => {
+    const raw = {
+      schemaVersion: 1,
+      id: 'w',
+      slug: 'w',
+      name: 'W',
+      view: { minZoom: -4, maxZoom: 4 },
+      config: { searchRespectsReveal: true, declutter: { enabled: false, hideMarkersBelowZoom: null } },
+      areas: [],
+      cells: [
+        baseCell({
+          areaId: null,
+          markers: [
+            { id: 'loc_ok', kind: 'location', refId: 'loc_crypt', uv: [0.5, 0.5] },
+            { id: 'enm_ok', kind: 'enemy', refId: 'enm_wolf', uv: [0.5, 0.5] },
+            { id: 'wrong_forest', kind: 'enemy', refId: 'res_berry', uv: [0.5, 0.5] },
+            { id: 'bogus', kind: 'treasure', refId: 'x', uv: [0.5, 0.5] },
+          ],
+        }),
+      ],
+    };
+    const { value, warnings } = validateWorld(raw, catalog);
+    expect(value.cells[0].markers.map((m) => m.id)).toEqual(['loc_ok', 'enm_ok']);
+    expect(warnings).toHaveLength(2);
+    expect(value.cells[0].defaultReveal).toEqual({ resources: true, npcs: true, locations: true, enemies: true });
+  });
+
+  it('accepts a catalog without the newer forests', () => {
+    const { value, warnings } = validateCatalog({ schemaVersion: 1, resources: [], npcTypes: [], icons: {} });
+    expect(value.locations).toEqual([]);
+    expect(value.enemies).toEqual([]);
+    expect(warnings).toHaveLength(0);
   });
 
   it('unassigns a cell that references a missing area (does not drop the cell)', () => {
@@ -200,7 +236,7 @@ describe('validateWorld (defensive repair)', () => {
       cells: [baseCell({ defaultReveal: undefined })],
     };
     const { value } = validateWorld(raw, catalog);
-    expect(value.cells[0].defaultReveal).toEqual({ resources: false, npcs: false });
+    expect(value.cells[0].defaultReveal).toEqual({ resources: false, npcs: false, locations: true, enemies: true });
   });
 });
 

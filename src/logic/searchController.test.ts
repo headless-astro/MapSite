@@ -28,6 +28,12 @@ function res(id: string, refId: string | null): Marker {
 function npc(id: string, refId: string | null): Marker {
   return { id, kind: 'npc', refId, uv: [0.5, 0.5] };
 }
+function loc(id: string, refId: string): Marker {
+  return { id, kind: 'location', refId, uv: [0.5, 0.5] };
+}
+function enemy(id: string, refId: string): Marker {
+  return { id, kind: 'enemy', refId, uv: [0.5, 0.5] };
+}
 
 const world: World = {
   schemaVersion: 1,
@@ -42,7 +48,7 @@ const world: World = {
   ],
   cells: [
     cell('c1', 'area_a', [res('m1', 'res_berry'), res('m2', 'res_berry'), npc('m3', 'npct_merchant')]),
-    cell('c2', 'area_b', [res('m4', 'res_iron'), npc('m5', null)]),
+    cell('c2', 'area_b', [res('m4', 'res_iron'), npc('m5', null), loc('m6', 'loc_crypt'), enemy('m7', 'enm_wolf')]),
   ],
 };
 
@@ -53,6 +59,28 @@ describe('buildWorldSearchIndex', () => {
     expect(idx.resourceCounts.get('res_berry')).toBe(2);
     expect(idx.presentNpcTypeIds).toEqual(new Set(['npct_merchant']));
     expect(idx.untypedNpcCount).toBe(1);
+  });
+  it('indexes locations and enemies separately from resources', () => {
+    const idx = buildWorldSearchIndex(world);
+    expect(idx.present.location).toEqual(new Set(['loc_crypt']));
+    expect(idx.present.enemy).toEqual(new Set(['enm_wolf']));
+    expect(idx.counts.enemy.get('enm_wolf')).toBe(1);
+    expect(idx.present.resource.has('loc_crypt')).toBe(false);
+  });
+});
+
+describe('searchGate per kind', () => {
+  const c2 = world.cells[1];
+  it('a disabled location hides location markers only', () => {
+    const s: SearchState = { ...emptySearchState(), disabledLocationIds: new Set(['loc_crypt']) };
+    expect(searchGate(loc('m6', 'loc_crypt'), c2, s)).toBe(false);
+    expect(searchGate(enemy('m7', 'enm_wolf'), c2, s)).toBe(true);
+    expect(searchGate(res('m4', 'res_iron'), c2, s)).toBe(true);
+  });
+  it('a disabled enemy hides enemy markers only', () => {
+    const s: SearchState = { ...emptySearchState(), disabledEnemyIds: new Set(['enm_wolf']) };
+    expect(searchGate(enemy('m7', 'enm_wolf'), c2, s)).toBe(false);
+    expect(searchGate(loc('m6', 'loc_crypt'), c2, s)).toBe(true);
   });
 });
 

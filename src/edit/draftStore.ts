@@ -10,19 +10,22 @@ import type {
   ConnectionEnd,
   Id,
   Marker,
+  MarkerKind,
+  TaxKind,
   TaxNode,
   Vec2,
   World,
 } from '../model/types';
-import { MARKER_SIZE_MAX, MARKER_SIZE_MIN, SCHEMA_VERSION } from '../model/types';
-import { newId, slugify } from '../model/ids';
+import { MARKER_SIZE_MAX, MARKER_SIZE_MIN, SCHEMA_VERSION, TAX_FIELD, TAX_KINDS } from '../model/types';
+import { forestOf } from '../model/taxonomy';
+import { newId, slugify, type IdPrefix } from '../model/ids';
 import { cornersFromCenter, invBilinearAffine } from '../model/geometry';
 import { db, extFromMime, hashBlob, type AssetBlob } from './db';
 
 export type EditMode =
   | { kind: 'select' }
-  | { kind: 'addResource'; refId: Id }
-  | { kind: 'addNpc'; refId: Id | null }
+  /** Placing markers of one kind; refId null = untyped NPC. */
+  | { kind: 'place'; markerKind: MarkerKind; refId: Id | null }
   /** Drawing a connection: `from` is set after the first tile click. */
   | { kind: 'connect'; from: ConnectionEnd | null };
 
@@ -64,7 +67,7 @@ export function isRasterImage(file: File): boolean {
 }
 
 function emptyCatalog(): Catalog {
-  return { schemaVersion: SCHEMA_VERSION, resources: [], npcTypes: [], icons: {} };
+  return { schemaVersion: SCHEMA_VERSION, resources: [], locations: [], enemies: [], npcTypes: [], icons: {} };
 }
 
 export function activeWorld(): World | null {
@@ -384,7 +387,7 @@ export function deleteCell(cellId: Id): void {
 // --------------------------------------------------------------------------
 export function addMarkerAtWorldPoint(worldPos: Vec2): void {
   const mode = get(editMode);
-  if (mode.kind !== 'addResource' && mode.kind !== 'addNpc') return;
+  if (mode.kind !== 'place') return;
   const w = activeWorld();
   if (!w) return;
   const cell = topCellAt(w, worldPos);
@@ -395,7 +398,7 @@ export function addMarkerAtWorldPoint(worldPos: Vec2): void {
   const uv = invBilinearAffine(cell.geometry.corners, worldPos);
   const marker: Marker = {
     id: newId('mrk'),
-    kind: mode.kind === 'addResource' ? 'resource' : 'npc',
+    kind: mode.markerKind,
     refId: mode.refId,
     uv,
   };
@@ -550,16 +553,21 @@ function clampUv(uv: Vec2): Vec2 {
 // --------------------------------------------------------------------------
 // Taxonomy
 // --------------------------------------------------------------------------
-export function addTaxNode(parentId: Id | null, kind: 'group' | 'resource', name: string): Id {
-  const id = newId(kind === 'resource' ? 'res' : parentId ? 'sub' : 'type');
+const LEAF_PREFIX: Record<TaxKind, IdPrefix> = { resource: 'res', location: 'loc', enemy: 'enm' };
+
+/** Add a group (type/subtype) or a leaf to one forest, at the root or under `parentId`. */
+export function addTaxNode(forest: TaxKind, parentId: Id | null, kind: 'group' | 'resource', name: string): Id {
+  const id = newId(kind === 'resource' ? LEAF_PREFIX[forest] : parentId ? 'sub' : 'type');
+  const field = TAX_FIELD[forest];
   updateCatalog((c) => {
+    const nodes = forestOf(c, forest);
     if (!parentId) {
-      const node: TaxNode = { id, name, order: c.resources.length, kind };
-      return { ...c, resources: [...c.resources, node] };
+      const node: TaxNode = { id, name, order: nodes.length, kind };
+      return { ...c, [field]: [...nodes, node] };
     }
     return {
       ...c,
-      resources: mapTaxTree(c.resources, parentId, (parent) => {
+      [field]: mapTaxTree(nodes, parentId, (parent) => {
         const children = parent.children ?? [];
         return { ...parent, children: [...children, { id, name, order: children.length, kind }] };
       }),
@@ -568,14 +576,19 @@ export function addTaxNode(parentId: Id | null, kind: 'group' | 'resource', name
   return id;
 }
 
-export function renameTaxNode(id: Id, name: string): void {
-  updateCatalog((c) => ({ ...c, resources: mapTaxTree(c.resources, id, (n) => ({ ...n, name })) }));
+/** Apply a forest transform to every forest (ids are unique, so this is safe and simple). */
+function mapForests(c: Catalog, fn: (nodes: TaxNode[]) => TaxNode[]): Catalog {
+  return { ...c, resources: fn(c.resources), locations: fn(c.locations ?? []), enemies: fn(c.enemies ?? []) };
 }
 
-/** Delete taxonomy nodes; a group takes its whole subtree with it. */
+export function renameTaxNode(id: Id, name: string): void {
+  updateCatalog((c) => mapForests(c, (nodes) => mapTaxTree(nodes, id, (n) => ({ ...n, name }))));
+}
+
+/** Delete taxonomy nodes (any forest); a group takes its whole subtree with it. */
 export function deleteTaxNodes(ids: Id[]): void {
   const gone = new Set(ids);
-  updateCatalog((c) => ({ ...c, resources: removeTaxNodes(c.resources, gone) }));
+  updateCatalog((c) => mapForests(c, (nodes) => removeTaxNodes(nodes, gone)));
   uncheck(ids);
 }
 export function deleteTaxNode(id: Id): void {
@@ -640,13 +653,10 @@ export function iconImgUrl(value: string): string {
 }
 
 function assignIcon(c: Catalog, id: Id, iconId: Id, icon: Catalog['icons'][string]): Catalog {
-  const inTree = !!findTaxNode(c.resources, id);
-  return {
-    ...c,
-    icons: { ...c.icons, [iconId]: icon },
-    resources: inTree ? mapTaxTree(c.resources, id, (n) => ({ ...n, icon: iconId })) : c.resources,
-    npcTypes: inTree ? c.npcTypes : c.npcTypes.map((t) => (t.id === id ? { ...t, icon: iconId } : t)),
-  };
+  const withIcon = { ...c, icons: { ...c.icons, [iconId]: icon } };
+  const inForest = TAX_KINDS.some((k) => findTaxNode(forestOf(c, k), id));
+  if (inForest) return mapForests(withIcon, (nodes) => mapTaxTree(nodes, id, (n) => ({ ...n, icon: iconId })));
+  return { ...withIcon, npcTypes: c.npcTypes.map((t) => (t.id === id ? { ...t, icon: iconId } : t)) };
 }
 
 // --------------------------------------------------------------------------

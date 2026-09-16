@@ -17,14 +17,18 @@ export const PLAYER_STATE_VERSION = 1;
 
 export interface PlayerState {
   schemaVersion: number;
-  // Reveal exceptions vs authored defaults (populated in Phase 2).
+  // Reveal exceptions vs authored defaults, per marker kind.
   cellRevealResources: Record<Id, boolean>;
   cellRevealNpcs: Record<Id, boolean>;
+  cellRevealLocations: Record<Id, boolean>;
+  cellRevealEnemies: Record<Id, boolean>;
   areaRevealHidden: Record<Id, true>;
-  // Search selections (Phase 1). Empty ⇒ everything visible.
+  // Search selections. Empty ⇒ everything visible.
   search: {
     disabledResourceIds: Id[];
     disabledNpcTypeIds: Id[];
+    disabledLocationIds: Id[];
+    disabledEnemyIds: Id[];
     excludedAreaIds: Id[];
   };
   view?: { center: Vec2; zoom: number };
@@ -36,8 +40,16 @@ export function defaultPlayerState(): PlayerState {
     schemaVersion: PLAYER_STATE_VERSION,
     cellRevealResources: {},
     cellRevealNpcs: {},
+    cellRevealLocations: {},
+    cellRevealEnemies: {},
     areaRevealHidden: {},
-    search: { disabledResourceIds: [], disabledNpcTypeIds: [], excludedAreaIds: [] },
+    search: {
+      disabledResourceIds: [],
+      disabledNpcTypeIds: [],
+      disabledLocationIds: [],
+      disabledEnemyIds: [],
+      excludedAreaIds: [],
+    },
   };
 }
 
@@ -94,10 +106,14 @@ function migratePlayerState(p: Partial<PlayerState>): PlayerState {
     schemaVersion: PLAYER_STATE_VERSION,
     cellRevealResources: p.cellRevealResources ?? base.cellRevealResources,
     cellRevealNpcs: p.cellRevealNpcs ?? base.cellRevealNpcs,
+    cellRevealLocations: p.cellRevealLocations ?? base.cellRevealLocations,
+    cellRevealEnemies: p.cellRevealEnemies ?? base.cellRevealEnemies,
     areaRevealHidden: p.areaRevealHidden ?? base.areaRevealHidden,
     search: {
       disabledResourceIds: p.search?.disabledResourceIds ?? [],
       disabledNpcTypeIds: p.search?.disabledNpcTypeIds ?? [],
+      disabledLocationIds: p.search?.disabledLocationIds ?? [],
+      disabledEnemyIds: p.search?.disabledEnemyIds ?? [],
       excludedAreaIds: p.search?.excludedAreaIds ?? [],
     },
     view: p.view,

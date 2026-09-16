@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import type { TaxNode } from '../../model/types';
+  import { KIND_LABEL, type TaxKind, type TaxNode } from '../../model/types';
   import { getIcon } from '../../model/taxonomy';
   import {
     addTaxNode,
@@ -17,19 +17,24 @@
   import { confirmDialog, promptDialog } from '../dialog';
   import Self from './TaxEditNode.svelte';
 
-  let { node, depth = 0 }: { node: TaxNode; depth?: number } = $props();
+  let { node, forest, depth = 0 }: { node: TaxNode; forest: TaxKind; depth?: number } = $props();
   let open = $state(untrack(() => depth < 2));
   let fileInput: HTMLInputElement;
   const children = $derived((node.children ?? []).slice().sort((a, b) => a.order - b.order));
   const iconDef = $derived($catalog ? getIcon($catalog, node.icon) : undefined);
+  const leafName = $derived(KIND_LABEL[forest].one);
+  const leafAbbr = $derived({ resource: 'res', location: 'loc', enemy: 'enm' }[forest]);
 
   const addSub = async () => {
     const n = await promptDialog('Subtype name?', '', { title: `New subtype in ${node.name}`, okLabel: 'Add' });
-    if (n) addTaxNode(node.id, 'group', n);
+    if (n) addTaxNode(forest, node.id, 'group', n);
   };
-  const addRes = async () => {
-    const n = await promptDialog('Resource name?', '', { title: `New resource in ${node.name}`, okLabel: 'Add' });
-    if (n) addTaxNode(node.id, 'resource', n);
+  const addLeaf = async () => {
+    const n = await promptDialog(`${capitalize(leafName)} name?`, '', {
+      title: `New ${leafName} in ${node.name}`,
+      okLabel: 'Add',
+    });
+    if (n) addTaxNode(forest, node.id, 'resource', n);
   };
   const rename = async () => {
     const n = await promptDialog('Name', node.name, { title: 'Rename', okLabel: 'Rename' });
@@ -45,6 +50,7 @@
     if (f) void setTaxIconImage(node.id, f);
     input.value = '';
   };
+  const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 </script>
 
 <div class="tax-node">
@@ -79,12 +85,15 @@
     {#if !$multiSelect}
       <span class="tax-actions">
         {#if node.kind === 'resource'}
-          <button class="btn small accent" onclick={() => editMode.set({ kind: 'addResource', refId: node.id })}>
+          <button
+            class="btn small accent"
+            onclick={() => editMode.set({ kind: 'place', markerKind: forest, refId: node.id })}
+          >
             place
           </button>
         {:else}
           <button class="iconbtn" title="Add subtype" onclick={addSub}>+sub</button>
-          <button class="iconbtn" title="Add resource" onclick={addRes}>+res</button>
+          <button class="iconbtn" title={`Add ${leafName}`} onclick={addLeaf}>+{leafAbbr}</button>
         {/if}
         <button class="iconbtn" title="Set image icon" onclick={() => fileInput.click()}>icon</button>
         <button class="iconbtn" title="Rename" onclick={rename}>edit</button>
@@ -102,7 +111,7 @@
   {#if open && children.length}
     <div class="tax-children">
       {#each children as c (c.id)}
-        <Self node={c} depth={depth + 1} />
+        <Self node={c} {forest} depth={depth + 1} />
       {/each}
     </div>
   {/if}

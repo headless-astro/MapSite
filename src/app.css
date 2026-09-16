@@ -168,6 +168,8 @@ input[type="checkbox"].tri { accent-color: var(--accent); }
   font-size: calc(var(--marker-size) * 0.58); line-height: 1;
 }
 .marker-icon.npc { border-color: #b5793a; }
+.marker-icon.location { border-color: #7a5cd6; }
+.marker-icon.enemy { border-color: #c0392b; }
 .marker-icon img { width: calc(var(--marker-size) * 0.62); height: calc(var(--marker-size) * 0.62); object-fit: contain; }
 .map-tile { image-rendering: auto; }
 
@@ -325,6 +327,8 @@ input[type="checkbox"].tri { accent-color: var(--accent); }
   font-size: calc(var(--marker-size) * 0.58); line-height: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.35);
 }
 .edit-marker.npc { border-color: #b5793a; }
+.edit-marker.location { border-color: #7a5cd6; }
+.edit-marker.enemy { border-color: #c0392b; }
 .edit-marker img { width: calc(var(--marker-size) * 0.62); height: calc(var(--marker-size) * 0.62); object-fit: contain; }
 
 /* structure panel */

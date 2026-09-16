@@ -20,8 +20,25 @@
     toggleChecked,
     uncheck,
   } from '../draftStore';
-  import { DEFAULT_MARKER_SIZE, MARKER_SIZE_MAX, MARKER_SIZE_MIN, type Connection } from '../../model/types';
+  import {
+    DEFAULT_MARKER_SIZE,
+    KIND_LABEL,
+    MARKER_KINDS,
+    MARKER_SIZE_MAX,
+    MARKER_SIZE_MIN,
+    REVEAL_KEY,
+    type Connection,
+    type RevealDefaults,
+    type RevealKey,
+  } from '../../model/types';
+  import { KIND_GLYPH } from '../../map/markerLayer';
   import { confirmDialog, promptDialog } from '../dialog';
+
+  // One "revealed by default" checkbox per marker kind.
+  const REVEAL_ROWS: { key: RevealKey; label: string }[] = MARKER_KINDS.map((k) => ({
+    key: REVEAL_KEY[k],
+    label: k === 'npc' ? 'NPCs' : KIND_LABEL[k].many,
+  }));
   import { plural } from '../plural';
   import BulkRow from './BulkRow.svelte';
 
@@ -92,7 +109,12 @@
 
   function markerName(m: { kind: string; refId: string | null; nameOverride?: string }) {
     if (m.nameOverride) return m.nameOverride;
-    return m.kind === 'resource' ? resolveResourceName(tax, m.refId) : npcTypeName($catalog, m.refId);
+    return m.kind === 'npc' ? npcTypeName($catalog, m.refId) : resolveResourceName(tax, m.refId);
+  }
+  function setRevealDefault(key: RevealKey, value: boolean) {
+    if (!cell) return;
+    const defaultReveal: RevealDefaults = { ...cell.defaultReveal, [key]: value };
+    updateCell(cell.id, { defaultReveal });
   }
 </script>
 
@@ -134,28 +156,16 @@
       />
       Hidden location (spoiler)
     </label>
-    <label class="insp-check">
-      <input
-        type="checkbox"
-        checked={cell.defaultReveal.resources}
-        onchange={(e) =>
-          updateCell(cell.id, {
-            defaultReveal: { ...cell.defaultReveal, resources: (e.target as HTMLInputElement).checked },
-          })}
-      />
-      Resources revealed by default
-    </label>
-    <label class="insp-check">
-      <input
-        type="checkbox"
-        checked={cell.defaultReveal.npcs}
-        onchange={(e) =>
-          updateCell(cell.id, {
-            defaultReveal: { ...cell.defaultReveal, npcs: (e.target as HTMLInputElement).checked },
-          })}
-      />
-      NPCs revealed by default
-    </label>
+    {#each REVEAL_ROWS as row (row.key)}
+      <label class="insp-check">
+        <input
+          type="checkbox"
+          checked={cell.defaultReveal[row.key] ?? true}
+          onchange={(e) => setRevealDefault(row.key, (e.target as HTMLInputElement).checked)}
+        />
+        {row.label} revealed by default
+      </label>
+    {/each}
 
     <label class="insp-row">
       <span>Opacity</span>
@@ -216,7 +226,7 @@
             aria-label={`Select marker ${markerName(m)}`}
           />
         {/if}
-        <span class="tname">{m.kind === 'npc' ? '◆' : '●'} {markerName(m)}</span>
+        <span class="tname">{KIND_GLYPH[m.kind]} {markerName(m)}</span>
         {#if !$multiSelect}
           <input
             class="msize"

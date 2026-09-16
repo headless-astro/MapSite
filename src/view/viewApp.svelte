@@ -108,7 +108,9 @@
       {:else}
         <WorldSwitcher />
         <RevealControls />
-        <SearchTree />
+        <SearchTree kind="resource" />
+        <SearchTree kind="location" hideWhenEmpty />
+        <SearchTree kind="enemy" hideWhenEmpty />
         <NpcFilter />
         <AreaFilter />
         <DisplayOptions />

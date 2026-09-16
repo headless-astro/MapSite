@@ -41,18 +41,52 @@ export interface WorldRef {
 // ---------------------------------------------------------------------------
 // data/catalog.json — SHARED definitions (always loaded, small)
 // ---------------------------------------------------------------------------
+/**
+ * Marker kinds. Three are backed by a taxonomy FOREST in the catalog (type →
+ * subtype → leaf, any depth); NPCs are a flat list of types and may be untyped.
+ * Every place that behaves per kind reads one of the tables below instead of
+ * branching on the kind name, so adding a kind is a matter of extending them.
+ */
+export type MarkerKind = 'resource' | 'npc' | 'location' | 'enemy';
+export type TaxKind = 'resource' | 'location' | 'enemy';
+export const MARKER_KINDS: readonly MarkerKind[] = ['resource', 'npc', 'location', 'enemy'];
+export const TAX_KINDS: readonly TaxKind[] = ['resource', 'location', 'enemy'];
+/** Catalog field holding each forest. */
+export const TAX_FIELD = { resource: 'resources', location: 'locations', enemy: 'enemies' } as const;
+/** Key used in `defaultReveal` and the player's reveal state for each kind. */
+export const REVEAL_KEY = { resource: 'resources', npc: 'npcs', location: 'locations', enemy: 'enemies' } as const;
+export type RevealKey = (typeof REVEAL_KEY)[MarkerKind];
+export const REVEAL_KEYS: readonly RevealKey[] = ['resources', 'npcs', 'locations', 'enemies'];
+export const KIND_LABEL: Record<MarkerKind, { one: string; many: string }> = {
+  resource: { one: 'resource', many: 'Resources' },
+  npc: { one: 'NPC', many: 'NPCs' },
+  location: { one: 'location', many: 'Locations' },
+  enemy: { one: 'enemy', many: 'Enemies' },
+};
+
 export interface Catalog {
   schemaVersion: number;
-  resources: TaxNode[]; // a FOREST; only kind:"resource" nodes are markerable
+  resources: TaxNode[]; // a FOREST; only kind:"resource" (leaf) nodes are markerable
+  locations: TaxNode[]; // same shape as resources
+  enemies: TaxNode[]; // same shape as resources
   npcTypes: NpcType[]; // flat; NPC search targets the type
   icons: Record<Id, Icon>;
 }
 
+/** Per-kind reveal defaults. Missing keys mean "revealed" (true). */
+export interface RevealDefaults {
+  resources: boolean;
+  npcs: boolean;
+  locations?: boolean;
+  enemies?: boolean;
+}
+
 /**
  * One taxonomy node. `kind` is explicit (NOT inferred from empty children) so an
- * intermediate group with no children yet is never mistaken for a resource.
+ * intermediate group with no children yet is never mistaken for a leaf.
  * - "group"    → a type or subtype; may have children; NOT markerable.
- * - "resource" → a leaf a marker can reference; should have no children.
+ * - "resource" → a leaf a marker can reference (in ANY forest — the name is kept
+ *                for data compatibility); should have no children.
  */
 export interface TaxNode {
   id: Id;
@@ -129,7 +163,7 @@ export interface Area {
    * Authored defaults that CASCADE to this area's cells (a cell's own
    * defaultReveal overrides). Honors "areas AND cells carry toggle settings".
    */
-  defaultReveal?: { resources: boolean; npcs: boolean };
+  defaultReveal?: RevealDefaults;
   /** If true, all cells in this area behave as hidden unless individually overridden. */
   hidden?: boolean;
   // Per-area "reveal hidden" is a VIEW control stored in player state, not here.
@@ -160,7 +194,7 @@ export interface Cell {
   /** true ⇒ tile not rendered (nor its image fetched) until its area is revealed. */
   hidden: boolean;
   /** "shown-with-markers-hidden" defaults; may inherit from the area. */
-  defaultReveal: { resources: boolean; npcs: boolean };
+  defaultReveal: RevealDefaults;
   /** FUTURE keyword-unlock (Phase 6). Present but INERT in v1. */
   unlock?: { keywords: string[] };
   /** Author notes (plain text, line breaks kept) shown to players in the side panel when the tile is clicked. */
@@ -170,8 +204,8 @@ export interface Cell {
 
 export interface Marker {
   id: Id;
-  kind: 'resource' | 'npc';
-  /** resource-leaf id, or npcType id; null = unique untyped NPC (rendered, not searchable). */
+  kind: MarkerKind;
+  /** leaf id in the kind's forest, or npcType id; null = unique untyped NPC (rendered, not searchable). */
   refId: Id | null;
   /** normalized position within the cell image: [u, v] in [0,1]. */
   uv: Vec2;

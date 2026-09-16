@@ -1,12 +1,12 @@
 <script lang="ts">
-  import type { TaxNode } from '../model/types';
+  import type { TaxKind, TaxNode } from '../model/types';
   import { getIcon, subtreeResourceIds } from '../model/taxonomy';
-  import { nodeCheckState } from '../logic/searchController';
-  import { catalog, search, worldIndex, setResourcesEnabled, soloResources } from './store';
+  import { disabledFor, nodeCheckState } from '../logic/searchController';
+  import { catalog, search, worldIndex, setLeavesEnabled, soloLeaves } from './store';
   import { untrack } from 'svelte';
   import Self from './TreeNode.svelte';
 
-  let { node, depth = 0 }: { node: TaxNode; depth?: number } = $props();
+  let { node, kind, depth = 0 }: { node: TaxNode; kind: TaxKind; depth?: number } = $props();
 
   // Expand top-level groups by default; deeper ones start collapsed. `depth` is a
   // fixed prop per node, so read it once (untrack) — this is init, not reactive.
@@ -21,14 +21,14 @@
   const checkState = $derived.by(() => {
     const idx = $worldIndex;
     if (!idx) return 'empty' as const;
-    return nodeCheckState(leafIds, $search.disabledResourceIds, idx.presentResourceIds);
+    return nodeCheckState(leafIds, disabledFor($search, kind), idx.present[kind]);
   });
 
   const count = $derived.by(() => {
     const idx = $worldIndex;
     if (!idx) return 0;
     let n = 0;
-    for (const id of leafIds) n += idx.resourceCounts.get(id) ?? 0;
+    for (const id of leafIds) n += idx.counts[kind].get(id) ?? 0;
     return n;
   });
 
@@ -43,7 +43,7 @@
   });
 
   function onToggle(e: Event) {
-    setResourcesEnabled(leafIds, (e.target as HTMLInputElement).checked);
+    setLeavesEnabled(kind, leafIds, (e.target as HTMLInputElement).checked);
   }
 </script>
 
@@ -74,7 +74,7 @@
     <button
       class="solo"
       title="Show only this"
-      onclick={() => soloResources(leafIds)}
+      onclick={() => soloLeaves(kind, leafIds)}
       disabled={checkState === 'empty'}>solo</button
     >
   </div>
@@ -82,7 +82,7 @@
   {#if open && children.length}
     <div class="tree-children">
       {#each children as child (child.id)}
-        <Self node={child} depth={depth + 1} />
+        <Self node={child} {kind} depth={depth + 1} />
       {/each}
     </div>
   {/if}

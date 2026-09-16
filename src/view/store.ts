@@ -7,11 +7,14 @@ import type {
   Catalog,
   Id,
   Manifest,
+  RevealKey,
+  TaxKind,
   World,
   WorldRef,
 } from '../model/types';
 import {
   buildWorldSearchIndex,
+  DISABLED_KEY,
   emptySearchState,
   type SearchState,
   type WorldSearchIndex,
@@ -172,6 +175,8 @@ function commitSearch(next: SearchState): void {
     currentPlayerState.search = {
       disabledResourceIds: [...next.disabledResourceIds],
       disabledNpcTypeIds: [...next.disabledNpcTypeIds],
+      disabledLocationIds: [...next.disabledLocationIds],
+      disabledEnemyIds: [...next.disabledEnemyIds],
       excludedAreaIds: [...next.excludedAreaIds],
     };
     savePlayerState(currentWorldId, currentPlayerState);
@@ -182,40 +187,48 @@ function cloneSearch(s: SearchState): SearchState {
   return {
     disabledResourceIds: new Set(s.disabledResourceIds),
     disabledNpcTypeIds: new Set(s.disabledNpcTypeIds),
+    disabledLocationIds: new Set(s.disabledLocationIds),
+    disabledEnemyIds: new Set(s.disabledEnemyIds),
     excludedAreaIds: new Set(s.excludedAreaIds),
   };
 }
 
-/** Enable/disable a set of resource ids (a leaf, or a group's subtree). */
-export function setResourcesEnabled(ids: Id[], enabled: boolean): void {
+/** Enable/disable leaves of one forest (a leaf, or a group's subtree). */
+export function setLeavesEnabled(kind: TaxKind, ids: Id[], enabled: boolean): void {
   const next = cloneSearch(get(search));
+  const set = next[DISABLED_KEY[kind]];
   for (const id of ids) {
-    if (enabled) next.disabledResourceIds.delete(id);
-    else next.disabledResourceIds.add(id);
+    if (enabled) set.delete(id);
+    else set.add(id);
   }
   commitSearch(next);
 }
 
-/** Show only these resource ids (disable every other PRESENT resource). */
-export function soloResources(ids: Id[]): void {
+/** Show only these leaves of one forest (disable every other PRESENT leaf of that kind). */
+export function soloLeaves(kind: TaxKind, ids: Id[]): void {
   const idx = get(worldIndex);
   if (!idx) return;
   const keep = new Set(ids);
   const next = cloneSearch(get(search));
-  next.disabledResourceIds = new Set();
-  for (const present of idx.presentResourceIds) {
-    if (!keep.has(present)) next.disabledResourceIds.add(present);
+  const set = new Set<Id>();
+  for (const present of idx.present[kind]) {
+    if (!keep.has(present)) set.add(present);
   }
+  next[DISABLED_KEY[kind]] = set;
   commitSearch(next);
 }
 
-export function setAllResources(enabled: boolean): void {
+export function setAllLeaves(kind: TaxKind, enabled: boolean): void {
   const idx = get(worldIndex);
   if (!idx) return;
   const next = cloneSearch(get(search));
-  next.disabledResourceIds = enabled ? new Set() : new Set(idx.presentResourceIds);
+  next[DISABLED_KEY[kind]] = enabled ? new Set() : new Set(idx.present[kind]);
   commitSearch(next);
 }
+
+export const setResourcesEnabled = (ids: Id[], enabled: boolean): void => setLeavesEnabled('resource', ids, enabled);
+export const soloResources = (ids: Id[]): void => soloLeaves('resource', ids);
+export const setAllResources = (enabled: boolean): void => setAllLeaves('resource', enabled);
 
 export function setNpcTypeEnabled(id: Id, enabled: boolean): void {
   const next = cloneSearch(get(search));
@@ -260,6 +273,8 @@ function commitReveal(next: RevealState): void {
   if (currentWorldId && currentPlayerState) {
     currentPlayerState.cellRevealResources = Object.fromEntries(next.cellRevealResources);
     currentPlayerState.cellRevealNpcs = Object.fromEntries(next.cellRevealNpcs);
+    currentPlayerState.cellRevealLocations = Object.fromEntries(next.cellRevealLocations);
+    currentPlayerState.cellRevealEnemies = Object.fromEntries(next.cellRevealEnemies);
     currentPlayerState.areaRevealHidden = Object.fromEntries(
       [...next.areaRevealHidden].map((id) => [id, true as const]),
     );
@@ -267,8 +282,8 @@ function commitReveal(next: RevealState): void {
   }
 }
 
-/** Toggle one cell's resource/NPC reveal (R3). */
-export function setCellReveal(cellId: Id, kind: 'resources' | 'npcs', value: boolean): void {
+/** Toggle one cell's per-kind reveal (R3). */
+export function setCellReveal(cellId: Id, kind: RevealKey, value: boolean): void {
   const w = get(world);
   const cell = w?.cells.find((c) => c.id === cellId);
   if (!cell) return;
@@ -281,7 +296,7 @@ export function setAreaRevealHidden(areaId: Id, value: boolean): void {
 }
 
 /** Global reveal sweep over currently-rendered cells (R5/R6). */
-export function globalReveal(kind: 'resources' | 'npcs', desired: boolean): void {
+export function globalReveal(kind: RevealKey, desired: boolean): void {
   const w = get(world);
   if (!w) return;
   commitReveal(globalRevealPure(w, get(reveal), kind, desired));
@@ -294,6 +309,8 @@ function searchStateFromPlayer(ps: PlayerState): SearchState {
   return {
     disabledResourceIds: new Set(ps.search.disabledResourceIds),
     disabledNpcTypeIds: new Set(ps.search.disabledNpcTypeIds),
+    disabledLocationIds: new Set(ps.search.disabledLocationIds),
+    disabledEnemyIds: new Set(ps.search.disabledEnemyIds),
     excludedAreaIds: new Set(ps.search.excludedAreaIds),
   };
 }
@@ -302,6 +319,8 @@ function revealStateFromPlayer(ps: PlayerState): RevealState {
   return {
     cellRevealResources: new Map(Object.entries(ps.cellRevealResources)),
     cellRevealNpcs: new Map(Object.entries(ps.cellRevealNpcs)),
+    cellRevealLocations: new Map(Object.entries(ps.cellRevealLocations)),
+    cellRevealEnemies: new Map(Object.entries(ps.cellRevealEnemies)),
     areaRevealHidden: new Set(Object.keys(ps.areaRevealHidden)),
   };
 }

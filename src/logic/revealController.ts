@@ -2,7 +2,8 @@
 //
 //  R1 tile renders iff !hidden OR areaRevealHidden[areaId]
 //  R2 a marker is never shown while its tile isn't rendered
-//  R3 per-cell, per-kind reveal (resources / npcs independent), vs authored default
+//  R3 per-cell, per-kind reveal (resources / npcs / locations / enemies are
+//     independent), vs authored default
 //  R4 author marker.hidden wins (never shown)
 //  R5 global reveal = imperative sweep over CURRENTLY-RENDERED cells only —
 //     hidden/un-revealed cells are excluded, so unlocking a hidden area later
@@ -19,19 +20,38 @@
 // equivalent Records/arrays (see state/playerState.ts). Stored values are only
 // EXCEPTIONS to authored defaults, so state stays tiny.
 
-import type { Cell, Id, Marker, World } from '../model/types';
+import { REVEAL_KEY } from '../model/types';
+import type { Cell, Id, Marker, RevealKey, World } from '../model/types';
 import { searchGate, type SearchState } from './searchController';
 
 export interface RevealState {
   cellRevealResources: Map<Id, boolean>;
   cellRevealNpcs: Map<Id, boolean>;
+  cellRevealLocations: Map<Id, boolean>;
+  cellRevealEnemies: Map<Id, boolean>;
   areaRevealHidden: Set<Id>;
+}
+
+/** The per-cell exception map for a reveal key. */
+export function revealMap(r: RevealState, key: RevealKey): Map<Id, boolean> {
+  switch (key) {
+    case 'resources':
+      return r.cellRevealResources;
+    case 'npcs':
+      return r.cellRevealNpcs;
+    case 'locations':
+      return r.cellRevealLocations;
+    case 'enemies':
+      return r.cellRevealEnemies;
+  }
 }
 
 export function emptyRevealState(): RevealState {
   return {
     cellRevealResources: new Map(),
     cellRevealNpcs: new Map(),
+    cellRevealLocations: new Map(),
+    cellRevealEnemies: new Map(),
     areaRevealHidden: new Set(),
   };
 }
@@ -40,8 +60,15 @@ export function cloneReveal(r: RevealState): RevealState {
   return {
     cellRevealResources: new Map(r.cellRevealResources),
     cellRevealNpcs: new Map(r.cellRevealNpcs),
+    cellRevealLocations: new Map(r.cellRevealLocations),
+    cellRevealEnemies: new Map(r.cellRevealEnemies),
     areaRevealHidden: new Set(r.areaRevealHidden),
   };
+}
+
+/** Authored default for a kind; a key the author never set means "revealed". */
+export function revealDefault(cell: Cell, key: RevealKey): boolean {
+  return cell.defaultReveal[key] ?? true;
 }
 
 function effective(map: Map<Id, boolean>, cellId: Id, dflt: boolean): boolean {
@@ -56,20 +83,21 @@ export function tileVisible(cell: Cell, reveal: RevealState): boolean {
 }
 
 // --- R3 per-kind eligibility (independent of the tile gate) ---
+export function cellReveals(cell: Cell, reveal: RevealState, key: RevealKey): boolean {
+  return effective(revealMap(reveal, key), cell.id, revealDefault(cell, key));
+}
 export function cellRevealsResources(cell: Cell, reveal: RevealState): boolean {
-  return effective(reveal.cellRevealResources, cell.id, cell.defaultReveal.resources);
+  return cellReveals(cell, reveal, 'resources');
 }
 export function cellRevealsNpcs(cell: Cell, reveal: RevealState): boolean {
-  return effective(reveal.cellRevealNpcs, cell.id, cell.defaultReveal.npcs);
+  return cellReveals(cell, reveal, 'npcs');
 }
 
 // --- R2 + R3 + R4: is this marker allowed to show (before search)? ---
 export function markerRevealed(marker: Marker, cell: Cell, reveal: RevealState): boolean {
   if (marker.hidden) return false; // R4
   if (!tileVisible(cell, reveal)) return false; // R2 (needs R1)
-  return marker.kind === 'resource'
-    ? cellRevealsResources(cell, reveal)
-    : cellRevealsNpcs(cell, reveal);
+  return cellReveals(cell, reveal, REVEAL_KEY[marker.kind]);
 }
 
 // --- S1 + S5: full visibility (reveal AND search) ---
@@ -91,14 +119,14 @@ export function markerVisible(
 export function globalReveal(
   world: World,
   reveal: RevealState,
-  kind: 'resources' | 'npcs',
+  kind: RevealKey,
   desired: boolean,
 ): RevealState {
   const next = cloneReveal(reveal);
-  const map = kind === 'resources' ? next.cellRevealResources : next.cellRevealNpcs;
+  const map = revealMap(next, kind);
   for (const cell of world.cells) {
     if (!tileVisible(cell, reveal)) continue; // rendered-only (R5): no leak
-    const dflt = kind === 'resources' ? cell.defaultReveal.resources : cell.defaultReveal.npcs;
+    const dflt = revealDefault(cell, kind);
     if (desired === dflt) map.delete(cell.id);
     else map.set(cell.id, desired);
   }
@@ -110,15 +138,13 @@ export type Tri = 'on' | 'off' | 'mixed' | 'none';
 export function globalTriState(
   world: World,
   reveal: RevealState,
-  kind: 'resources' | 'npcs',
+  kind: RevealKey,
 ): Tri {
   let on = 0;
   let off = 0;
   for (const cell of world.cells) {
     if (!tileVisible(cell, reveal)) continue;
-    const revealed =
-      kind === 'resources' ? cellRevealsResources(cell, reveal) : cellRevealsNpcs(cell, reveal);
-    if (revealed) on++;
+    if (cellReveals(cell, reveal, kind)) on++;
     else off++;
   }
   if (on === 0 && off === 0) return 'none';
@@ -131,13 +157,12 @@ export function globalTriState(
 export function setCellReveal(
   reveal: RevealState,
   cell: Cell,
-  kind: 'resources' | 'npcs',
+  kind: RevealKey,
   value: boolean,
 ): RevealState {
   const next = cloneReveal(reveal);
-  const map = kind === 'resources' ? next.cellRevealResources : next.cellRevealNpcs;
-  const dflt = kind === 'resources' ? cell.defaultReveal.resources : cell.defaultReveal.npcs;
-  if (value === dflt) map.delete(cell.id);
+  const map = revealMap(next, kind);
+  if (value === revealDefault(cell, kind)) map.delete(cell.id);
   else map.set(cell.id, value);
   return next;
 }

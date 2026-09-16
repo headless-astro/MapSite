@@ -38,9 +38,35 @@ const animal: TaxNode = {
 const catalog: Catalog = {
   schemaVersion: 1,
   resources: [plant, animal],
+  locations: [
+    {
+      id: 'type_dungeon',
+      name: 'Dungeon',
+      order: 0,
+      kind: 'group',
+      icon: 'ic_dungeon',
+      children: [{ id: 'loc_crypt', name: 'Crypt', order: 0, kind: 'resource' }],
+    },
+  ],
+  enemies: [{ id: 'enm_wolf', name: 'Wolf', order: 0, kind: 'resource' }],
   npcTypes: [],
   icons: {},
 };
+
+describe('one index serves every forest', () => {
+  it('knows which forest a node belongs to and lists leaves per forest', () => {
+    const idx = indexTaxonomy(catalog);
+    expect(idx.kindOf.get('loc_crypt')).toBe('location');
+    expect(idx.kindOf.get('enm_wolf')).toBe('enemy');
+    expect(idx.kindOf.get('res_berry')).toBe('resource');
+    expect([...idx.leafIds.location]).toEqual(['loc_crypt']);
+    expect([...idx.leafIds.enemy]).toEqual(['enm_wolf']);
+    expect(idx.leafIds.resource.has('loc_crypt')).toBe(false);
+    // Names and inherited icons resolve the same way for every forest.
+    expect(resolveResourceName(idx, 'enm_wolf')).toBe('Wolf');
+    expect(resolveResourceIconId(idx, 'loc_crypt')).toBe('ic_dungeon');
+  });
+});
 
 describe('subtreeResourceIds (variable depth)', () => {
   it('a resource resolves to itself', () => {

@@ -1,55 +1,52 @@
 <script lang="ts">
-  import { globalTriState } from '../logic/revealController';
-  import { world, reveal, globalReveal } from './store';
+  import { globalTriState, type Tri } from '../logic/revealController';
+  import { KIND_LABEL, MARKER_KINDS, REVEAL_KEY } from '../model/types';
+  import { world, reveal, worldIndex, globalReveal } from './store';
 
-  // Tri-state derived over currently-rendered cells (R7).
-  const resTri = $derived($world ? globalTriState($world, $reveal, 'resources') : 'none');
-  const npcTri = $derived($world ? globalTriState($world, $reveal, 'npcs') : 'none');
-
-  let resCb: HTMLInputElement | undefined = $state();
-  let npcCb: HTMLInputElement | undefined = $state();
-
-  $effect(() => {
-    if (resCb) {
-      resCb.checked = resTri === 'on';
-      resCb.indeterminate = resTri === 'mixed';
-    }
-  });
-  $effect(() => {
-    if (npcCb) {
-      npcCb.checked = npcTri === 'on';
-      npcCb.indeterminate = npcTri === 'mixed';
-    }
+  // One row per kind that has markers in this world; tri-state derived over
+  // currently-rendered cells (R7).
+  const rows = $derived.by(() => {
+    const w = $world;
+    const idx = $worldIndex;
+    if (!w || !idx) return [];
+    return MARKER_KINDS.filter((k) => idx.present[k].size > 0 || (k === 'npc' && idx.untypedNpcCount > 0)).map(
+      (k) => ({
+        kind: k,
+        key: REVEAL_KEY[k],
+        label: `All ${k === 'npc' ? 'NPCs' : KIND_LABEL[k].many.toLowerCase()}`,
+        tri: globalTriState(w, $reveal, REVEAL_KEY[k]),
+      }),
+    );
   });
 
-  function toggle(kind: 'resources' | 'npcs', tri: string) {
-    // ON reveals everything not yet revealed; a fully-on toggle sweeps OFF.
-    globalReveal(kind, tri !== 'on');
+  // HTML checkboxes can't bind `indeterminate`; sync it imperatively.
+  function tri(node: HTMLInputElement, state: Tri) {
+    const apply = (s: Tri) => {
+      node.checked = s === 'on';
+      node.indeterminate = s === 'mixed';
+    };
+    apply(state);
+    return { update: apply };
   }
 </script>
 
 <div class="section">
   <h2>Reveal</h2>
-  <label class="area-item">
-    <input
-      type="checkbox"
-      class="tri"
-      bind:this={resCb}
-      disabled={resTri === 'none'}
-      onchange={() => toggle('resources', resTri)}
-    />
-    <span class="tname">All resources</span>
-  </label>
-  <label class="area-item">
-    <input
-      type="checkbox"
-      class="tri"
-      bind:this={npcCb}
-      disabled={npcTri === 'none'}
-      onchange={() => toggle('npcs', npcTri)}
-    />
-    <span class="tname">All NPCs</span>
-  </label>
+  {#each rows as row (row.kind)}
+    <label class="area-item">
+      <input
+        type="checkbox"
+        class="tri"
+        use:tri={row.tri}
+        disabled={row.tri === 'none'}
+        onchange={() => globalReveal(row.key, row.tri !== 'on')}
+      />
+      <span class="tname">{row.label}</span>
+    </label>
+  {/each}
+  {#if !rows.length}
+    <div class="muted">No markers in this world.</div>
+  {/if}
   <div class="muted" style="font-size:12px; margin-top:4px">
     Tip: click a tile to reveal just that location.
   </div>
