@@ -165,9 +165,21 @@ export function validateWorld(
       }
     }
     for (const m of kept) {
-      if (m.size === undefined) continue;
-      m.size = sanitizeMarkerSize(m.size, `marker ${m.id} size`, warnings);
-      if (m.size === undefined) delete m.size;
+      if (m.size !== undefined) {
+        m.size = sanitizeMarkerSize(m.size, `marker ${m.id} size`, warnings);
+        if (m.size === undefined) delete m.size;
+      }
+      // Custom name: plain text; empty or non-text means "no custom name".
+      if (m.nameOverride !== undefined) {
+        if (typeof m.nameOverride !== 'string') {
+          warnings.push(`Marker ${m.id} on cell ${cell.id} has a non-text name; dropped.`);
+          delete m.nameOverride;
+        } else if (!m.nameOverride.trim()) {
+          delete m.nameOverride;
+        } else {
+          m.nameOverride = m.nameOverride.trim();
+        }
+      }
     }
     cell.markers = kept;
   }

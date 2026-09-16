@@ -1,0 +1,118 @@
+{
+  "areaId": "area_A0AAr6HF",
+  "defaultReveal": {
+    "npcs": true,
+    "resources": true
+  },
+  "geometry": {
+    "corners": [
+      [
+        1290.6745579452968,
+        -2579.648779546484
+      ],
+      [
+        2244.690190927699,
+        -2579.648779546484
+      ],
+      [
+        2244.690190927699,
+        -1605.506234475847
+      ],
+      [
+        1290.6745579452968,
+        -1605.506234475847
+      ]
+    ],
+    "locked": true,
+    "opacity": 1,
+    "z": 0
+  },
+  "hidden": false,
+  "id": "cell_Ydde5gtL",
+  "image": {
+    "hash": "560c9274b26ceb5b",
+    "mime": "image/png",
+    "naturalSize": [
+      237,
+      242
+    ],
+    "src": "assets/wld_rlYsfKGH/img/560c9274b26ceb5b.png"
+  },
+  "markers": [
+    {
+      "id": "mrk_Fe9lgXKr",
+      "kind": "location",
+      "nameOverride": "D, Abandoned Tunnels",
+      "refId": "loc_SVyM4h7F",
+      "uv": [
+        0.5916792471357928,
+        0.3543227569637688
+      ]
+    },
+    {
+      "id": "mrk_JPx07ivI",
+      "kind": "location",
+      "nameOverride": "F, City Port",
+      "refId": "loc_isk4IPj8",
+      "uv": [
+        0.8762308935611578,
+        0.9262508559434238
+      ]
+    },
+    {
+      "id": "mrk_QYUPONH4",
+      "kind": "location",
+      "nameOverride": "B, Old Mine Road",
+      "refId": "loc_isk4IPj8",
+      "uv": [
+        0.18856441469985866,
+        0.5198044911863087
+      ]
+    },
+    {
+      "id": "mrk_SrfEQwp2",
+      "kind": "location",
+      "nameOverride": "C, Fortress City",
+      "refId": "loc_isk4IPj8",
+      "uv": [
+        0.6465147206656807,
+        0.6025453582975785
+      ]
+    },
+    {
+      "id": "mrk_VquasDlQ",
+      "kind": "location",
+      "nameOverride": "G, Abandoned Tunnels",
+      "refId": "loc_SVyM4h7F",
+      "uv": [
+        0.4768148558713747,
+        0.5605142054198696
+      ]
+    },
+    {
+      "id": "mrk_Z4Fi5Dkk",
+      "kind": "location",
+      "nameOverride": "E, Abandoned Tunnels",
+      "refId": "loc_SVyM4h7F",
+      "uv": [
+        0.5872331276603963,
+        0.8667354953897034
+      ]
+    },
+    {
+      "id": "mrk_ek2zpQEy",
+      "kind": "location",
+      "nameOverride": "A, Old Mine Road",
+      "refId": "loc_isk4IPj8",
+      "uv": [
+        0.1085342641427247,
+        0.08577783739210283
+      ]
+    }
+  ],
+  "name": "Mountain Caves",
+  "order": 0,
+  "unlock": {
+    "keywords": []
+  }
+}

@@ -1,0 +1,169 @@
+{
+  "areaId": "area_A0AAr6HF",
+  "defaultReveal": {
+    "npcs": true,
+    "resources": true
+  },
+  "geometry": {
+    "corners": [
+      [
+        2344.4450401059257,
+        -2509.438738237988
+      ],
+      [
+        3011.0300871056315,
+        -2509.438738237988
+      ],
+      [
+        3011.0300871056315,
+        -1669.1261435783035
+      ],
+      [
+        2344.4450401059257,
+        -1669.1261435783035
+      ]
+    ],
+    "locked": true,
+    "opacity": 1,
+    "z": 1
+  },
+  "hidden": false,
+  "id": "cell_iKKdg4cg",
+  "image": {
+    "hash": "d4e6d4224c330139",
+    "mime": "image/png",
+    "naturalSize": [
+      353,
+      445
+    ],
+    "src": "assets/wld_rlYsfKGH/img/d4e6d4224c330139.png"
+  },
+  "markers": [
+    {
+      "id": "mrk_5c1dNgWw",
+      "kind": "resource",
+      "refId": "res_NXFX8Pzu",
+      "size": 35,
+      "uv": [
+        0.519773601318869,
+        0.08373482141743782
+      ]
+    },
+    {
+      "id": "mrk_KmIt2A29",
+      "kind": "resource",
+      "refId": "res_xjv1Wfhv",
+      "size": 35,
+      "uv": [
+        0.14699705070991692,
+        0.5506987044485784
+      ]
+    },
+    {
+      "id": "mrk_WKiaOXG1",
+      "kind": "resource",
+      "refId": "res_xjv1Wfhv",
+      "size": 40,
+      "uv": [
+        0.8443924157247499,
+        0.0709994427893161
+      ]
+    },
+    {
+      "id": "mrk_XHXjNrTg",
+      "kind": "enemy",
+      "nameOverride": "Boogin Huntleader",
+      "refId": "enm_0pljJs1o",
+      "size": 40,
+      "uv": [
+        0.5251244608969872,
+        0.12052591523201338
+      ]
+    },
+    {
+      "id": "mrk_aMTOryz5",
+      "kind": "resource",
+      "refId": "res_5lLLLccM",
+      "size": 40,
+      "uv": [
+        0.9086027306621768,
+        0.9341751053620295
+      ]
+    },
+    {
+      "id": "mrk_fohTvzHy",
+      "kind": "location",
+      "nameOverride": "D, Mountain Caves",
+      "refId": "loc_SVyM4h7F",
+      "uv": [
+        0.06732459951805789,
+        0.29454250908812973
+      ]
+    },
+    {
+      "id": "mrk_hdYkjTJX",
+      "kind": "resource",
+      "refId": "res_5lLLLccM",
+      "size": 40,
+      "uv": [
+        0.8996846313653117,
+        0.7176736686839555
+      ]
+    },
+    {
+      "id": "mrk_iGioIGlB",
+      "kind": "resource",
+      "refId": "res_xjv1Wfhv",
+      "size": 40,
+      "uv": [
+        0.20585650606922504,
+        0.07241448485910788
+      ]
+    },
+    {
+      "id": "mrk_qGw5JIV4",
+      "kind": "location",
+      "nameOverride": "G, Mountain Caves",
+      "refId": "loc_SVyM4h7F",
+      "uv": [
+        0.9056259334233567,
+        0.29737259322771215
+      ]
+    },
+    {
+      "id": "mrk_qjgMD5Au",
+      "kind": "resource",
+      "refId": "res_xjv1Wfhv",
+      "size": 35,
+      "uv": [
+        0.14699705070991692,
+        0.5025872740756732
+      ]
+    },
+    {
+      "id": "mrk_u6go5dBN",
+      "kind": "resource",
+      "refId": "res_5lLLLccM",
+      "size": 40,
+      "uv": [
+        0.14342981099117127,
+        0.5931499665423181
+      ]
+    },
+    {
+      "id": "mrk_yYaKgWXa",
+      "kind": "location",
+      "nameOverride": "E, Mountain Caves",
+      "refId": "loc_SVyM4h7F",
+      "uv": [
+        0.08872803783053444,
+        0.9567821977504737
+      ]
+    }
+  ],
+  "name": "Abandoned Tunnels",
+  "order": 1,
+  "unlock": {
+    "keywords": []
+  }
+}

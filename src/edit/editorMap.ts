@@ -15,7 +15,7 @@ import {
 import { bilinear, latLngToWorld, worldToLatLng } from '../model/geometry';
 import { createTileOverlay, cellCornersToLatLng } from '../map/cellLayer';
 import { LINK_COLOR, LinkLayerManager, connectionShape } from '../map/linkLayer';
-import { KIND_GLYPH, markerIconId } from '../map/markerLayer';
+import { KIND_GLYPH, bindMarkerName, markerIconId } from '../map/markerLayer';
 import { getIcon, indexTaxonomy } from '../model/taxonomy';
 import { PlacementController } from './placement';
 import { LinkHandleController } from './linkHandles';
@@ -114,6 +114,8 @@ export class EditorMap {
       zoomSnap: 0.25,
       zoomDelta: 0.5,
       attributionControl: false,
+      // The editor rebuilds markers on every change; a fade-out would leave stale name pills flashing.
+      fadeAnimation: false,
     });
     for (const [p, z] of [
       [CELLS_PANE, 350],
@@ -255,6 +257,7 @@ export class EditorMap {
     for (const m of this.markerDots) m.remove();
     this.markerDots = [];
     const tax = indexTaxonomy(catalog);
+    const worldSize = world.view.markerSize ?? DEFAULT_MARKER_SIZE;
     for (const cell of world.cells) {
       for (const marker of cell.markers) {
         const pos = bilinear(cell.geometry.corners, marker.uv[0], marker.uv[1]);
@@ -271,6 +274,7 @@ export class EditorMap {
           iconSize: [0, 0],
         });
         const dot = L.marker(toLL(pos), { icon, pane: MARK_PANE, interactive: false, keyboard: false });
+        bindMarkerName(dot, marker, marker.size ?? worldSize);
         dot.addTo(this.map);
         this.markerDots.push(dot);
       }

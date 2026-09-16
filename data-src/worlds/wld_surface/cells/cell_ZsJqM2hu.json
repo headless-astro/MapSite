@@ -1,0 +1,59 @@
+{
+  "areaId": "area_VRGgxP9g",
+  "defaultReveal": {
+    "npcs": true,
+    "resources": true
+  },
+  "geometry": {
+    "corners": [
+      [
+        2946.5188306443206,
+        -1895.5883542775425
+      ],
+      [
+        3779.236290843295,
+        -1895.5883542775425
+      ],
+      [
+        3779.236290843295,
+        -796.7175286352257
+      ],
+      [
+        2946.5188306443206,
+        -796.7175286352257
+      ]
+    ],
+    "locked": true,
+    "opacity": 1,
+    "z": 2
+  },
+  "hidden": false,
+  "id": "cell_ZsJqM2hu",
+  "image": {
+    "hash": "9092b9cbe7e1bd17",
+    "mime": "image/png",
+    "naturalSize": [
+      316,
+      417
+    ],
+    "src": "assets/wld_surface/img/9092b9cbe7e1bd17.png"
+  },
+  "markers": [
+    {
+      "id": "mrk_i7VpYiKr",
+      "kind": "location",
+      "nameOverride": "F, City Port",
+      "refId": "loc_SVyM4h7F",
+      "size": 50,
+      "uv": [
+        0.1263671429371927,
+        0.8686241522032084
+      ]
+    }
+  ],
+  "name": "City Port",
+  "order": 2,
+  "unlock": {
+    "keywords": []
+  }
+}

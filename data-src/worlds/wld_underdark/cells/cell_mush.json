@@ -1,6 +1,8 @@
 {
   "areaId": "area_caves",
   "defaultReveal": {
+    "enemies": true,
+    "locations": true,
     "npcs": true,
     "resources": true
   },

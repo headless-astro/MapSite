@@ -408,6 +408,26 @@ export function addMarkerAtWorldPoint(worldPos: Vec2): void {
   }));
 }
 
+/** Custom display name for one marker ("CAVE 1"); blank removes it (the type name shows again). */
+export function setMarkerName(cellId: Id, markerId: Id, name: string): void {
+  const nameOverride = name.trim();
+  updateActiveWorld((w) => ({
+    ...w,
+    cells: w.cells.map((c) =>
+      c.id === cellId
+        ? {
+            ...c,
+            markers: c.markers.map((m) => {
+              if (m.id !== markerId) return m;
+              const { nameOverride: _drop, ...rest } = m;
+              return nameOverride ? { ...rest, nameOverride } : rest;
+            }),
+          }
+        : c,
+    ),
+  }));
+}
+
 /** Per-marker size override in px; null removes it (marker follows the world size again). */
 export function setMarkerSizeOverride(cellId: Id, markerId: Id, px: number | null): void {
   const size = px === null ? undefined : Math.min(MARKER_SIZE_MAX, Math.max(MARKER_SIZE_MIN, Math.round(px)));

@@ -21,7 +21,7 @@
   "slug": "surface",
   "view": {
     "fitAll": true,
-    "markerSize": 50,
+    "markerSize": 45,
     "maxZoom": 4,
     "minZoom": -6
   }

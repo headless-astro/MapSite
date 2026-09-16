@@ -20,7 +20,7 @@
   "slug": "surface",
   "view": {
     "fitAll": true,
-    "markerSize": 50,
+    "markerSize": 45,
     "maxZoom": 4,
     "minZoom": -6
   },
@@ -28,6 +28,208 @@
     {
       "areaId": "area_VRGgxP9g",
       "defaultReveal": {
+        "npcs": true,
+        "resources": true
+      },
+      "geometry": {
+        "corners": [
+          [
+            1846.6497994542758,
+            -1896.1031693819925
+          ],
+          [
+            2941.5336608854723,
+            -1896.1031693819925
+          ],
+          [
+            2941.5336608854723,
+            -943.0991237352798
+          ],
+          [
+            1846.6497994542758,
+            -943.0991237352798
+          ]
+        ],
+        "locked": true,
+        "opacity": 1,
+        "z": 1
+      },
+      "hidden": false,
+      "id": "cell_1lEpzlCR",
+      "image": {
+        "hash": "87277aeb0a526453",
+        "mime": "image/png",
+        "naturalSize": [
+          409,
+          356
+        ],
+        "src": "assets/wld_surface/img/87277aeb0a526453.png"
+      },
+      "markers": [
+        {
+          "id": "mrk_16tNyUGb",
+          "kind": "resource",
+          "refId": "res_hslLVkmD",
+          "size": 40,
+          "uv": [
+            0.5413001352565441,
+            0.8164674363750208
+          ]
+        },
+        {
+          "id": "mrk_1kxz2R8w",
+          "kind": "location",
+          "nameOverride": "Winding Tunnels",
+          "refId": "loc_HA21CTvc",
+          "size": 45,
+          "uv": [
+            0.7537316607607072,
+            0.7259478962241536
+          ]
+        },
+        {
+          "id": "mrk_97HsHDBo",
+          "kind": "resource",
+          "refId": "res_L16U9xka",
+          "uv": [
+            0.3203597621890693,
+            0.4952004969891546
+          ]
+        },
+        {
+          "id": "mrk_Dn2Lnu3j",
+          "kind": "resource",
+          "refId": "res_L16U9xka",
+          "uv": [
+            0.3384875942507359,
+            0.17015948675145917
+          ]
+        },
+        {
+          "id": "mrk_OjX2DbQC",
+          "kind": "resource",
+          "refId": "res_9YLbrEwK",
+          "uv": [
+            0.045288129186130566,
+            0.6317093465457612
+          ]
+        },
+        {
+          "id": "mrk_Olz0vndv",
+          "kind": "resource",
+          "refId": "res_xjv1Wfhv",
+          "uv": [
+            0.2725773658458359,
+            0.9507245927921785
+          ]
+        },
+        {
+          "id": "mrk_UiB2nbT3",
+          "kind": "resource",
+          "refId": "res_34LqaIDR",
+          "uv": [
+            0.4375388281579297,
+            0.6086511512586544
+          ]
+        },
+        {
+          "id": "mrk_VSf4ZDSa",
+          "kind": "resource",
+          "refId": "res_a3GSSIpg",
+          "uv": [
+            0.5238667760138476,
+            0.9040111551124097
+          ]
+        },
+        {
+          "id": "mrk_ZKMIiEbB",
+          "kind": "location",
+          "refId": "loc_3dXFg3p0",
+          "size": 45,
+          "uv": [
+            0.39025342752444003,
+            0.9509160652710906
+          ]
+        },
+        {
+          "id": "mrk_b2yIv9VB",
+          "kind": "location",
+          "nameOverride": "C, Mountain Caves",
+          "refId": "loc_SVyM4h7F",
+          "size": 50,
+          "uv": [
+            0.4089115197191978,
+            0.8426206421876306
+          ]
+        },
+        {
+          "id": "mrk_dHPZMhWt",
+          "kind": "resource",
+          "refId": "res_jrmbYZaX",
+          "uv": [
+            0.50191365696749,
+            0.7860497035933856
+          ]
+        },
+        {
+          "id": "mrk_kpbHgtz4",
+          "kind": "resource",
+          "refId": "res_9YLbrEwK",
+          "uv": [
+            0.5066828226965161,
+            0.24691938794122575
+          ]
+        },
+        {
+          "id": "mrk_lXZfrNK3",
+          "kind": "resource",
+          "refId": "res_jrmbYZaX",
+          "uv": [
+            0.18476106986367696,
+            0.7815723226894268
+          ]
+        },
+        {
+          "id": "mrk_mkZ12FvE",
+          "kind": "resource",
+          "refId": "res_L16U9xka",
+          "size": 40,
+          "uv": [
+            0.5199926961821375,
+            0.8134998526890077
+          ]
+        },
+        {
+          "id": "mrk_ngR1Mu4r",
+          "kind": "resource",
+          "refId": "res_nyX5345F",
+          "uv": [
+            0.5819779734895012,
+            0.9136558020919526
+          ]
+        },
+        {
+          "id": "mrk_rLkz3RsN",
+          "kind": "resource",
+          "refId": "res_E53hIh7I",
+          "size": 40,
+          "uv": [
+            0.5277408558455583,
+            0.7912429750439087
+          ]
+        }
+      ],
+      "name": "Fortress City",
+      "order": 1,
+      "unlock": {
+        "keywords": []
+      }
+    },
+    {
+      "areaId": "area_VRGgxP9g",
+      "defaultReveal": {
+        "enemies": true,
+        "locations": true,
         "npcs": true,
         "resources": true
       },
@@ -67,10 +269,48 @@
       },
       "markers": [
         {
+          "id": "mrk_1f7tTdND",
+          "kind": "resource",
+          "refId": "res_LeDB0WPz",
+          "uv": [
+            0.5396926288305772,
+            0.33608507107902225
+          ]
+        },
+        {
+          "id": "mrk_1gfwsLQp",
+          "kind": "location",
+          "nameOverride": "A, Mountain Caves",
+          "refId": "loc_SVyM4h7F",
+          "size": 50,
+          "uv": [
+            0.35886473480760245,
+            0.4663845223322101
+          ]
+        },
+        {
+          "id": "mrk_5dDqc1fX",
+          "kind": "resource",
+          "refId": "res_9YLbrEwK",
+          "uv": [
+            0.5080680195619851,
+            0.7068800809309513
+          ]
+        },
+        {
+          "id": "mrk_9F44XcIw",
+          "kind": "resource",
+          "refId": "res_E53hIh7I",
+          "uv": [
+            0.5210422182362792,
+            0.44553661013170026
+          ]
+        },
+        {
           "id": "mrk_I3NIdvsG",
           "kind": "resource",
           "refId": "res_ccTrFpV3",
-          "size": 30,
+          "size": 35,
           "uv": [
             0.9123419134511613,
             0.22600746632441704
@@ -80,10 +320,47 @@
           "id": "mrk_KEWh9ocC",
           "kind": "resource",
           "refId": "res_1tKDCiFk",
-          "size": 30,
+          "size": 35,
           "uv": [
             0.9268066097401583,
             0.22423657450143153
+          ]
+        },
+        {
+          "id": "mrk_KIqmi4i3",
+          "kind": "resource",
+          "refId": "res_jrmbYZaX",
+          "uv": [
+            0.4423861387733711,
+            0.4954226857543494
+          ]
+        },
+        {
+          "id": "mrk_LV0Ai2eU",
+          "kind": "location",
+          "refId": "loc_ZBGQTtBD",
+          "size": 45,
+          "uv": [
+            0.6167184174724955,
+            0.3431253695335106
+          ]
+        },
+        {
+          "id": "mrk_NABiZTyR",
+          "kind": "resource",
+          "refId": "res_owQ9HQTK",
+          "uv": [
+            0.5291510924077132,
+            0.3569329832795323
+          ]
+        },
+        {
+          "id": "mrk_SlC9flE5",
+          "kind": "resource",
+          "refId": "res_ccTrFpV3",
+          "uv": [
+            0.4918502712191176,
+            0.45149315647470306
           ]
         },
         {
@@ -144,6 +421,15 @@
           ]
         },
         {
+          "id": "mrk_cvl912p3",
+          "kind": "resource",
+          "refId": "res_9YLbrEwK",
+          "uv": [
+            0.05802550304740676,
+            0.40011794426630337
+          ]
+        },
+        {
           "id": "mrk_dKHgT0II",
           "kind": "resource",
           "refId": "res_q9BfMl8z",
@@ -157,7 +443,7 @@
           "id": "mrk_hKFpOuif",
           "kind": "resource",
           "refId": "res_E53hIh7I",
-          "size": 30,
+          "size": 35,
           "uv": [
             0.90308627615855,
             0.2153931729087151
@@ -167,7 +453,7 @@
           "id": "mrk_jcWl0uqG",
           "kind": "resource",
           "refId": "res_C8EOhQ7T",
-          "size": 30,
+          "size": 35,
           "uv": [
             0.9518787499744185,
             0.11754039036091818
@@ -177,17 +463,37 @@
           "id": "mrk_kZuqNhFY",
           "kind": "resource",
           "refId": "res_aY89Ts9i",
-          "size": 30,
+          "size": 35,
           "uv": [
             0.9523609065173849,
             0.10647231646725792
           ]
         },
         {
+          "id": "mrk_olrPL0i5",
+          "kind": "location",
+          "nameOverride": "B, Mountain Caves",
+          "refId": "loc_SVyM4h7F",
+          "size": 50,
+          "uv": [
+            0.38345003574857517,
+            0.6971688393159525
+          ]
+        },
+        {
+          "id": "mrk_omxLqo6y",
+          "kind": "resource",
+          "refId": "res_nyX5345F",
+          "uv": [
+            0.22425742356180073,
+            0.7798477736327365
+          ]
+        },
+        {
           "id": "mrk_r2izzcNe",
           "kind": "resource",
           "refId": "res_eWcpFVX5",
-          "size": 30,
+          "size": 35,
           "uv": [
             0.917163478880827,
             0.21493939243075705
@@ -204,18 +510,235 @@
           ]
         },
         {
-          "id": "mrk_u5i059IG",
-          "kind": "resource",
-          "refId": "res_C8EOhQ7T",
-          "size": 30,
+          "id": "mrk_zqKFNnCf",
+          "kind": "location",
+          "refId": "loc_ZBGQTtBD",
+          "size": 45,
           "uv": [
-            0.8973950606191988,
-            0.22822112929751923
+            0.5730766905387907,
+            0.3443775791502915
           ]
         }
       ],
       "name": "Old Mine Road",
       "order": 0,
+      "unlock": {
+        "keywords": []
+      }
+    },
+    {
+      "areaId": "area_VRGgxP9g",
+      "defaultReveal": {
+        "npcs": true,
+        "resources": true
+      },
+      "geometry": {
+        "corners": [
+          [
+            2946.5188306443206,
+            -1895.5883542775425
+          ],
+          [
+            3779.236290843295,
+            -1895.5883542775425
+          ],
+          [
+            3779.236290843295,
+            -796.7175286352257
+          ],
+          [
+            2946.5188306443206,
+            -796.7175286352257
+          ]
+        ],
+        "locked": true,
+        "opacity": 1,
+        "z": 2
+      },
+      "hidden": false,
+      "id": "cell_ZsJqM2hu",
+      "image": {
+        "hash": "9092b9cbe7e1bd17",
+        "mime": "image/png",
+        "naturalSize": [
+          316,
+          417
+        ],
+        "src": "assets/wld_surface/img/9092b9cbe7e1bd17.png"
+      },
+      "markers": [
+        {
+          "id": "mrk_i7VpYiKr",
+          "kind": "location",
+          "nameOverride": "F, City Port",
+          "refId": "loc_SVyM4h7F",
+          "size": 50,
+          "uv": [
+            0.1263671429371927,
+            0.8686241522032084
+          ]
+        }
+      ],
+      "name": "City Port",
+      "order": 2,
+      "unlock": {
+        "keywords": []
+      }
+    },
+    {
+      "areaId": "area_VRGgxP9g",
+      "defaultReveal": {
+        "locations": false,
+        "npcs": true,
+        "resources": true
+      },
+      "geometry": {
+        "corners": [
+          [
+            1585.2833330127264,
+            -2944.0825918526048
+          ],
+          [
+            2415.6237999593304,
+            -2944.0825918526048
+          ],
+          [
+            2415.6237999593304,
+            -1898.2740290527677
+          ],
+          [
+            1585.2833330127264,
+            -1898.2740290527677
+          ]
+        ],
+        "locked": true,
+        "opacity": 1,
+        "z": 3
+      },
+      "hidden": false,
+      "id": "cell_drp8Mprt",
+      "image": {
+        "hash": "4e955fb70ff2a7d1",
+        "mime": "image/png",
+        "naturalSize": [
+          316,
+          398
+        ],
+        "src": "assets/wld_surface/img/4e955fb70ff2a7d1.png"
+      },
+      "markers": [
+        {
+          "id": "mrk_05CiA30H",
+          "kind": "resource",
+          "refId": "res_2bT8sSIm",
+          "size": 40,
+          "uv": [
+            0.170875799119451,
+            0.16489925454896723
+          ]
+        },
+        {
+          "id": "mrk_1Xua67ah",
+          "kind": "resource",
+          "refId": "res_aiocXUYq",
+          "size": 40,
+          "uv": [
+            0.27009888746102734,
+            0.25494455594718973
+          ]
+        },
+        {
+          "id": "mrk_33dgItCE",
+          "kind": "resource",
+          "refId": "res_L16U9xka",
+          "size": 40,
+          "uv": [
+            0.16075099418663738,
+            0.1938423871412528
+          ]
+        },
+        {
+          "id": "mrk_AhzDLr2J",
+          "kind": "resource",
+          "refId": "res_ZcLlezwI",
+          "size": 40,
+          "uv": [
+            0.19720029194476718,
+            0.1946463630465945
+          ]
+        },
+        {
+          "id": "mrk_E6Ml3O5x",
+          "kind": "resource",
+          "refId": "res_W80u50gM",
+          "size": 40,
+          "uv": [
+            0.27313632894087153,
+            0.2203735920175147
+          ]
+        },
+        {
+          "id": "mrk_HV9UBB5C",
+          "kind": "resource",
+          "refId": "res_eWcpFVX5",
+          "size": 40,
+          "uv": [
+            0.20631261638429985,
+            0.11907262794451454
+          ]
+        },
+        {
+          "id": "mrk_LICEdgWk",
+          "kind": "resource",
+          "refId": "res_1tKDCiFk",
+          "size": 40,
+          "uv": [
+            0.2301329303585562,
+            0.21794562327841102
+          ]
+        },
+        {
+          "id": "mrk_VMPYYo9E",
+          "kind": "resource",
+          "refId": "res_jrmbYZaX",
+          "uv": [
+            0.6447166699751409,
+            0.3353421464813166
+          ]
+        },
+        {
+          "id": "mrk_gFnzMOte",
+          "kind": "resource",
+          "refId": "res_C8EOhQ7T",
+          "size": 40,
+          "uv": [
+            0.22149982378352065,
+            0.25172865232582436
+          ]
+        },
+        {
+          "id": "mrk_pZD6OqwD",
+          "kind": "location",
+          "nameOverride": "Soulhaven Crypts",
+          "refId": "loc_uWrZGHd9",
+          "uv": [
+            0.5534625869277852,
+            0.42976865544499754
+          ]
+        },
+        {
+          "id": "mrk_v6udmTsX",
+          "kind": "resource",
+          "refId": "res_hslLVkmD",
+          "size": 40,
+          "uv": [
+            0.2295996677297718,
+            0.09736527850030004
+          ]
+        }
+      ],
+      "name": "Soulhaven",
+      "order": 3,
       "unlock": {
         "keywords": []
       }

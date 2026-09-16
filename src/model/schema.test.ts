@@ -142,6 +142,31 @@ describe('validateWorld (defensive repair)', () => {
     expect(bad.warnings).toHaveLength(1);
   });
 
+  it('keeps a trimmed custom marker name and drops empty or non-text ones', () => {
+    const raw = {
+      schemaVersion: 1,
+      id: 'w',
+      slug: 'w',
+      name: 'W',
+      view: { minZoom: -4, maxZoom: 4 },
+      config: { searchRespectsReveal: true, declutter: { enabled: false, hideMarkersBelowZoom: null } },
+      areas: [],
+      cells: [
+        baseCell({
+          areaId: null,
+          markers: [
+            { id: 'named', kind: 'location', refId: 'loc_crypt', uv: [0.5, 0.5], nameOverride: '  CAVE 1 ' },
+            { id: 'blank', kind: 'location', refId: 'loc_crypt', uv: [0.5, 0.5], nameOverride: '  ' },
+            { id: 'junk', kind: 'location', refId: 'loc_crypt', uv: [0.5, 0.5], nameOverride: 7 },
+          ],
+        }),
+      ],
+    };
+    const { value, warnings } = validateWorld(raw, catalog);
+    expect(value.cells[0].markers.map((m) => m.nameOverride)).toEqual(['CAVE 1', undefined, undefined]);
+    expect(warnings).toHaveLength(1);
+  });
+
   it('sanitizes a per-marker size override the same way', () => {
     const raw = {
       schemaVersion: 1,

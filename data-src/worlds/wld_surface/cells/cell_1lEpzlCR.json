@@ -1,0 +1,200 @@
+{
+  "areaId": "area_VRGgxP9g",
+  "defaultReveal": {
+    "npcs": true,
+    "resources": true
+  },
+  "geometry": {
+    "corners": [
+      [
+        1846.6497994542758,
+        -1896.1031693819925
+      ],
+      [
+        2941.5336608854723,
+        -1896.1031693819925
+      ],
+      [
+        2941.5336608854723,
+        -943.0991237352798
+      ],
+      [
+        1846.6497994542758,
+        -943.0991237352798
+      ]
+    ],
+    "locked": true,
+    "opacity": 1,
+    "z": 1
+  },
+  "hidden": false,
+  "id": "cell_1lEpzlCR",
+  "image": {
+    "hash": "87277aeb0a526453",
+    "mime": "image/png",
+    "naturalSize": [
+      409,
+      356
+    ],
+    "src": "assets/wld_surface/img/87277aeb0a526453.png"
+  },
+  "markers": [
+    {
+      "id": "mrk_16tNyUGb",
+      "kind": "resource",
+      "refId": "res_hslLVkmD",
+      "size": 40,
+      "uv": [
+        0.5413001352565441,
+        0.8164674363750208
+      ]
+    },
+    {
+      "id": "mrk_1kxz2R8w",
+      "kind": "location",
+      "nameOverride": "Winding Tunnels",
+      "refId": "loc_HA21CTvc",
+      "size": 45,
+      "uv": [
+        0.7537316607607072,
+        0.7259478962241536
+      ]
+    },
+    {
+      "id": "mrk_97HsHDBo",
+      "kind": "resource",
+      "refId": "res_L16U9xka",
+      "uv": [
+        0.3203597621890693,
+        0.4952004969891546
+      ]
+    },
+    {
+      "id": "mrk_Dn2Lnu3j",
+      "kind": "resource",
+      "refId": "res_L16U9xka",
+      "uv": [
+        0.3384875942507359,
+        0.17015948675145917
+      ]
+    },
+    {
+      "id": "mrk_OjX2DbQC",
+      "kind": "resource",
+      "refId": "res_9YLbrEwK",
+      "uv": [
+        0.045288129186130566,
+        0.6317093465457612
+      ]
+    },
+    {
+      "id": "mrk_Olz0vndv",
+      "kind": "resource",
+      "refId": "res_xjv1Wfhv",
+      "uv": [
+        0.2725773658458359,
+        0.9507245927921785
+      ]
+    },
+    {
+      "id": "mrk_UiB2nbT3",
+      "kind": "resource",
+      "refId": "res_34LqaIDR",
+      "uv": [
+        0.4375388281579297,
+        0.6086511512586544
+      ]
+    },
+    {
+      "id": "mrk_VSf4ZDSa",
+      "kind": "resource",
+      "refId": "res_a3GSSIpg",
+      "uv": [
+        0.5238667760138476,
+        0.9040111551124097
+      ]
+    },
+    {
+      "id": "mrk_ZKMIiEbB",
+      "kind": "location",
+      "refId": "loc_3dXFg3p0",
+      "size": 45,
+      "uv": [
+        0.39025342752444003,
+        0.9509160652710906
+      ]
+    },
+    {
+      "id": "mrk_b2yIv9VB",
+      "kind": "location",
+      "nameOverride": "C, Mountain Caves",
+      "refId": "loc_SVyM4h7F",
+      "size": 50,
+      "uv": [
+        0.4089115197191978,
+        0.8426206421876306
+      ]
+    },
+    {
+      "id": "mrk_dHPZMhWt",
+      "kind": "resource",
+      "refId": "res_jrmbYZaX",
+      "uv": [
+        0.50191365696749,
+        0.7860497035933856
+      ]
+    },
+    {
+      "id": "mrk_kpbHgtz4",
+      "kind": "resource",
+      "refId": "res_9YLbrEwK",
+      "uv": [
+        0.5066828226965161,
+        0.24691938794122575
+      ]
+    },
+    {
+      "id": "mrk_lXZfrNK3",
+      "kind": "resource",
+      "refId": "res_jrmbYZaX",
+      "uv": [
+        0.18476106986367696,
+        0.7815723226894268
+      ]
+    },
+    {
+      "id": "mrk_mkZ12FvE",
+      "kind": "resource",
+      "refId": "res_L16U9xka",
+      "size": 40,
+      "uv": [
+        0.5199926961821375,
+        0.8134998526890077
+      ]
+    },
+    {
+      "id": "mrk_ngR1Mu4r",
+      "kind": "resource",
+      "refId": "res_nyX5345F",
+      "uv": [
+        0.5819779734895012,
+        0.9136558020919526
+      ]
+    },
+    {
+      "id": "mrk_rLkz3RsN",
+      "kind": "resource",
+      "refId": "res_E53hIh7I",
+      "size": 40,
+      "uv": [
+        0.5277408558455583,
+        0.7912429750439087
+      ]
+    }
+  ],
+  "name": "Fortress City",
+  "order": 1,
+  "unlock": {
+    "keywords": []
+  }
+}

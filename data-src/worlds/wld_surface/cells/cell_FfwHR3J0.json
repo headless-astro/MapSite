@@ -1,6 +1,8 @@
 {
   "areaId": "area_VRGgxP9g",
   "defaultReveal": {
+    "enemies": true,
+    "locations": true,
     "npcs": true,
     "resources": true
   },
@@ -40,10 +42,48 @@
   },
   "markers": [
     {
+      "id": "mrk_1f7tTdND",
+      "kind": "resource",
+      "refId": "res_LeDB0WPz",
+      "uv": [
+        0.5396926288305772,
+        0.33608507107902225
+      ]
+    },
+    {
+      "id": "mrk_1gfwsLQp",
+      "kind": "location",
+      "nameOverride": "A, Mountain Caves",
+      "refId": "loc_SVyM4h7F",
+      "size": 50,
+      "uv": [
+        0.35886473480760245,
+        0.4663845223322101
+      ]
+    },
+    {
+      "id": "mrk_5dDqc1fX",
+      "kind": "resource",
+      "refId": "res_9YLbrEwK",
+      "uv": [
+        0.5080680195619851,
+        0.7068800809309513
+      ]
+    },
+    {
+      "id": "mrk_9F44XcIw",
+      "kind": "resource",
+      "refId": "res_E53hIh7I",
+      "uv": [
+        0.5210422182362792,
+        0.44553661013170026
+      ]
+    },
+    {
       "id": "mrk_I3NIdvsG",
       "kind": "resource",
       "refId": "res_ccTrFpV3",
-      "size": 30,
+      "size": 35,
       "uv": [
         0.9123419134511613,
         0.22600746632441704
@@ -53,10 +93,47 @@
       "id": "mrk_KEWh9ocC",
       "kind": "resource",
       "refId": "res_1tKDCiFk",
-      "size": 30,
+      "size": 35,
       "uv": [
         0.9268066097401583,
         0.22423657450143153
+      ]
+    },
+    {
+      "id": "mrk_KIqmi4i3",
+      "kind": "resource",
+      "refId": "res_jrmbYZaX",
+      "uv": [
+        0.4423861387733711,
+        0.4954226857543494
+      ]
+    },
+    {
+      "id": "mrk_LV0Ai2eU",
+      "kind": "location",
+      "refId": "loc_ZBGQTtBD",
+      "size": 45,
+      "uv": [
+        0.6167184174724955,
+        0.3431253695335106
+      ]
+    },
+    {
+      "id": "mrk_NABiZTyR",
+      "kind": "resource",
+      "refId": "res_owQ9HQTK",
+      "uv": [
+        0.5291510924077132,
+        0.3569329832795323
+      ]
+    },
+    {
+      "id": "mrk_SlC9flE5",
+      "kind": "resource",
+      "refId": "res_ccTrFpV3",
+      "uv": [
+        0.4918502712191176,
+        0.45149315647470306
       ]
     },
     {
@@ -117,6 +194,15 @@
       ]
     },
     {
+      "id": "mrk_cvl912p3",
+      "kind": "resource",
+      "refId": "res_9YLbrEwK",
+      "uv": [
+        0.05802550304740676,
+        0.40011794426630337
+      ]
+    },
+    {
       "id": "mrk_dKHgT0II",
       "kind": "resource",
       "refId": "res_q9BfMl8z",
@@ -130,7 +216,7 @@
       "id": "mrk_hKFpOuif",
       "kind": "resource",
       "refId": "res_E53hIh7I",
-      "size": 30,
+      "size": 35,
       "uv": [
         0.90308627615855,
         0.2153931729087151
@@ -140,7 +226,7 @@
       "id": "mrk_jcWl0uqG",
       "kind": "resource",
       "refId": "res_C8EOhQ7T",
-      "size": 30,
+      "size": 35,
       "uv": [
         0.9518787499744185,
         0.11754039036091818
@@ -150,17 +236,37 @@
       "id": "mrk_kZuqNhFY",
       "kind": "resource",
       "refId": "res_aY89Ts9i",
-      "size": 30,
+      "size": 35,
       "uv": [
         0.9523609065173849,
         0.10647231646725792
       ]
     },
     {
+      "id": "mrk_olrPL0i5",
+      "kind": "location",
+      "nameOverride": "B, Mountain Caves",
+      "refId": "loc_SVyM4h7F",
+      "size": 50,
+      "uv": [
+        0.38345003574857517,
+        0.6971688393159525
+      ]
+    },
+    {
+      "id": "mrk_omxLqo6y",
+      "kind": "resource",
+      "refId": "res_nyX5345F",
+      "uv": [
+        0.22425742356180073,
+        0.7798477736327365
+      ]
+    },
+    {
       "id": "mrk_r2izzcNe",
       "kind": "resource",
       "refId": "res_eWcpFVX5",
-      "size": 30,
+      "size": 35,
       "uv": [
         0.917163478880827,
         0.21493939243075705
@@ -177,13 +283,13 @@
       ]
     },
     {
-      "id": "mrk_u5i059IG",
-      "kind": "resource",
-      "refId": "res_C8EOhQ7T",
-      "size": 30,
+      "id": "mrk_zqKFNnCf",
+      "kind": "location",
+      "refId": "loc_ZBGQTtBD",
+      "size": 45,
       "uv": [
-        0.8973950606191988,
-        0.22822112929751923
+        0.5730766905387907,
+        0.3443775791502915
       ]
     }
   ],

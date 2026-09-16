@@ -1,0 +1,53 @@
+{
+  "areas": [
+    {
+      "id": "area_A0AAr6HF",
+      "name": "Guldorand",
+      "order": 0
+    }
+  ],
+  "config": {
+    "declutter": {
+      "enabled": false,
+      "hideMarkersBelowZoom": null
+    },
+    "searchRespectsReveal": true
+  },
+  "connections": [
+    {
+      "from": {
+        "cellId": "cell_iKKdg4cg",
+        "uv": [
+          0.008148645694451733,
+          0.1898874690177817
+        ]
+      },
+      "id": "lnk_qGObOOFd",
+      "label": "D, E, G",
+      "to": {
+        "cellId": "cell_Ydde5gtL",
+        "uv": [
+          0.9843496596885913,
+          0.23465266902337734
+        ]
+      },
+      "via": [
+        [
+          2293.9827071379527,
+          -2415.291947539983
+        ]
+      ]
+    }
+  ],
+  "id": "wld_rlYsfKGH",
+  "name": "Interiors Overworld",
+  "order": 2,
+  "schemaVersion": 1,
+  "slug": "interiors-overworld",
+  "view": {
+    "fitAll": true,
+    "markerSize": 50,
+    "maxZoom": 4,
+    "minZoom": -6
+  }
+}

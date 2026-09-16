@@ -1,0 +1,158 @@
+{
+  "areaId": "area_VRGgxP9g",
+  "defaultReveal": {
+    "locations": false,
+    "npcs": true,
+    "resources": true
+  },
+  "geometry": {
+    "corners": [
+      [
+        1585.2833330127264,
+        -2944.0825918526048
+      ],
+      [
+        2415.6237999593304,
+        -2944.0825918526048
+      ],
+      [
+        2415.6237999593304,
+        -1898.2740290527677
+      ],
+      [
+        1585.2833330127264,
+        -1898.2740290527677
+      ]
+    ],
+    "locked": true,
+    "opacity": 1,
+    "z": 3
+  },
+  "hidden": false,
+  "id": "cell_drp8Mprt",
+  "image": {
+    "hash": "4e955fb70ff2a7d1",
+    "mime": "image/png",
+    "naturalSize": [
+      316,
+      398
+    ],
+    "src": "assets/wld_surface/img/4e955fb70ff2a7d1.png"
+  },
+  "markers": [
+    {
+      "id": "mrk_05CiA30H",
+      "kind": "resource",
+      "refId": "res_2bT8sSIm",
+      "size": 40,
+      "uv": [
+        0.170875799119451,
+        0.16489925454896723
+      ]
+    },
+    {
+      "id": "mrk_1Xua67ah",
+      "kind": "resource",
+      "refId": "res_aiocXUYq",
+      "size": 40,
+      "uv": [
+        0.27009888746102734,
+        0.25494455594718973
+      ]
+    },
+    {
+      "id": "mrk_33dgItCE",
+      "kind": "resource",
+      "refId": "res_L16U9xka",
+      "size": 40,
+      "uv": [
+        0.16075099418663738,
+        0.1938423871412528
+      ]
+    },
+    {
+      "id": "mrk_AhzDLr2J",
+      "kind": "resource",
+      "refId": "res_ZcLlezwI",
+      "size": 40,
+      "uv": [
+        0.19720029194476718,
+        0.1946463630465945
+      ]
+    },
+    {
+      "id": "mrk_E6Ml3O5x",
+      "kind": "resource",
+      "refId": "res_W80u50gM",
+      "size": 40,
+      "uv": [
+        0.27313632894087153,
+        0.2203735920175147
+      ]
+    },
+    {
+      "id": "mrk_HV9UBB5C",
+      "kind": "resource",
+      "refId": "res_eWcpFVX5",
+      "size": 40,
+      "uv": [
+        0.20631261638429985,
+        0.11907262794451454
+      ]
+    },
+    {
+      "id": "mrk_LICEdgWk",
+      "kind": "resource",
+      "refId": "res_1tKDCiFk",
+      "size": 40,
+      "uv": [
+        0.2301329303585562,
+        0.21794562327841102
+      ]
+    },
+    {
+      "id": "mrk_VMPYYo9E",
+      "kind": "resource",
+      "refId": "res_jrmbYZaX",
+      "uv": [
+        0.6447166699751409,
+        0.3353421464813166
+      ]
+    },
+    {
+      "id": "mrk_gFnzMOte",
+      "kind": "resource",
+      "refId": "res_C8EOhQ7T",
+      "size": 40,
+      "uv": [
+        0.22149982378352065,
+        0.25172865232582436
+      ]
+    },
+    {
+      "id": "mrk_pZD6OqwD",
+      "kind": "location",
+      "nameOverride": "Soulhaven Crypts",
+      "refId": "loc_uWrZGHd9",
+      "uv": [
+        0.5534625869277852,
+        0.42976865544499754
+      ]
+    },
+    {
+      "id": "mrk_v6udmTsX",
+      "kind": "resource",
+      "refId": "res_hslLVkmD",
+      "size": 40,
+      "uv": [
+        0.2295996677297718,
+        0.09736527850030004
+      ]
+    }
+  ],
+  "name": "Soulhaven",
+  "order": 3,
+  "unlock": {
+    "keywords": []
+  }
+}

@@ -1,9 +1,29 @@
 {
-  "enemies": [],
+  "enemies": [
+    {
+      "children": [
+        {
+          "id": "enm_0pljJs1o",
+          "kind": "resource",
+          "name": "Writ Boss",
+          "order": 0
+        }
+      ],
+      "icon": "ic_type_9JIo5zE5",
+      "id": "type_9JIo5zE5",
+      "kind": "group",
+      "name": "Writ Boss",
+      "order": 0
+    }
+  ],
   "icons": {
     "ic_loc_1vpMXmgP": {
       "type": "img",
       "value": "assets/icons/5d6cf88954a012c5.png"
+    },
+    "ic_loc_3dXFg3p0": {
+      "type": "img",
+      "value": "assets/icons/5d3b6b789bd1cfeb.png"
     },
     "ic_loc_DgRd5Aeb": {
       "type": "img",
@@ -12,6 +32,10 @@
     "ic_loc_H1DfM2Bl": {
       "type": "img",
       "value": "assets/icons/bdf5a6bfb5deed34.png"
+    },
+    "ic_loc_HA21CTvc": {
+      "type": "img",
+      "value": "assets/icons/731579914ec85043.png"
     },
     "ic_loc_PIISqAP9": {
       "type": "img",
@@ -33,6 +57,10 @@
       "type": "img",
       "value": "assets/icons/2e71a490d08128f5.png"
     },
+    "ic_loc_isk4IPj8": {
+      "type": "img",
+      "value": "assets/icons/95e8808f6e211704.png"
+    },
     "ic_loc_oS16zzUM": {
       "type": "img",
       "value": "assets/icons/956ef503234c74d3.png"
@@ -40,6 +68,10 @@
     "ic_loc_qDtHsdaz": {
       "type": "img",
       "value": "assets/icons/590c372c8a6db069.png"
+    },
+    "ic_loc_uWrZGHd9": {
+      "type": "img",
+      "value": "assets/icons/618ff683857e6f8c.png"
     },
     "ic_loc_y2Dah7xT": {
       "type": "img",
@@ -49,6 +81,26 @@
       "type": "img",
       "value": "assets/icons/88a07d5574a10411.png"
     },
+    "ic_res_2bT8sSIm": {
+      "type": "img",
+      "value": "assets/icons/af808192162762cf.png"
+    },
+    "ic_res_34LqaIDR": {
+      "type": "img",
+      "value": "assets/icons/dd964e1f6bdb5c20.png"
+    },
+    "ic_res_5lLLLccM": {
+      "type": "img",
+      "value": "assets/icons/0b32318da39d1d3f.png"
+    },
+    "ic_res_6ifRMB5p": {
+      "type": "img",
+      "value": "assets/icons/1301c0f42d83824e.png"
+    },
+    "ic_res_9YLbrEwK": {
+      "type": "img",
+      "value": "assets/icons/6c582721f8d0d713.png"
+    },
     "ic_res_C8EOhQ7T": {
       "type": "img",
       "value": "assets/icons/1f9b479adb73c7f2.png"
@@ -56,6 +108,22 @@
     "ic_res_E53hIh7I": {
       "type": "img",
       "value": "assets/icons/ff909057aebfacca.png"
+    },
+    "ic_res_L16U9xka": {
+      "type": "img",
+      "value": "assets/icons/088e42446eb1095b.png"
+    },
+    "ic_res_LeDB0WPz": {
+      "type": "img",
+      "value": "assets/icons/d28e0e9d0b91ea82.png"
+    },
+    "ic_res_NXFX8Pzu": {
+      "type": "img",
+      "value": "assets/icons/7d0e870d2288bac9.png"
+    },
+    "ic_res_P1SRYM9x": {
+      "type": "img",
+      "value": "assets/icons/86dde21e4a73e349.png"
     },
     "ic_res_TEtUXDKj": {
       "type": "img",
@@ -65,9 +133,17 @@
       "type": "img",
       "value": "assets/icons/587a04ef48ccd725.png"
     },
+    "ic_res_W80u50gM": {
+      "type": "img",
+      "value": "assets/icons/a781375ee573d58d.png"
+    },
     "ic_res_WGLQ1ok6": {
       "type": "img",
       "value": "assets/icons/4dc908f328b82c0b.png"
+    },
+    "ic_res_ZcLlezwI": {
+      "type": "img",
+      "value": "assets/icons/d769b792d409914e.png"
     },
     "ic_res_a3GSSIpg": {
       "type": "img",
@@ -81,6 +157,10 @@
       "type": "img",
       "value": "assets/icons/072e18b3890bf96d.png"
     },
+    "ic_res_aiocXUYq": {
+      "type": "img",
+      "value": "assets/icons/fc1cdd9eb2bc7a3a.png"
+    },
     "ic_res_ccTrFpV3": {
       "type": "img",
       "value": "assets/icons/5d4ef316f484dcbc.png"
@@ -88,6 +168,10 @@
     "ic_res_eWcpFVX5": {
       "type": "img",
       "value": "assets/icons/bc509014cd05c474.png"
+    },
+    "ic_res_hslLVkmD": {
+      "type": "img",
+      "value": "assets/icons/d470470bc6c3af5f.png"
     },
     "ic_res_hzdnDntk": {
       "type": "img",
@@ -103,7 +187,11 @@
     },
     "ic_res_nyX5345F": {
       "type": "img",
-      "value": "assets/icons/acc0c7d2069c8032.png"
+      "value": "assets/icons/ec932ab896109fc3.png"
+    },
+    "ic_res_owQ9HQTK": {
+      "type": "img",
+      "value": "assets/icons/1bcbd780b936394d.png"
     },
     "ic_res_q9BfMl8z": {
       "type": "img",
@@ -112,6 +200,10 @@
     "ic_res_wydEUjiT": {
       "type": "img",
       "value": "assets/icons/1f1c388f284dce75.png"
+    },
+    "ic_res_xjv1Wfhv": {
+      "type": "img",
+      "value": "assets/icons/c79216796f49be01.png"
     },
     "ic_sub_BO24L9o7": {
       "type": "img",
@@ -133,6 +225,10 @@
       "type": "img",
       "value": "assets/icons/92389d8ac1f84167.png"
     },
+    "ic_sub_WGA5mSDW": {
+      "type": "img",
+      "value": "assets/icons/98b75687f21b21c0.png"
+    },
     "ic_sub_sejKXPr5": {
       "type": "img",
       "value": "assets/icons/4b92094866b9e986.png"
@@ -144,6 +240,10 @@
     "ic_type_2N7sg73h": {
       "type": "img",
       "value": "assets/icons/e95e51a43e14f3b0.png"
+    },
+    "ic_type_9JIo5zE5": {
+      "type": "img",
+      "value": "assets/icons/d885048366641929.png"
     },
     "ic_type_tvTwuDrm": {
       "type": "img",
@@ -208,6 +308,13 @@
           "order": 0
         },
         {
+          "icon": "ic_loc_HA21CTvc",
+          "id": "loc_HA21CTvc",
+          "kind": "resource",
+          "name": "Sewers",
+          "order": 3
+        },
+        {
           "icon": "ic_loc_PIISqAP9",
           "id": "loc_PIISqAP9",
           "kind": "resource",
@@ -220,11 +327,25 @@
           "kind": "resource",
           "name": "Cave, No UD Connection",
           "order": 1
+        },
+        {
+          "icon": "ic_loc_isk4IPj8",
+          "id": "loc_isk4IPj8",
+          "kind": "resource",
+          "name": "Surface",
+          "order": 5
+        },
+        {
+          "icon": "ic_loc_uWrZGHd9",
+          "id": "loc_uWrZGHd9",
+          "kind": "resource",
+          "name": "Crypts",
+          "order": 4
         }
       ],
       "id": "type_OEAr91aH",
       "kind": "group",
-      "name": "Cave",
+      "name": "Interiors",
       "order": 1
     },
     {
@@ -255,6 +376,21 @@
       "kind": "group",
       "name": "Portals",
       "order": 2
+    },
+    {
+      "children": [
+        {
+          "icon": "ic_loc_3dXFg3p0",
+          "id": "loc_3dXFg3p0",
+          "kind": "resource",
+          "name": "Climbing Spot",
+          "order": 0
+        }
+      ],
+      "id": "type_y0cKYaMJ",
+      "kind": "group",
+      "name": "Other",
+      "order": 3
     }
   ],
   "npcTypes": [],
@@ -269,6 +405,15 @@
           "order": 2
         },
         {
+          "children": [
+            {
+              "icon": "ic_res_34LqaIDR",
+              "id": "res_34LqaIDR",
+              "kind": "resource",
+              "name": "Greenstone",
+              "order": 0
+            }
+          ],
           "icon": "ic_sub_BO24L9o7",
           "id": "sub_BO24L9o7",
           "kind": "group",
@@ -276,10 +421,19 @@
           "order": 1
         },
         {
+          "children": [
+            {
+              "icon": "ic_res_xjv1Wfhv",
+              "id": "res_xjv1Wfhv",
+              "kind": "resource",
+              "name": "Common",
+              "order": 0
+            }
+          ],
           "icon": "ic_sub_VrNTqbis",
           "id": "sub_VrNTqbis",
           "kind": "group",
-          "name": "Metals",
+          "name": "Metal/Rock Nodes",
           "order": 0
         }
       ],
@@ -343,6 +497,42 @@
     {
       "children": [
         {
+          "icon": "ic_res_5lLLLccM",
+          "id": "res_5lLLLccM",
+          "kind": "resource",
+          "name": "Chest",
+          "order": 1
+        },
+        {
+          "icon": "ic_res_6ifRMB5p",
+          "id": "res_6ifRMB5p",
+          "kind": "resource",
+          "name": "Gold Pile",
+          "order": 3
+        },
+        {
+          "icon": "ic_res_NXFX8Pzu",
+          "id": "res_NXFX8Pzu",
+          "kind": "resource",
+          "name": "Locker",
+          "order": 0
+        },
+        {
+          "icon": "ic_res_P1SRYM9x",
+          "id": "res_P1SRYM9x",
+          "kind": "resource",
+          "name": "Runic Chest",
+          "order": 2
+        }
+      ],
+      "id": "type_qQkwTndF",
+      "kind": "group",
+      "name": "Treasure",
+      "order": 4
+    },
+    {
+      "children": [
+        {
           "icon": "ic_res_TEtUXDKj",
           "id": "res_TEtUXDKj",
           "kind": "resource",
@@ -389,6 +579,13 @@
               "order": 6
             },
             {
+              "icon": "ic_res_2bT8sSIm",
+              "id": "res_2bT8sSIm",
+              "kind": "resource",
+              "name": "Strychnine",
+              "order": 12
+            },
+            {
               "icon": "ic_res_C8EOhQ7T",
               "id": "res_C8EOhQ7T",
               "kind": "resource",
@@ -403,6 +600,27 @@
               "order": 5
             },
             {
+              "icon": "ic_res_L16U9xka",
+              "id": "res_L16U9xka",
+              "kind": "resource",
+              "name": "Nuts",
+              "order": 9
+            },
+            {
+              "icon": "ic_res_LeDB0WPz",
+              "id": "res_LeDB0WPz",
+              "kind": "resource",
+              "name": "Mintspear",
+              "order": 8
+            },
+            {
+              "icon": "ic_res_W80u50gM",
+              "id": "res_W80u50gM",
+              "kind": "resource",
+              "name": "Berries",
+              "order": 11
+            },
+            {
               "icon": "ic_res_WGLQ1ok6",
               "id": "res_WGLQ1ok6",
               "kind": "resource",
@@ -410,11 +628,25 @@
               "order": 0
             },
             {
+              "icon": "ic_res_ZcLlezwI",
+              "id": "res_ZcLlezwI",
+              "kind": "resource",
+              "name": "Sweetberry",
+              "order": 14
+            },
+            {
               "icon": "ic_res_aY89Ts9i",
               "id": "res_aY89Ts9i",
               "kind": "resource",
               "name": "Sassone",
               "order": 1
+            },
+            {
+              "icon": "ic_res_aiocXUYq",
+              "id": "res_aiocXUYq",
+              "kind": "resource",
+              "name": "Mandrake",
+              "order": 13
             },
             {
               "icon": "ic_res_ccTrFpV3",
@@ -429,6 +661,20 @@
               "kind": "resource",
               "name": "Belladonna",
               "order": 4
+            },
+            {
+              "icon": "ic_res_hslLVkmD",
+              "id": "res_hslLVkmD",
+              "kind": "resource",
+              "name": "Strideleaf",
+              "order": 10
+            },
+            {
+              "icon": "ic_res_owQ9HQTK",
+              "id": "res_owQ9HQTK",
+              "kind": "resource",
+              "name": "Yarrow",
+              "order": 7
             }
           ],
           "icon": "ic_sub_HKRhphMl",
@@ -436,6 +682,22 @@
           "kind": "group",
           "name": "Farm",
           "order": 0
+        },
+        {
+          "children": [
+            {
+              "icon": "ic_res_9YLbrEwK",
+              "id": "res_9YLbrEwK",
+              "kind": "resource",
+              "name": "Garlic",
+              "order": 0
+            }
+          ],
+          "icon": "ic_sub_WGA5mSDW",
+          "id": "sub_WGA5mSDW",
+          "kind": "group",
+          "name": "Wild",
+          "order": 1
         }
       ],
       "icon": "ic_type_vHuaODts",

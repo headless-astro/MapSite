@@ -7,6 +7,7 @@
 // the tile — and only markers inside the padded viewport are mounted.
 
 import L from 'leaflet';
+import { DEFAULT_MARKER_SIZE } from '../model/types';
 import type { Catalog, Cell, Id, Marker, MarkerKind, World } from '../model/types';
 import { bilinear, worldToLatLng } from '../model/geometry';
 import { assetUrl } from '../paths';
@@ -41,8 +42,22 @@ export interface MarkerEntry {
   latLng: L.LatLng;
   label: string;
   iconHtml: string;
+  /** Rendered diameter in px (for placing the name label under the icon). */
+  size: number;
   leaflet: L.Marker | null;
   added: boolean;
+}
+
+/** Attach the always-visible name pill for a marker that has a custom name. */
+export function bindMarkerName(m: L.Marker, marker: Marker, size: number): void {
+  if (!marker.nameOverride) return;
+  m.bindTooltip(escapeHtml(marker.nameOverride), {
+    permanent: true,
+    direction: 'bottom',
+    offset: [0, size / 2 + 2],
+    className: 'marker-name',
+    interactive: false,
+  });
 }
 
 export type MarkerPredicate = (marker: Marker, cell: Cell) => boolean;
@@ -70,6 +85,7 @@ export class MarkerLayerManager {
   setWorld(world: World, catalog: Catalog): void {
     this.clear();
     const tax: TaxIndex = indexTaxonomy(catalog);
+    const worldSize = world.view.markerSize ?? DEFAULT_MARKER_SIZE;
 
     for (const cell of world.cells) {
       for (const marker of cell.markers) {
@@ -83,6 +99,7 @@ export class MarkerLayerManager {
           latLng,
           label,
           iconHtml,
+          size: marker.size ?? worldSize,
           leaflet: null,
           added: false,
         };
@@ -146,6 +163,7 @@ export class MarkerLayerManager {
     const m = L.marker(e.latLng, { icon, pane: this.pane, title: e.label });
     const note = e.marker.note ? `<div class="muted">${escapeHtml(e.marker.note)}</div>` : '';
     m.bindPopup(`<strong>${escapeHtml(e.label)}</strong>${note}`);
+    bindMarkerName(m, e.marker, e.size);
     return m;
   }
 

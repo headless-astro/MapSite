@@ -10,6 +10,7 @@
     deleteCell,
     deleteMarker,
     deleteMarkers,
+    setMarkerName,
     setMarkerSizeOverride,
     deleteConnection,
     deleteConnections,
@@ -107,9 +108,20 @@
     if (ok) deleteCell(id);
   }
 
-  function markerName(m: { kind: string; refId: string | null; nameOverride?: string }) {
-    if (m.nameOverride) return m.nameOverride;
+  /** The type name ("Cave"), regardless of any custom name. */
+  function typeName(m: { kind: string; refId: string | null }) {
     return m.kind === 'npc' ? npcTypeName($catalog, m.refId) : resolveResourceName(tax, m.refId);
+  }
+  function markerName(m: { kind: string; refId: string | null; nameOverride?: string }) {
+    return m.nameOverride || typeName(m);
+  }
+  async function editMarkerName(cellId: string, m: { id: string; nameOverride?: string }) {
+    const n = await promptDialog('Custom name for this marker (leave blank to show the type name)', m.nameOverride ?? '', {
+      title: 'Marker name',
+      okLabel: 'Save',
+      allowEmpty: true,
+    });
+    if (n !== null) setMarkerName(cellId, m.id, n);
   }
   function setRevealDefault(key: RevealKey, value: boolean) {
     if (!cell) return;
@@ -226,8 +238,11 @@
             aria-label={`Select marker ${markerName(m)}`}
           />
         {/if}
-        <span class="tname">{KIND_GLYPH[m.kind]} {markerName(m)}</span>
+        <span class="tname" title={m.nameOverride ? `${m.nameOverride} (${typeName(m)})` : typeName(m)}>
+          {KIND_GLYPH[m.kind]} {markerName(m)}{#if m.nameOverride}<span class="muted" style="margin-left:4px">· {typeName(m)}</span>{/if}
+        </span>
         {#if !$multiSelect}
+          <button class="iconbtn" title="Custom name" onclick={() => editMarkerName(cell.id, m)}>name</button>
           <input
             class="msize"
             type="number"
