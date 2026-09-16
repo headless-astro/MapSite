@@ -163,6 +163,8 @@ export interface Cell {
   defaultReveal: { resources: boolean; npcs: boolean };
   /** FUTURE keyword-unlock (Phase 6). Present but INERT in v1. */
   unlock?: { keywords: string[] };
+  /** Author notes (plain text, line breaks kept) shown to players in the side panel when the tile is clicked. */
+  note?: string;
   markers: Marker[];
 }
 

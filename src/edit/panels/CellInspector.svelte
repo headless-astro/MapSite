@@ -6,6 +6,7 @@
     selectedCellId,
     catalog,
     updateCell,
+    setCellNote,
     deleteCell,
     deleteMarker,
     deleteMarkers,
@@ -113,6 +114,16 @@
           <option value={a.id}>{a.name}</option>
         {/each}
       </select>
+    </label>
+    <label class="insp-row" style="align-items:flex-start">
+      <span style="padding-top:4px">Notes</span>
+      <textarea
+        class="insp-note"
+        rows="4"
+        placeholder="Shown to players in a side panel when they click this tile"
+        value={cell.note ?? ''}
+        onchange={(e) => setCellNote(cell.id, (e.target as HTMLTextAreaElement).value)}
+      ></textarea>
     </label>
 
     <label class="insp-check">

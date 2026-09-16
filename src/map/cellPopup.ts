@@ -8,6 +8,8 @@ import { cellRevealsNpcs, cellRevealsResources, type RevealState } from '../logi
 
 export interface CellRevealHandlers {
   toggleCellReveal: (cellId: Id, kind: 'resources' | 'npcs', value: boolean) => void;
+  /** A rendered tile was clicked (the side panel shows its notes). */
+  onCellSelected?: (cellId: Id) => void;
 }
 
 export function buildCellPopup(

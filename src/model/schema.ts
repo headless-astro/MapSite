@@ -129,6 +129,17 @@ export function validateWorld(
     if (typeof cell.hidden !== 'boolean') {
       cell.hidden = area?.hidden ?? false;
     }
+    // Note: plain text only; anything else is dropped, and an empty note is no note.
+    if (cell.note !== undefined) {
+      if (typeof cell.note !== 'string') {
+        warnings.push(`Cell "${cell.name}" (${cell.id}) has a non-text note; dropped.`);
+        delete cell.note;
+      } else if (!cell.note.trim()) {
+        delete cell.note;
+      } else {
+        cell.note = cell.note.trim();
+      }
+    }
 
     // Marker → invalid ref: drop marker + warn.
     const kept: Marker[] = [];

@@ -348,6 +348,19 @@ export function updateCell(cellId: Id, patch: Partial<Cell>): void {
   }));
 }
 
+/** Player-facing note for a cell; blank removes it. */
+export function setCellNote(cellId: Id, text: string): void {
+  const note = text.trim();
+  updateActiveWorld((w) => ({
+    ...w,
+    cells: w.cells.map((c) => {
+      if (c.id !== cellId) return c;
+      const { note: _drop, ...rest } = c;
+      return note ? { ...rest, note } : rest;
+    }),
+  }));
+}
+
 export function deleteCells(ids: Id[]): void {
   const gone = new Set(ids);
   updateActiveWorld((w) => ({

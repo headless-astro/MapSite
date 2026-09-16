@@ -12,7 +12,9 @@
     toast,
     renderState,
     displayPrefs,
+    selectedCellId,
   } from './store';
+  import CellPanel from './CellPanel.svelte';
   import WorldSwitcher from './WorldSwitcher.svelte';
   import RevealControls from './RevealControls.svelte';
   import SearchTree from './SearchTree.svelte';
@@ -29,7 +31,10 @@
   onMount(() => {
     installFlushHandlers();
     ctl = new MapController(mapEl);
-    ctl.setRevealHandlers({ toggleCellReveal: setCellReveal });
+    ctl.setRevealHandlers({
+      toggleCellReveal: setCellReveal,
+      onCellSelected: (id) => selectedCellId.set(id),
+    });
 
     const unsub = renderState.subscribe(({ world, catalog, search, reveal }) => {
       if (!ctl || !world || !catalog) return;
@@ -131,6 +136,8 @@
       {/if}
     </div>
   </aside>
+
+  <CellPanel />
 
   {#if $toast}
     <div class="status-toast" class:error={$toast.error}>{$toast.msg}</div>

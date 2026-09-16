@@ -154,6 +154,7 @@ export class MapController {
 
   private handleCellClick(cell: Cell): void {
     if (!this.world || !this.revealHandlers) return;
+    this.revealHandlers.onCellSelected?.(cell.id);
     const area = cell.areaId ? this.world.areas.find((a) => a.id === cell.areaId) : undefined;
     const content = buildCellPopup(cell, area, this.reveal, this.revealHandlers);
     const center = L.latLng(worldToLatLng(bilinear(cell.geometry.corners, 0.5, 0.5)));

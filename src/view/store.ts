@@ -46,6 +46,8 @@ export const search = writable<SearchState>(emptySearchState());
 export const reveal = writable<RevealState>(emptyRevealState());
 export const warnings = writable<string[]>([]);
 export const toast = writable<{ msg: string; error?: boolean } | null>(null);
+/** The cell whose notes are open in the side panel (cleared when the world changes). */
+export const selectedCellId = writable<Id | null>(null);
 
 // Global (not per-world) display preferences, persisted separately.
 export interface DisplayPrefs {
@@ -148,6 +150,7 @@ export async function selectWorld(worldId: Id): Promise<void> {
     currentPlayerState = loadPlayerState(worldId);
 
     worldRef.set(ref);
+    selectedCellId.set(null);
     world.set(w.value);
     worldIndex.set(buildWorldSearchIndex(w.value));
     if (w.warnings.length) warnings.update((prev) => [...prev, ...w.warnings]);

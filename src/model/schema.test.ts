@@ -168,6 +168,26 @@ describe('validateWorld (defensive repair)', () => {
     expect(warnings).toHaveLength(3);
   });
 
+  it('keeps a trimmed text note and drops empty or non-text notes', () => {
+    const raw = {
+      schemaVersion: 1,
+      id: 'w',
+      slug: 'w',
+      name: 'W',
+      view: { minZoom: -4, maxZoom: 4 },
+      config: { searchRespectsReveal: true, declutter: { enabled: false, hideMarkersBelowZoom: null } },
+      areas: [],
+      cells: [
+        baseCell({ id: 'a', areaId: null, note: '  Beware the well.\nBring a rope. ' }),
+        baseCell({ id: 'b', areaId: null, note: '   ' }),
+        baseCell({ id: 'c', areaId: null, note: 42 }),
+      ],
+    };
+    const { value, warnings } = validateWorld(raw, catalog);
+    expect(value.cells.map((c) => c.note)).toEqual(['Beware the well.\nBring a rope.', undefined, undefined]);
+    expect(warnings).toHaveLength(1);
+  });
+
   it('cascades area defaultReveal to a cell that lacks its own', () => {
     const raw = {
       schemaVersion: 1,
