@@ -1,0 +1,27 @@
+{
+  "areas": [
+    {
+      "id": "area_VRGgxP9g",
+      "name": "Guldorand",
+      "order": 0
+    }
+  ],
+  "config": {
+    "declutter": {
+      "enabled": false,
+      "hideMarkersBelowZoom": null
+    },
+    "searchRespectsReveal": true
+  },
+  "id": "wld_surface",
+  "name": "Surface",
+  "order": 0,
+  "schemaVersion": 1,
+  "slug": "surface",
+  "view": {
+    "fitAll": true,
+    "markerSize": 50,
+    "maxZoom": 4,
+    "minZoom": -6
+  }
+}

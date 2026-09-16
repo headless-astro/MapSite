@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # Keep npm dependencies patched (integrity-checked via package-lock.json).
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  # Keep the GitHub Actions used in workflows up to date (and lets you pin to SHAs).
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

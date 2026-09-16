@@ -5,7 +5,7 @@
 // than crashing the map. It throws only when a document is fundamentally
 // unusable (not an object / missing required arrays).
 
-import { SCHEMA_VERSION } from './types';
+import { MARKER_SIZE_MAX, MARKER_SIZE_MIN, SCHEMA_VERSION } from './types';
 import type { Catalog, Cell, Manifest, Marker, TaxNode, World } from './types';
 import { indexTaxonomy } from './taxonomy';
 
@@ -53,6 +53,21 @@ export function validateCatalog(raw: unknown): ValidationResult<Catalog> {
   if (!Array.isArray(catalog.npcTypes)) catalog.npcTypes = [];
   if (!catalog.icons || typeof catalog.icons !== 'object') catalog.icons = {};
 
+  // Defense-in-depth: constrain icons so a hand-edited catalog can't smuggle a
+  // bad type/value/color into the render layer. `value` is still escaped at
+  // render; a non-hex `color` (CSS-injection vector) is dropped here.
+  for (const [id, icon] of Object.entries(catalog.icons)) {
+    if (!icon || (icon.type !== 'emoji' && icon.type !== 'img') || typeof icon.value !== 'string') {
+      delete catalog.icons[id];
+      warnings.push(`Dropped malformed icon "${id}".`);
+      continue;
+    }
+    if (icon.color && !/^#[0-9a-fA-F]{3,8}$/.test(icon.color)) {
+      delete icon.color;
+      warnings.push(`Dropped invalid color on icon "${id}".`);
+    }
+  }
+
   // Warn about resource nodes that carry children (should be groups instead).
   const flagChildrenOnResource = (nodes: TaxNode[]) => {
     for (const n of nodes) {
@@ -87,6 +102,10 @@ export function validateWorld(
   world.config.searchRespectsReveal ??= true;
   world.config.declutter ??= { enabled: false, hideMarkersBelowZoom: null };
   world.view ??= { minZoom: -5, maxZoom: 5, fitAll: true };
+
+  // Marker size: a hand-edit must not be able to make markers vanish or blanket the map.
+  world.view.markerSize = sanitizeMarkerSize(world.view.markerSize, 'view.markerSize', warnings);
+  if (world.view.markerSize === undefined) delete world.view.markerSize;
 
   const areaIds = new Set(world.areas.map((a) => a.id));
   const tax = indexTaxonomy(catalog);
@@ -133,8 +152,28 @@ export function validateWorld(
         }
       }
     }
+    for (const m of kept) {
+      if (m.size === undefined) continue;
+      m.size = sanitizeMarkerSize(m.size, `marker ${m.id} size`, warnings);
+      if (m.size === undefined) delete m.size;
+    }
     cell.markers = kept;
   }
 
   return { value: world, warnings };
+}
+
+/** A usable px size, or undefined (with a warning) when the value can't be used. */
+function sanitizeMarkerSize(value: unknown, what: string, warnings: string[]): number | undefined {
+  if (value === undefined) return undefined;
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    warnings.push(`Ignored ${what} ${JSON.stringify(value)}; expected a number of pixels.`);
+    return undefined;
+  }
+  if (value < MARKER_SIZE_MIN || value > MARKER_SIZE_MAX) {
+    const clamped = Math.min(MARKER_SIZE_MAX, Math.max(MARKER_SIZE_MIN, value));
+    warnings.push(`${what} ${value} is outside ${MARKER_SIZE_MIN}–${MARKER_SIZE_MAX}; clamped to ${clamped}.`);
+    return clamped;
+  }
+  return value;
 }

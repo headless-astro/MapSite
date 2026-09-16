@@ -1,0 +1,33 @@
+name: PR checks
+
+# Runs on every PR (including forks) to catch unsafe content BEFORE merge.
+# Deliberately minimal: read-only token, NO secrets, and it does NOT run
+# `npm ci`/build — so it never executes untrusted PR code. It only inspects
+# committed files (find + JSON.parse), which is safe on any fork PR.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  data:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Reject script-capable assets
+        run: |
+          bad=$(find public data-src -type f \( -iname '*.svg' -o -iname '*.htm' -o -iname '*.html' -o -iname '*.xhtml' -o -iname '*.xml' \) 2>/dev/null || true)
+          if [ -n "$bad" ]; then
+            echo "::error::Script-capable assets are not allowed (they can run on the Pages origin): $bad"
+            exit 1
+          fi
+      - name: Validate committed data JSON parses
+        run: |
+          fail=0
+          for f in $(find data-src -name '*.json' 2>/dev/null); do
+            node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" "$f" || { echo "::error::Invalid JSON: $f"; fail=1; }
+          done
+          exit $fail

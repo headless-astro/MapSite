@@ -1,0 +1,26 @@
+{
+  "areas": [
+    {
+      "id": "area_caves",
+      "name": "The Deep Caverns",
+      "order": 0
+    }
+  ],
+  "config": {
+    "declutter": {
+      "enabled": false,
+      "hideMarkersBelowZoom": null
+    },
+    "searchRespectsReveal": true
+  },
+  "id": "wld_underdark",
+  "name": "Underdark",
+  "order": 1,
+  "schemaVersion": 1,
+  "slug": "underdark",
+  "view": {
+    "fitAll": true,
+    "maxZoom": 4,
+    "minZoom": -6
+  }
+}

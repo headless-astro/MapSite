@@ -24,7 +24,7 @@ const MISSING_TILE =
      </svg>`,
   );
 
-interface TileOptions extends L.ImageOverlayOptions {
+export interface TileOptions extends L.ImageOverlayOptions {
   naturalSize: Vec2;
 }
 
@@ -77,25 +77,45 @@ const RotatedTileOverlay = (L.ImageOverlay as any).extend({
 });
 /* eslint-enable @typescript-eslint/no-explicit-any */
 
+/** Low-level factory: place `url` on the given world corners. Reused by the editor. */
+export function createTileOverlay(
+  url: string,
+  cornersLatLng: L.LatLng[],
+  opts: TileOptions,
+): L.ImageOverlay {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return new (RotatedTileOverlay as any)(url, cornersLatLng, opts);
+}
+
+/** Convert a cell's world corners to Leaflet latLngs (TL,TR,BR,BL order). */
+export function cellCornersToLatLng(cell: Cell): L.LatLng[] {
+  return cell.geometry.corners.map((c) => L.latLng(worldToLatLng(c)));
+}
+
 function makeTileOverlay(cell: Cell, pane: string): L.ImageOverlay {
-  const cornersLL = cell.geometry.corners.map((c) => L.latLng(worldToLatLng(c)));
-  const opts: TileOptions = {
+  return createTileOverlay(assetUrl(cell.image.src), cellCornersToLatLng(cell), {
     naturalSize: cell.image.naturalSize,
     opacity: cell.geometry.opacity ?? 1,
-    interactive: false,
+    interactive: true, // clicking a tile opens its reveal popup
     pane,
-    className: 'arelith-tile',
+    className: 'map-tile',
     errorOverlayUrl: MISSING_TILE,
     zIndex: cell.geometry.z,
-  };
-  return new (RotatedTileOverlay as any)(assetUrl(cell.image.src), cornersLL, opts);
+  });
 }
 
 interface CellEntry {
   cell: Cell;
   aabb: { min: Vec2; max: Vec2 };
   overlay: L.ImageOverlay | null;
+  label: L.Marker | null;
   added: boolean;
+}
+
+function escapeHtml(s: string): string {
+  return s.replace(/[&<>"']/g, (c) =>
+    c === '&' ? '&amp;' : c === '<' ? '&lt;' : c === '>' ? '&gt;' : c === '"' ? '&quot;' : '&#39;',
+  );
 }
 
 /**
@@ -107,12 +127,32 @@ interface CellEntry {
 export class CellLayerManager {
   private entries: CellEntry[] = [];
   private tileVisible: (cell: Cell) => boolean = () => true;
+  private onCellClick?: (cell: Cell) => void;
+  private labelsVisible = true;
+  private labelColorOf: (cell: Cell) => string = () => '#888';
 
   constructor(
     private map: L.Map,
     private pane: string,
+    private labelPane: string,
     private padRatio = 0.25,
   ) {}
+
+  /** Register a click handler invoked when a rendered tile is clicked. */
+  setCellClickHandler(fn: (cell: Cell) => void): void {
+    this.onCellClick = fn;
+  }
+
+  /** Show/hide the persistent cell-name labels. */
+  setLabelsVisible(v: boolean): void {
+    this.labelsVisible = v;
+    this.refresh();
+  }
+
+  /** Accent color (per area) applied to a cell's name label. */
+  setLabelColorFn(fn: (cell: Cell) => string): void {
+    this.labelColorOf = fn;
+  }
 
   setCells(cells: Cell[]): void {
     this.clear();
@@ -120,6 +160,7 @@ export class CellLayerManager {
       cell,
       aabb: cellBounds(cell.geometry.corners),
       overlay: null,
+      label: null,
       added: false,
     }));
     this.refresh();
@@ -153,19 +194,54 @@ export class CellLayerManager {
     for (const e of this.entries) {
       const shouldShow = this.tileVisible(e.cell) && boundsIntersect(e.aabb, view, pad);
       if (shouldShow && !e.added) {
-        if (!e.overlay) e.overlay = makeTileOverlay(e.cell, this.pane);
+        if (!e.overlay) {
+          e.overlay = makeTileOverlay(e.cell, this.pane);
+          const cell = e.cell;
+          const overlay = e.overlay;
+          overlay.on('click', () => this.onCellClick?.(cell));
+          // Tag the <img> with its cell id (debugging + testing hooks).
+          overlay.on('add', () => overlay.getElement()?.setAttribute('data-cell', cell.id));
+        }
         e.overlay.addTo(this.map);
         e.added = true;
       } else if (!shouldShow && e.added && e.overlay) {
         e.overlay.remove();
         e.added = false;
       }
+
+      // Name labels follow tile visibility + the labels toggle.
+      const wantLabel = e.added && this.labelsVisible;
+      if (wantLabel && !e.label) {
+        e.label = this.makeLabel(e.cell);
+        e.label.addTo(this.map);
+      } else if (!wantLabel && e.label) {
+        e.label.remove();
+        e.label = null;
+      }
     }
+  }
+
+  private makeLabel(cell: Cell): L.Marker {
+    const br = cell.geometry.corners[2]; // bottom-right corner
+    const color = this.labelColorOf(cell);
+    const icon = L.divIcon({
+      className: 'cell-label-icon',
+      html: `<div class="cell-label" style="border-left-color:${color}">${escapeHtml(cell.name)}</div>`,
+      iconSize: [0, 0],
+      iconAnchor: [0, 0],
+    });
+    return L.marker(L.latLng(worldToLatLng(br)), {
+      icon,
+      pane: this.labelPane,
+      interactive: false,
+      keyboard: false,
+    });
   }
 
   clear(): void {
     for (const e of this.entries) {
       if (e.overlay) e.overlay.remove();
+      if (e.label) e.label.remove();
     }
     this.entries = [];
   }

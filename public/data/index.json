@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "app": "arelith-map",
+  "app": "map-site",
   "catalog": "catalog.json",
   "worlds": [
     {

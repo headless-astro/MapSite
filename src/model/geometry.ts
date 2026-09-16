@@ -124,3 +124,60 @@ export function isAxisAligned(
     Math.abs(tr[0] - br[0]) < eps // right edge vertical
   );
 }
+
+/**
+ * Convex hull (Andrew's monotone chain) of a set of world points. Returns the
+ * hull vertices in order. Used to draw a region outline around an area's cells.
+ */
+export function convexHull(points: Vec2[]): Vec2[] {
+  const pts = points.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  if (pts.length <= 2) return pts.map((p): Vec2 => [p[0], p[1]]);
+  const cross = (o: Vec2, a: Vec2, b: Vec2) =>
+    (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lower: Vec2[] = [];
+  for (const p of pts) {
+    while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], p) <= 0)
+      lower.pop();
+    lower.push(p);
+  }
+  const upper: Vec2[] = [];
+  for (let i = pts.length - 1; i >= 0; i--) {
+    const p = pts[i];
+    while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], p) <= 0)
+      upper.pop();
+    upper.push(p);
+  }
+  lower.pop();
+  upper.pop();
+  return lower.concat(upper);
+}
+
+/**
+ * Inverse of `bilinear` for an AFFINE quad (rotated/scaled rectangle): given a
+ * world point, return its (u, v) within the cell. Uses TL as origin with basis
+ * vectors TR-TL and BL-TL, so it's exact for move/scale/rotate placement (the
+ * editor never free-distorts in v1). Used to turn a map click into a marker uv.
+ */
+export function invBilinearAffine(corners: [Vec2, Vec2, Vec2, Vec2], p: Vec2): Vec2 {
+  const [tl, tr, , bl] = corners;
+  const bx: Vec2 = [tr[0] - tl[0], tr[1] - tl[1]];
+  const by: Vec2 = [bl[0] - tl[0], bl[1] - tl[1]];
+  const dx = p[0] - tl[0];
+  const dy = p[1] - tl[1];
+  const det = bx[0] * by[1] - bx[1] * by[0];
+  if (Math.abs(det) < 1e-9) return [0.5, 0.5];
+  return [(dx * by[1] - dy * by[0]) / det, (bx[0] * dy - bx[1] * dx) / det];
+}
+
+/** Push each polygon vertex outward from the centroid by `pad` world units. */
+export function expandPolygon(points: Vec2[], pad: number): Vec2[] {
+  if (points.length === 0) return [];
+  const cx = points.reduce((s, p) => s + p[0], 0) / points.length;
+  const cy = points.reduce((s, p) => s + p[1], 0) / points.length;
+  return points.map(([x, y]): Vec2 => {
+    const dx = x - cx;
+    const dy = y - cy;
+    const d = Math.hypot(dx, dy) || 1;
+    return [x + (dx / d) * pad, y + (dy / d) * pad];
+  });
+}

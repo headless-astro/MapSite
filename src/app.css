@@ -13,7 +13,11 @@ html, body { margin: 0; height: 100%; }
   --accent: #3d7d5a;
   --accent-text: #ffffff;
   --shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+  --map-bg: #e8e8eb; /* light grey canvas for the map, both themes */
   --sidebar-w: 320px;
+  /* Marker diameter. The map container overrides this from the world's view.markerSize
+     (see DEFAULT_MARKER_SIZE in model/types.ts, which must match this fallback). */
+  --marker-size: 26px;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color-scheme: light dark;
 }
@@ -33,8 +37,8 @@ html, body { margin: 0; height: 100%; }
 body { background: var(--bg); color: var(--text); }
 
 /* Leaflet map fills the area behind the sidebar */
-.map-root { position: absolute; inset: 0; background: var(--bg); }
-.leaflet-container { background: var(--bg); font: inherit; }
+.map-root { position: absolute; inset: 0; background: var(--map-bg); }
+.leaflet-container { background: var(--map-bg); font: inherit; }
 
 /* ---- App shell ---- */
 .app-shell { position: relative; height: 100%; width: 100%; overflow: hidden; }
@@ -64,6 +68,7 @@ body { background: var(--bg); color: var(--text); }
 
 .section { padding: 10px 14px; border-bottom: 1px solid var(--border); }
 .section h2 {
+  display: flow-root; /* contain the floated action buttons so they can't squeeze the first row below */
   font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em;
   color: var(--text-dim); margin: 0 0 8px; font-weight: 700;
 }
@@ -77,6 +82,9 @@ body { background: var(--bg); color: var(--text); }
 .btn:hover { border-color: var(--accent); }
 .btn.small { padding: 3px 7px; font-size: 12px; }
 .btn.accent { background: var(--accent); color: var(--accent-text); border-color: transparent; }
+.btn.danger { background: #c0392b; color: #fff; border-color: transparent; }
+.btn.danger:hover { background: #a93226; border-color: transparent; }
+.btn:disabled { opacity: 0.5; cursor: default; pointer-events: none; }
 .row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
 
 select.world-select {
@@ -113,6 +121,22 @@ select.world-select {
 .tree-children { margin-left: 16px; border-left: 1px solid var(--border); padding-left: 2px; }
 
 .area-item { display: flex; align-items: center; gap: 6px; padding: 2px 0; font-size: 13px; }
+.area-inc { display: flex; align-items: center; gap: 6px; flex: 1; min-width: 0; cursor: pointer; }
+
+/* ---- Cell reveal popup (Leaflet popup content) ---- */
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: var(--shadow);
+}
+.leaflet-popup-content { margin: 10px 12px; font: inherit; }
+.leaflet-container a.leaflet-popup-close-button { color: var(--text-dim); }
+.cell-popup { min-width: 150px; }
+.cp-title { font-weight: 650; font-size: 14px; margin-bottom: 2px; }
+.cp-sub { font-size: 12px; margin-bottom: 2px; }
+.cp-row { display: flex; align-items: center; gap: 6px; padding: 3px 0; cursor: pointer; }
+.cp-row input { accent-color: var(--accent); }
 
 /* checkbox tri-state visual */
 input[type="checkbox"].tri { accent-color: var(--accent); }
@@ -120,15 +144,61 @@ input[type="checkbox"].tri { accent-color: var(--accent); }
 /* ---- Marker + popup ---- */
 .marker-icon {
   display: grid; place-items: center;
-  width: 26px; height: 26px; margin: -13px 0 0 -13px;
+  width: var(--marker-size); height: var(--marker-size);
+  margin: calc(var(--marker-size) / -2) 0 0 calc(var(--marker-size) / -2);
   border-radius: 50%;
   background: var(--panel);
-  border: 2px solid var(--accent);
+  border: max(2px, calc(var(--marker-size) / 13)) solid var(--accent);
   box-shadow: 0 1px 4px rgba(0,0,0,0.35);
-  font-size: 15px; line-height: 1;
+  font-size: calc(var(--marker-size) * 0.58); line-height: 1;
 }
 .marker-icon.npc { border-color: #b5793a; }
-.arelith-tile { image-rendering: auto; }
+.marker-icon img { width: calc(var(--marker-size) * 0.62); height: calc(var(--marker-size) * 0.62); object-fit: contain; }
+.map-tile { image-rendering: auto; }
+
+/* ---- Persistent cell name label (bottom-right corner of each tile) ---- */
+.cell-label-icon { background: none; border: none; }
+.cell-label {
+  position: absolute;
+  transform: translate(calc(-100% - 4px), calc(-100% - 4px));
+  padding: 1px 6px;
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: nowrap;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.6);
+  border-left: 3px solid #888;
+  border-radius: 4px;
+  pointer-events: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* ---- Area region label pill ---- */
+.area-label.leaflet-tooltip {
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+}
+.area-label.leaflet-tooltip::before { display: none; } /* hide the tooltip arrow */
+.area-pill {
+  padding: 2px 9px;
+  border-radius: 11px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+/* ---- Area legend swatch ---- */
+.swatch {
+  width: 12px;
+  height: 12px;
+  flex: 0 0 auto;
+  border-radius: 3px;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+}
 .tile-missing {
   display: grid; place-items: center; color: var(--text-dim);
   background: repeating-linear-gradient(45deg, var(--panel-2), var(--panel-2) 10px, var(--panel) 10px, var(--panel) 20px);
@@ -143,6 +213,137 @@ input[type="checkbox"].tri { accent-color: var(--accent); }
 .status-toast.error { border-color: #c0392b; }
 
 .edit-placeholder { padding: 40px; font-size: 15px; color: var(--text-dim); }
+
+/* ====================== EDITOR ====================== */
+.editor-shell { position: relative; display: flex; height: 100%; width: 100%; overflow: hidden; }
+.editor-left,
+.editor-right {
+  width: 340px;
+  flex: 0 0 340px;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+.editor-right { border-right: none; border-left: 1px solid var(--border); }
+.editor-title { padding: 12px 14px; border-bottom: 1px solid var(--border); font-weight: 650; }
+.editor-scroll { overflow-y: auto; flex: 1; padding-bottom: 24px; }
+.editor-map { position: relative; flex: 1; min-width: 0; background: var(--map-bg); }
+.editor-map .leaflet-container { position: absolute; inset: 0; }
+
+.editor-empty {
+  position: absolute; left: 340px; right: 0; top: 0; bottom: 0;
+  display: grid; place-items: center; z-index: 500; pointer-events: none;
+}
+.editor-empty-card {
+  pointer-events: auto; background: var(--panel); border: 1px solid var(--border);
+  border-radius: 12px; padding: 22px 28px; box-shadow: var(--shadow);
+  text-align: center; max-width: 400px;
+}
+.editor-empty-card h3 { margin: 0 0 6px; font-size: 17px; }
+.editor-empty-card p { margin: 0; }
+
+.place-banner {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  background: var(--accent); color: #fff; padding: 7px 14px; border-radius: 8px;
+  z-index: 1200; font-size: 13px; display: flex; gap: 10px; align-items: center;
+  box-shadow: var(--shadow);
+}
+.place-banner .btn { background: rgba(255,255,255,0.2); color: #fff; border-color: transparent; }
+
+/* modal dialogs (in-app replacement for window.confirm / prompt / alert) */
+.dlg-backdrop {
+  position: fixed; inset: 0; z-index: 3000;
+  display: grid; place-items: center; padding: 16px;
+  background: rgba(0, 0, 0, 0.45);
+}
+.dlg-card {
+  width: min(420px, 100%); padding: 18px 20px;
+  background: var(--panel); color: var(--text);
+  border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow);
+}
+.dlg-title { margin: 0 0 8px; font-size: 15px; font-weight: 650; }
+.dlg-msg { margin: 0; font-size: 13px; line-height: 1.5; white-space: pre-line; overflow-wrap: anywhere; }
+.dlg-input {
+  display: block; width: 100%; margin-top: 12px; padding: 6px 8px; font: inherit;
+  background: var(--panel-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 6px;
+}
+.dlg-input:focus { outline: none; border-color: var(--accent); }
+.dlg-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+
+/* placement handles */
+.edit-handle {
+  width: 22px; height: 22px; margin: -11px 0 0 -11px;
+  display: grid; place-items: center;
+  border-radius: 50%; background: #fff; color: #1a1a1a;
+  border: 2px solid #2f7fff; font-size: 13px; cursor: grab;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.4);
+}
+.edit-handle.rotate { border-color: #8a4fd0; }
+.edit-handle.scale { border-color: #d08a2a; cursor: nwse-resize; }
+.edit-handle.move { cursor: move; }
+
+/* editor marker dots */
+.edit-marker {
+  width: var(--marker-size); height: var(--marker-size);
+  margin: calc(var(--marker-size) / -2) 0 0 calc(var(--marker-size) / -2);
+  display: grid; place-items: center; border-radius: 50%;
+  background: var(--panel); border: max(2px, calc(var(--marker-size) / 13)) solid var(--accent);
+  font-size: calc(var(--marker-size) * 0.58); line-height: 1; box-shadow: 0 1px 3px rgba(0,0,0,0.35);
+}
+.edit-marker.npc { border-color: #b5793a; }
+.edit-marker img { width: calc(var(--marker-size) * 0.62); height: calc(var(--marker-size) * 0.62); object-fit: contain; }
+
+/* structure panel */
+.struct-area { margin-bottom: 8px; }
+.struct-area-head { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 650; padding: 2px 0; }
+.struct-area-head .tname { flex: 1; }
+.struct-cell {
+  display: block; width: 100%; text-align: left; font: inherit; font-size: 13px;
+  background: none; border: 1px solid transparent; border-radius: 5px; padding: 3px 6px;
+  color: var(--text); cursor: pointer;
+}
+.struct-cell:hover { background: var(--panel-2); }
+.struct-cell.checked { background: rgba(208, 138, 42, 0.18); }
+.struct-cell.sel { background: var(--accent); color: #fff; }
+label.struct-cell { display: flex; align-items: center; gap: 6px; }
+
+/* multi-select mode: tick boxes on list rows + a "Delete selected" row per section */
+.pick { accent-color: var(--accent); margin: 0; flex: 0 0 auto; cursor: pointer; }
+.bulk-row { display: flex; align-items: center; gap: 6px; font-size: 12px; margin: 2px 0 8px; clear: both; }
+.bulk-row .muted { flex: 1; min-width: 0; }
+.iconbtn:disabled { opacity: 0.5; pointer-events: none; }
+
+/* taxonomy editor */
+.tax-row { display: flex; align-items: center; gap: 5px; padding: 3px 0; font-size: 13px; }
+.tax-row .tname { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tax-children { margin-left: 14px; border-left: 1px solid var(--border); padding-left: 4px; }
+
+/* compact, clean text row-action buttons (subtle until hover) */
+.tax-actions { display: inline-flex; align-items: center; gap: 3px; flex: 0 0 auto; }
+.iconbtn {
+  background: none; border: 1px solid transparent; border-radius: 5px;
+  padding: 1px 6px; font-size: 11px; line-height: 1.6; cursor: pointer; color: var(--text-dim);
+}
+.iconbtn:hover { background: var(--panel-2); border-color: var(--border); color: var(--text); }
+.iconbtn.danger:hover { color: #c0392b; border-color: #c0392b; background: none; }
+.ticon-img { width: 18px; height: 18px; object-fit: contain; flex: 0 0 auto; vertical-align: middle; }
+
+/* inspector */
+.insp-row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 3px 0; }
+.insp-row > span { width: 64px; flex: 0 0 auto; color: var(--text-dim); }
+.insp-row input:not([type='range']),
+.insp-row select { flex: 1; min-width: 0; font: inherit; padding: 3px 6px; background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 5px; }
+.insp-row input[type='range'] { flex: 1; }
+.insp-check { display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 3px 0; cursor: pointer; }
+.insp-marker { display: flex; align-items: center; gap: 6px; font-size: 13px; padding: 2px 0; }
+.insp-marker .tname { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.insp-marker .msize {
+  width: 52px; font: inherit; font-size: 12px; padding: 1px 4px;
+  background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 5px;
+}
 .muted { color: var(--text-dim); }
 .count-badge {
   font-size: 11px; color: var(--text-dim); background: var(--panel-2);

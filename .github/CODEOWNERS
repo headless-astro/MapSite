@@ -1,0 +1,13 @@
+# Every change requires the maintainer's review before it can be merged.
+
+# Pair this with a branch-protection rule on `main`: "Require review from Code Owners".
+
+#
+
+# ⚠️ Replace @YOUR-GITHUB-USERNAME with your actual GitHub handle (keep the @).
+
+# A catch-all is used on purpose: it can never accidentally omit a sensitive
+
+# file (index.html/CSP, workflows, package.json, committed data & images).
+
+- @headless-astro

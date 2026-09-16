@@ -5,12 +5,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Least privilege at the top; each job narrows further. There is deliberately NO
+# pull_request / pull_request_target trigger, so fork PRs never run CI, never get
+# a token, and never touch the deployment.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
-# Only one concurrent deployment; let an in-progress run finish.
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -18,8 +18,20 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # The build runs untrusted dependency code (npm ci + Vite); keep it token-less.
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false # keep the git token out of .git/config
+      - name: Reject script-capable assets under public/
+        run: |
+          bad=$(find public -type f \( -iname '*.svg' -o -iname '*.htm' -o -iname '*.html' -o -iname '*.xhtml' -o -iname '*.xml' \) || true)
+          if [ -n "$bad" ]; then
+            echo "::error::Refusing to deploy script-capable assets under public/ (they execute on the Pages origin): $bad"
+            exit 1
+          fi
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -27,7 +39,6 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          # Project sites live under /<repo>/. Vite `base` + paths.ts consume this.
           VITE_BASE: /${{ github.event.repository.name }}/
       - uses: actions/upload-pages-artifact@v3
         with:
@@ -36,6 +47,10 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    # Only the deploy job gets the privileged tokens.
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

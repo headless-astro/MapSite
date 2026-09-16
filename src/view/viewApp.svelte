@@ -5,16 +5,20 @@
   import {
     initApp,
     resetWorld,
+    setCellReveal,
     status,
     errorMsg,
     warnings,
     toast,
     renderState,
+    displayPrefs,
   } from './store';
   import WorldSwitcher from './WorldSwitcher.svelte';
+  import RevealControls from './RevealControls.svelte';
   import SearchTree from './SearchTree.svelte';
   import NpcFilter from './NpcFilter.svelte';
   import AreaFilter from './AreaFilter.svelte';
+  import DisplayOptions from './DisplayOptions.svelte';
 
   let mapEl: HTMLDivElement;
   let ctl: MapController | null = null;
@@ -25,15 +29,18 @@
   onMount(() => {
     installFlushHandlers();
     ctl = new MapController(mapEl);
+    ctl.setRevealHandlers({ toggleCellReveal: setCellReveal });
 
-    const unsub = renderState.subscribe(({ world, catalog, search }) => {
+    const unsub = renderState.subscribe(({ world, catalog, search, reveal }) => {
       if (!ctl || !world || !catalog) return;
       if (world.id !== lastWorldId) {
-        ctl.setWorld({ world, catalog });
+        ctl.setWorld({ world, catalog }, reveal, search);
         lastWorldId = world.id;
+      } else {
+        ctl.applyState(reveal, search);
       }
-      ctl.applySearch(search);
     });
+    const unsubPrefs = displayPrefs.subscribe((p) => ctl?.setDisplayPrefs(p));
 
     const onResize = () => ctl?.invalidateSize();
     window.addEventListener('resize', onResize);
@@ -42,6 +49,7 @@
 
     return () => {
       unsub();
+      unsubPrefs();
       window.removeEventListener('resize', onResize);
       ctl?.destroy();
       ctl = null;
@@ -74,7 +82,7 @@
 
   <aside class="sidebar" class:collapsed>
     <div class="sidebar-header">
-      <h1>Arelith Map</h1>
+      <h1>Interactive Map</h1>
       <button
         class="btn small"
         style="margin-left:auto"
@@ -94,9 +102,11 @@
         </div>
       {:else}
         <WorldSwitcher />
+        <RevealControls />
         <SearchTree />
         <NpcFilter />
         <AreaFilter />
+        <DisplayOptions />
 
         <div class="section">
           <div class="row">

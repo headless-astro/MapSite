@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { validateCatalog, validateManifest, validateWorld } from './schema';
-import type { Catalog } from './types';
+import { MARKER_SIZE_MAX, type Catalog } from './types';
 
 const catalog: Catalog = {
   schemaVersion: 1,
@@ -76,6 +76,60 @@ describe('validateWorld (defensive repair)', () => {
     expect(value.cells).toHaveLength(1);
     expect(value.cells[0].areaId).toBeNull();
     expect(warnings.some((w) => w.includes('missing area'))).toBe(true);
+  });
+
+  it('keeps a valid view.markerSize, clamps an out-of-range one and drops a non-number', () => {
+    const withSize = (markerSize: unknown) =>
+      validateWorld(
+        {
+          schemaVersion: 1,
+          id: 'w',
+          slug: 'w',
+          name: 'W',
+          view: { minZoom: -4, maxZoom: 4, markerSize },
+          config: { searchRespectsReveal: true, declutter: { enabled: false, hideMarkersBelowZoom: null } },
+          areas: [],
+          cells: [baseCell({ areaId: null })],
+        },
+        catalog,
+      );
+    const ok = withSize(40);
+    expect(ok.value.view.markerSize).toBe(40);
+    expect(ok.warnings).toHaveLength(0);
+
+    const big = withSize(500);
+    expect(big.value.view.markerSize).toBe(MARKER_SIZE_MAX);
+    expect(big.warnings).toHaveLength(1);
+
+    const bad = withSize('huge');
+    expect(bad.value.view.markerSize).toBeUndefined();
+    expect(bad.warnings).toHaveLength(1);
+  });
+
+  it('sanitizes a per-marker size override the same way', () => {
+    const raw = {
+      schemaVersion: 1,
+      id: 'w',
+      slug: 'w',
+      name: 'W',
+      view: { minZoom: -4, maxZoom: 4 },
+      config: { searchRespectsReveal: true, declutter: { enabled: false, hideMarkersBelowZoom: null } },
+      areas: [],
+      cells: [
+        baseCell({
+          areaId: null,
+          markers: [
+            { id: 'fine', kind: 'resource', refId: 'res_berry', uv: [0.5, 0.5], size: 40 },
+            { id: 'big', kind: 'resource', refId: 'res_berry', uv: [0.5, 0.5], size: 500 },
+            { id: 'junk', kind: 'resource', refId: 'res_berry', uv: [0.5, 0.5], size: 'xl' },
+          ],
+        }),
+      ],
+    };
+    const { value, warnings } = validateWorld(raw, catalog);
+    const sizes = value.cells[0].markers.map((m) => m.size);
+    expect(sizes).toEqual([40, MARKER_SIZE_MAX, undefined]);
+    expect(warnings).toHaveLength(2);
   });
 
   it('cascades area defaultReveal to a cell that lacks its own', () => {

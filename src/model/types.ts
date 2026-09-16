@@ -1,5 +1,5 @@
 // ============================================================================
-// Arelith Map — canonical data model (SHARED between viewer and editor)
+// Canonical data model (SHARED between viewer and editor)
 //
 // The editor WRITES this shape; the viewer READS it. Both compile against this
 // file, so the two can never drift. Nothing here depends on Leaflet or the DOM.
@@ -16,12 +16,17 @@ export type Vec2 = [number, number];
 /** Current schema version for committed data. Bump + add a migration on change. */
 export const SCHEMA_VERSION = 1;
 
+/** Marker diameter in CSS px when a world sets no `view.markerSize` (keep in sync with --marker-size in app.css). */
+export const DEFAULT_MARKER_SIZE = 26;
+export const MARKER_SIZE_MIN = 12;
+export const MARKER_SIZE_MAX = 72;
+
 // ---------------------------------------------------------------------------
 // data/index.json — manifest (always loaded, tiny)
 // ---------------------------------------------------------------------------
 export interface Manifest {
   schemaVersion: number;
-  app: 'arelith-map';
+  app: 'map-site';
   catalog: string; // relative path, e.g. "catalog.json"
   worlds: WorldRef[];
 }
@@ -85,6 +90,8 @@ export interface World {
     fitAll?: boolean;
     initialCenter?: Vec2;
     initialZoom?: number;
+    /** Marker diameter in CSS px (default DEFAULT_MARKER_SIZE); emoji and image icons scale with it. */
+    markerSize?: number;
   };
   config: {
     /** Default true: search can only narrow what reveal permits, never surface hidden markers. */
@@ -149,6 +156,8 @@ export interface Marker {
   /** normalized position within the cell image: [u, v] in [0,1]. */
   uv: Vec2;
   nameOverride?: string;
+  /** Per-marker diameter in CSS px; overrides the world's view.markerSize. */
+  size?: number;
   /** author escape hatch: never shown regardless of reveal/search. */
   hidden?: boolean;
   note?: string;

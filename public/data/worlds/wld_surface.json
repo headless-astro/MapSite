@@ -1,113 +1,205 @@
 {
-  "schemaVersion": 1,
-  "id": "wld_surface",
-  "slug": "surface",
-  "name": "Surface",
-  "view": { "minZoom": -6, "maxZoom": 4, "fitAll": true },
-  "config": {
-    "searchRespectsReveal": true,
-    "declutter": { "enabled": false, "hideMarkersBelowZoom": null }
-  },
   "areas": [
-    { "id": "area_swamp", "name": "The Mire", "order": 0 },
-    { "id": "area_forest", "name": "Whisper Wood", "order": 1 }
+    {
+      "id": "area_VRGgxP9g",
+      "name": "Guldorand",
+      "order": 0
+    }
   ],
+  "config": {
+    "declutter": {
+      "enabled": false,
+      "hideMarkersBelowZoom": null
+    },
+    "searchRespectsReveal": true
+  },
+  "id": "wld_surface",
+  "name": "Surface",
+  "schemaVersion": 1,
+  "slug": "surface",
+  "view": {
+    "fitAll": true,
+    "markerSize": 50,
+    "maxZoom": 4,
+    "minZoom": -6
+  },
   "cells": [
     {
-      "id": "cell_pond",
-      "name": "Old Mill Pond",
-      "areaId": "area_swamp",
-      "order": 0,
-      "image": { "src": "assets/wld_surface/img/pond.png", "hash": "pond", "mime": "image/png", "naturalSize": [256, 256] },
-      "geometry": { "corners": [[0, 0], [900, 0], [900, 900], [0, 900]], "z": 0 },
-      "hidden": false,
-      "defaultReveal": { "resources": true, "npcs": true },
-      "unlock": { "keywords": [] },
-      "markers": [
-        { "id": "mrk_p1", "kind": "resource", "refId": "res_berry", "uv": [0.31, 0.42] },
-        { "id": "mrk_p2", "kind": "resource", "refId": "res_crableg", "uv": [0.66, 0.71], "nameOverride": "Big crab under the dock" },
-        { "id": "mrk_p3", "kind": "npc", "refId": "npct_merchant", "uv": [0.2, 0.8], "nameOverride": "Fishmonger Gale" }
-      ]
-    },
-    {
-      "id": "cell_mill",
-      "name": "Ruined Mill",
-      "areaId": "area_swamp",
-      "order": 1,
-      "image": { "src": "assets/wld_surface/img/mill.png", "hash": "mill", "mime": "image/png", "naturalSize": [256, 256] },
-      "geometry": { "corners": [[1000, 0], [1900, 0], [1900, 900], [1000, 900]], "z": 0 },
-      "hidden": false,
-      "defaultReveal": { "resources": true, "npcs": true },
-      "unlock": { "keywords": [] },
-      "markers": [
-        { "id": "mrk_m1", "kind": "resource", "refId": "res_fish", "uv": [0.4, 0.5] },
-        { "id": "mrk_m2", "kind": "resource", "refId": "res_iron", "uv": [0.72, 0.3] }
-      ]
-    },
-    {
-      "id": "cell_crypt",
-      "name": "Sunken Crypt",
-      "areaId": "area_swamp",
-      "order": 2,
-      "image": { "src": "assets/wld_surface/img/crypt.png", "hash": "crypt", "mime": "image/png", "naturalSize": [256, 256] },
-      "geometry": { "corners": [[400, 1000], [1100, 1000], [1100, 1700], [400, 1700]], "z": 1 },
-      "hidden": true,
-      "defaultReveal": { "resources": false, "npcs": false },
-      "unlock": { "keywords": ["drowned-key", "crypt-sigil"] },
-      "markers": [
-        { "id": "mrk_c1", "kind": "npc", "refId": "npct_merchant", "uv": [0.5, 0.5], "nameOverride": "Bog Peddler" },
-        { "id": "mrk_c2", "kind": "resource", "refId": "res_ruby", "uv": [0.3, 0.62] }
-      ]
-    },
-    {
-      "id": "cell_glade",
-      "name": "Berry Glade",
-      "areaId": "area_forest",
-      "order": 0,
-      "image": { "src": "assets/wld_surface/img/glade.png", "hash": "glade", "mime": "image/png", "naturalSize": [256, 256] },
-      "geometry": { "corners": [[2100, 0], [3000, 0], [3000, 900], [2100, 900]], "z": 0 },
-      "hidden": false,
-      "defaultReveal": { "resources": true, "npcs": true },
-      "unlock": { "keywords": [] },
-      "markers": [
-        { "id": "mrk_g1", "kind": "resource", "refId": "res_berry", "uv": [0.2, 0.3] },
-        { "id": "mrk_g2", "kind": "resource", "refId": "res_berry", "uv": [0.75, 0.55] },
-        { "id": "mrk_g3", "kind": "resource", "refId": "res_venison", "uv": [0.5, 0.82] },
-        { "id": "mrk_g4", "kind": "npc", "refId": "npct_trainer", "uv": [0.4, 0.15], "nameOverride": "Forester Wynn" }
-      ]
-    },
-    {
-      "id": "cell_oak",
-      "name": "The Old Oak (rotated)",
-      "areaId": "area_forest",
-      "order": 1,
-      "image": { "src": "assets/wld_surface/img/oak.png", "hash": "oak", "mime": "image/png", "naturalSize": [256, 256] },
+      "areaId": "area_VRGgxP9g",
+      "defaultReveal": {
+        "npcs": true,
+        "resources": true
+      },
       "geometry": {
-        "corners": [[2453.6, 753.6], [3146.4, 1153.6], [2746.4, 1846.4], [2053.6, 1446.4]],
+        "corners": [
+          [
+            964.0865092721995,
+            -1598.327660108992
+          ],
+          [
+            1835.9024555964284,
+            -1598.327660108992
+          ],
+          [
+            1835.9024555964284,
+            -648.7440941595974
+          ],
+          [
+            964.0865092721995,
+            -648.7440941595974
+          ]
+        ],
+        "locked": true,
+        "opacity": 1,
         "z": 0
       },
       "hidden": false,
-      "defaultReveal": { "resources": true, "npcs": true },
-      "unlock": { "keywords": [] },
+      "id": "cell_FfwHR3J0",
+      "image": {
+        "hash": "b31b7c539586754f",
+        "mime": "image/png",
+        "naturalSize": [
+          213,
+          232
+        ],
+        "src": "assets/wld_surface/img/b31b7c539586754f.png"
+      },
       "markers": [
-        { "id": "mrk_o1", "kind": "resource", "refId": "res_mushroom", "uv": [0.5, 0.5] },
-        { "id": "mrk_o2", "kind": "resource", "refId": "res_sapphire", "uv": [0.3, 0.3], "note": "Wedged in the roots." }
-      ]
-    },
-    {
-      "id": "cell_shore",
-      "name": "Whispering Shore",
-      "areaId": "area_forest",
-      "order": 2,
-      "image": { "src": "assets/wld_surface/img/shore.png", "hash": "shore", "mime": "image/png", "naturalSize": [256, 256] },
-      "geometry": { "corners": [[3200, 0], [4100, 0], [4100, 900], [3200, 900]], "z": 0 },
-      "hidden": false,
-      "defaultReveal": { "resources": true, "npcs": true },
-      "unlock": { "keywords": [] },
-      "markers": [
-        { "id": "mrk_s1", "kind": "resource", "refId": "res_fish", "uv": [0.5, 0.5] },
-        { "id": "mrk_s2", "kind": "resource", "refId": "res_crableg", "uv": [0.3, 0.7] }
-      ]
+        {
+          "id": "mrk_I3NIdvsG",
+          "kind": "resource",
+          "refId": "res_ccTrFpV3",
+          "size": 30,
+          "uv": [
+            0.9123419134511613,
+            0.22600746632441704
+          ]
+        },
+        {
+          "id": "mrk_KEWh9ocC",
+          "kind": "resource",
+          "refId": "res_1tKDCiFk",
+          "size": 30,
+          "uv": [
+            0.9268066097401583,
+            0.22423657450143153
+          ]
+        },
+        {
+          "id": "mrk_UvrGGcjq",
+          "kind": "resource",
+          "refId": "res_jrmbYZaX",
+          "size": 40,
+          "uv": [
+            0.969909763739071,
+            0.07013685736212652
+          ]
+        },
+        {
+          "id": "mrk_X3FB661O",
+          "kind": "resource",
+          "refId": "res_jrmbYZaX",
+          "size": 40,
+          "uv": [
+            0.8362627885780289,
+            0.20036665750734386
+          ]
+        },
+        {
+          "id": "mrk_bNHwCGRD",
+          "kind": "resource",
+          "refId": "res_WGLQ1ok6",
+          "size": 30,
+          "uv": [
+            0.9407891494861879,
+            0.11709766740517155
+          ]
+        },
+        {
+          "id": "mrk_cIHMLiGj",
+          "kind": "resource",
+          "refId": "res_hzdnDntk",
+          "uv": [
+            0.6561827874666653,
+            0.13646893428597792
+          ]
+        },
+        {
+          "id": "mrk_dKHgT0II",
+          "kind": "resource",
+          "refId": "res_q9BfMl8z",
+          "size": 50,
+          "uv": [
+            0.8348593062157288,
+            0.06889146345848525
+          ]
+        },
+        {
+          "id": "mrk_hKFpOuif",
+          "kind": "resource",
+          "refId": "res_E53hIh7I",
+          "size": 30,
+          "uv": [
+            0.90308627615855,
+            0.2153931729087151
+          ]
+        },
+        {
+          "id": "mrk_jcWl0uqG",
+          "kind": "resource",
+          "refId": "res_C8EOhQ7T",
+          "size": 30,
+          "uv": [
+            0.9518787499744185,
+            0.11754039036091818
+          ]
+        },
+        {
+          "id": "mrk_kZuqNhFY",
+          "kind": "resource",
+          "refId": "res_aY89Ts9i",
+          "size": 30,
+          "uv": [
+            0.9523609065173849,
+            0.10647231646725792
+          ]
+        },
+        {
+          "id": "mrk_r2izzcNe",
+          "kind": "resource",
+          "refId": "res_eWcpFVX5",
+          "size": 30,
+          "uv": [
+            0.917163478880827,
+            0.21493939243075705
+          ]
+        },
+        {
+          "id": "mrk_to3N5xnm",
+          "kind": "resource",
+          "refId": "res_nyX5345F",
+          "size": 50,
+          "uv": [
+            0.8491794063225442,
+            0.2538990607308105
+          ]
+        },
+        {
+          "id": "mrk_u5i059IG",
+          "kind": "resource",
+          "refId": "res_C8EOhQ7T",
+          "size": 30,
+          "uv": [
+            0.8973950606191988,
+            0.22822112929751923
+          ]
+        }
+      ],
+      "name": "Old Mine Road",
+      "order": 0,
+      "unlock": {
+        "keywords": []
+      }
     }
   ]
 }

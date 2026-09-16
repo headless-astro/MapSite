@@ -1,9 +1,9 @@
 // Per-world player state, persisted to localStorage. This is the ONLY module
-// that touches the `arelith:v1:*` keys. The editor never reads or writes them —
+// that touches the `mapsite:v1:*` keys. The editor never reads or writes them —
 // authored data lives in files, player choices live here (a clean boundary).
 //
 // Design notes:
-//  - One JSON blob per world (`arelith:v1:pstate:<worldId>`): synchronous first
+//  - One JSON blob per world (`mapsite:v1:pstate:<worldId>`): synchronous first
 //    paint, per-world isolation, atomic reset. Stores only EXCEPTIONS to authored
 //    defaults, so it stays kilobyte-scale even at hundreds of cells.
 //  - `v1` = storage-layout version (key namespace). `schemaVersion` = value shape.
@@ -12,7 +12,7 @@
 
 import type { Id, Vec2 } from '../model/types';
 
-export const STORAGE_PREFIX = 'arelith:v1';
+export const STORAGE_PREFIX = 'mapsite:v1';
 export const PLAYER_STATE_VERSION = 1;
 
 export interface PlayerState {

@@ -1,0 +1,45 @@
+{
+  "areaId": "area_caves",
+  "defaultReveal": {
+    "npcs": true,
+    "resources": true
+  },
+  "geometry": {
+    "corners": [
+      [
+        1000,
+        0
+      ],
+      [
+        1900,
+        0
+      ],
+      [
+        1900,
+        900
+      ],
+      [
+        1000,
+        900
+      ]
+    ],
+    "z": 0
+  },
+  "hidden": false,
+  "id": "cell_mush",
+  "image": {
+    "hash": "mush",
+    "mime": "image/png",
+    "naturalSize": [
+      256,
+      256
+    ],
+    "src": "assets/wld_underdark/img/mush.png"
+  },
+  "markers": [],
+  "name": "Fungal Grotto",
+  "order": 1,
+  "unlock": {
+    "keywords": []
+  }
+}

@@ -1,14 +1,18 @@
 {
-  "name": "arelith-map",
+  "name": "map-site",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Infinity-Nikki-style interactive resource/NPC map for Arelith. Static, no backend.",
+  "description": "Infinity-Nikki-style additive interactive resource/NPC map. Static, no backend.",
   "scripts": {
+    "build:data": "node scripts/build-data.mjs",
+    "predev": "npm run build:data",
     "dev": "vite",
+    "prebuild": "npm run build:data",
     "build": "vite build",
     "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
+    "pretest": "npm run build:data",
     "test": "vitest run",
     "test:watch": "vitest"
   },
@@ -23,6 +27,8 @@
     "vitest": "^2.1.5"
   },
   "dependencies": {
+    "dexie": "^4.4.4",
+    "fflate": "^0.8.3",
     "leaflet": "^1.9.4"
   }
 }

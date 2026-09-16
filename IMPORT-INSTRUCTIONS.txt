@@ -1,0 +1,13 @@
+This ZIP mirrors the repository's SOURCE layout.
+
+To publish your changes:
+1. Unzip it into the repository ROOT. It adds/updates:
+     data-src/        (the map data you edited — one small file per cell)
+     public/assets/   (tile & icon images)
+2. Create a branch, commit the changes, and open a Pull Request.
+3. The maintainer reviews and merges; the site rebuilds automatically.
+
+Why per-cell files: you edit data-src/worlds/<world>/cells/<cell>.json, so two
+people editing different cells never conflict in Git.
+
+Do NOT edit public/data/ — it is GENERATED from data-src/ at build time.

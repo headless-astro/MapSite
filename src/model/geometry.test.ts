@@ -3,7 +3,10 @@ import {
   bilinear,
   boundsIntersect,
   cellBounds,
+  convexHull,
   cornersFromCenter,
+  expandPolygon,
+  invBilinearAffine,
   isAxisAligned,
   latLngToWorld,
   worldToLatLng,
@@ -32,6 +35,20 @@ describe('bilinear', () => {
   });
   it('returns the center at (0.5, 0.5)', () => {
     expect(bilinear(corners, 0.5, 0.5)).toEqual([5, 10]);
+  });
+});
+
+describe('invBilinearAffine round-trips bilinear', () => {
+  it('recovers uv for a rotated rectangle', () => {
+    const corners = cornersFromCenter([100, 50], [40, 20], 25);
+    for (const [u, v] of [
+      [0, 0], [1, 0], [1, 1], [0, 1], [0.3, 0.7], [0.5, 0.5],
+    ] as Vec2[]) {
+      const p = bilinear(corners, u, v);
+      const uv = invBilinearAffine(corners, p);
+      expect(uv[0]).toBeCloseTo(u, 6);
+      expect(uv[1]).toBeCloseTo(v, 6);
+    }
   });
 });
 
@@ -77,5 +94,30 @@ describe('cellBounds / boundsIntersect', () => {
     const b = { min: [20, 0] as Vec2, max: [30, 10] as Vec2 };
     expect(boundsIntersect(a, b)).toBe(false);
     expect(boundsIntersect(a, b, 15)).toBe(true); // pad bridges the gap
+  });
+});
+
+describe('convexHull / expandPolygon', () => {
+  it('returns the outer corners of a point cloud, dropping interior points', () => {
+    const pts: Vec2[] = [
+      [0, 0], [10, 0], [10, 10], [0, 10], // square corners
+      [5, 5], // interior
+    ];
+    const hull = convexHull(pts);
+    expect(hull).toHaveLength(4);
+    expect(new Set(hull.map((p) => p.join(',')))).toEqual(
+      new Set(['0,0', '10,0', '10,10', '0,10']),
+    );
+    expect(hull).not.toContainEqual([5, 5]);
+  });
+
+  it('expands a polygon outward from its centroid', () => {
+    const square: Vec2[] = [[0, 0], [10, 0], [10, 10], [0, 10]]; // centroid (5,5)
+    const grown = expandPolygon(square, Math.SQRT2 * 5); // diagonal push of 5,5
+    // each corner moves diagonally outward by ~5 in x and y
+    expect(grown[0][0]).toBeCloseTo(-5, 4);
+    expect(grown[0][1]).toBeCloseTo(-5, 4);
+    expect(grown[2][0]).toBeCloseTo(15, 4);
+    expect(grown[2][1]).toBeCloseTo(15, 4);
   });
 });

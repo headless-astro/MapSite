@@ -1,6 +1,6 @@
-# Arelith Interactive Map
+# Interactive Map
 
-An Infinity-Nikki-style interactive resource/NPC map for Arelith. Static, free to
+An Infinity-Nikki-style additive interactive resource/NPC map. Static, free to
 host (GitHub Pages), no backend. Built with Leaflet + Svelte 5 + Vite + TypeScript.
 
 The map is **additive**: each world is built from image tiles ("cells") placed on a
@@ -10,13 +10,28 @@ type, all saved locally in their browser (per world).
 
 ## Status
 
-**Phase 1 (current): viewer over hand-authored data.** Renders worlds/areas/cells +
-resource/NPC markers, per-world resource & NPC search (variable-depth taxonomy with
-solo / all / none), an included-areas filter, world switching, viewport culling, and
-rotation-capable tiles. State persists per world in `localStorage`.
+**Phases 1–3 done: viewer + reveal system + in-app editor.**
 
-Later phases (see the plan): reveal & spoiler system, the in-app editor, editor
-ergonomics, clustering/progress, and the future keyword-unlock.
+- **Phase 1** — worlds/areas/cells + resource/NPC markers, per-world resource & NPC
+  search (variable-depth taxonomy with solo / all / none), included-areas filter, world
+  switching (`#/w/<slug>`), viewport culling, rotation-capable tiles. Persistent cell-name
+  labels + per-area region outlines with a color legend.
+- **Phase 2** — reveal & spoiler system (rules R1–R9): hidden tiles withheld (image not
+  fetched until revealed), per-area "reveal hidden" (tiles-only), per-cell reveal via a
+  tile-click popup, and a global tri-state "reveal all" sweep over currently-rendered
+  cells (so unlocking a hidden area never auto-reveals its markers).
+- **Phase 3** — the in-app **editor** (`npm run dev` + `?edit=1`; **excluded from
+  production builds** via `import.meta.env.DEV`, so it can't be opened on the deployed
+  site and its code/deps aren't even shipped): drag image files to add tiles,
+  move/scale/rotate placement handles,
+  worlds/areas/cells CRUD, a taxonomy + NPC-type editor, click-to-place markers, and
+  **Import** (from the published site or a ZIP) + **Export ZIP** (deterministic JSON for
+  clean PR diffs). Contribution is via Pull Request — see [CONTRIBUTING.md](CONTRIBUTING.md).
+
+All player state persists per world in `localStorage`; editor drafts persist in IndexedDB.
+
+**Later:** editor ergonomics (undo, File System Access direct-write), marker clustering,
+progress tracking, and the future keyword-unlock. See the plan for the full roadmap.
 
 ## Develop
 
@@ -29,15 +44,32 @@ npm run build      # production build → dist/
 npm run preview    # serve the built dist/
 ```
 
-## Data layout (`public/data/`)
+## Data layout — source vs. generated
 
-- `index.json` — manifest: the list of worlds + a pointer to the catalog (always loaded).
-- `catalog.json` — shared taxonomy forest, NPC types, and icons (always loaded).
-- `worlds/<id>.json` — one file per world: areas, cells, and their markers (loaded lazily,
-  one world at a time — so searching one world never touches another).
+**Source of truth is `data-src/` — one small file per cell** (so two contributors editing
+different cells never conflict in Git):
 
-Tile images live under `public/assets/<world>/img/`. Everything in `public/` is committed
-as-is and served statically.
+```
+data-src/
+  catalog.json                       # shared taxonomy (resources, NPC types, icons)
+  worlds/<worldId>/
+    world.json                       # world metadata: name, view, config, areas
+    cells/<cellId>.json              # ONE cell (+ its markers) per file
+public/assets/<world>/img/<hash>.<ext>   # tile & icon images (committed, content-addressed)
+```
+
+**`public/data/` is GENERATED — never edit or commit it** (it's gitignored). The bundler
+(`scripts/build-data.mjs`, run automatically before `dev`/`build`/`test`) stitches the
+per-cell source into the flat files the viewer loads:
+
+- `data/index.json` — manifest (worlds list + catalog pointer).
+- `data/catalog.json` — the shared taxonomy.
+- `data/worlds/<id>.json` — one bundled file per world (areas + all its cells).
+
+So the **player side is unchanged** — it still fetches one file per world; the per-cell
+split exists only to keep contributions merge-clean.
+
+Run the bundler manually with `npm run build:data`.
 
 ## Deploy (GitHub Pages)
 
@@ -48,13 +80,14 @@ against that base path (see `src/paths.ts`), so the project-path hosting can't b
 > Enable Pages once in the repo: **Settings → Pages → Build and deployment → Source:
 > GitHub Actions.**
 
-## Architecture (Phase 1)
+## Architecture
 
 - `src/model/` — shared, framework-free data model: `types`, `ids`, `geometry`,
   `taxonomy`, `schema` (defensive validation + migration).
-- `src/logic/` — pure rules: `searchController` (S1–S5).
+- `src/logic/` — pure, unit-tested rules: `searchController` (S1–S5) and
+  `revealController` (R1–R9).
 - `src/map/` — Leaflet layer (outside the component tree): `mapController`, `cellLayer`
-  (affine transform handles axis-aligned *and* rotated tiles, + culling), `markerLayer`
-  (registry + inverted indexes + culling).
-- `src/state/` — `playerState` (per-world `localStorage`, the only writer of `arelith:v1:*`).
+  (affine transform handles axis-aligned *and* rotated tiles, + culling + reveal-gated
+  tiles), `markerLayer` (registry + inverted indexes + culling), `cellPopup`.
+- `src/state/` — `playerState` (per-world `localStorage`, the only writer of `mapsite:v1:*`).
 - `src/view/` — Svelte UI + the `store` that bridges data to the map.

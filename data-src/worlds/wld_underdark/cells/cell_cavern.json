@@ -1,0 +1,45 @@
+{
+  "areaId": "area_caves",
+  "defaultReveal": {
+    "npcs": true,
+    "resources": true
+  },
+  "geometry": {
+    "corners": [
+      [
+        0,
+        0
+      ],
+      [
+        900,
+        0
+      ],
+      [
+        900,
+        900
+      ],
+      [
+        0,
+        900
+      ]
+    ],
+    "z": 0
+  },
+  "hidden": false,
+  "id": "cell_cavern",
+  "image": {
+    "hash": "cavern",
+    "mime": "image/png",
+    "naturalSize": [
+      256,
+      256
+    ],
+    "src": "assets/wld_underdark/img/cavern.png"
+  },
+  "markers": [],
+  "name": "Glittering Cavern",
+  "order": 0,
+  "unlock": {
+    "keywords": []
+  }
+}

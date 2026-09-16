@@ -17,10 +17,18 @@ import {
   type WorldSearchIndex,
 } from '../logic/searchController';
 import {
+  emptyRevealState,
+  globalReveal as globalRevealPure,
+  setAreaRevealHidden as setAreaHiddenPure,
+  setCellReveal as setCellRevealPure,
+  type RevealState,
+} from '../logic/revealController';
+import {
   flushPlayerState,
   loadPlayerState,
   resetPlayerState,
   savePlayerState,
+  STORAGE_PREFIX,
   type PlayerState,
 } from '../state/playerState';
 import { loadCatalog, loadManifest, loadWorld } from './loaders';
@@ -35,13 +43,53 @@ export const worldRef = writable<WorldRef | null>(null);
 export const world = writable<World | null>(null);
 export const worldIndex = writable<WorldSearchIndex | null>(null);
 export const search = writable<SearchState>(emptySearchState());
+export const reveal = writable<RevealState>(emptyRevealState());
 export const warnings = writable<string[]>([]);
 export const toast = writable<{ msg: string; error?: boolean } | null>(null);
 
-/** Combined stream the map subscribes to (world change vs search change). */
+// Global (not per-world) display preferences, persisted separately.
+export interface DisplayPrefs {
+  cellLabels: boolean;
+  areaRegions: boolean;
+}
+const DISPLAY_KEY = `${STORAGE_PREFIX}:display`;
+
+function loadDisplayPrefs(): DisplayPrefs {
+  try {
+    const raw = localStorage.getItem(DISPLAY_KEY);
+    if (raw) {
+      const p = JSON.parse(raw) as Partial<DisplayPrefs>;
+      return { cellLabels: p.cellLabels ?? true, areaRegions: p.areaRegions ?? true };
+    }
+  } catch {
+    // ignore (private mode / corrupt) → defaults
+  }
+  return { cellLabels: true, areaRegions: true };
+}
+
+export const displayPrefs = writable<DisplayPrefs>(loadDisplayPrefs());
+
+export function setDisplayPref(key: keyof DisplayPrefs, value: boolean): void {
+  displayPrefs.update((p) => {
+    const next = { ...p, [key]: value };
+    try {
+      localStorage.setItem(DISPLAY_KEY, JSON.stringify(next));
+    } catch {
+      // ignore write failures
+    }
+    return next;
+  });
+}
+
+/** Combined stream the map subscribes to (world change vs search/reveal change). */
 export const renderState = derived(
-  [world, catalog, search],
-  ([$world, $catalog, $search]) => ({ world: $world, catalog: $catalog, search: $search }),
+  [world, catalog, search, reveal],
+  ([$world, $catalog, $search, $reveal]) => ({
+    world: $world,
+    catalog: $catalog,
+    search: $search,
+    reveal: $reveal,
+  }),
 );
 
 // Module-scoped mutable state kept alongside the stores.
@@ -99,6 +147,7 @@ export async function selectWorld(worldId: Id): Promise<void> {
     worldIndex.set(buildWorldSearchIndex(w.value));
     if (w.warnings.length) warnings.update((prev) => [...prev, ...w.warnings]);
     search.set(searchStateFromPlayer(currentPlayerState));
+    reveal.set(revealStateFromPlayer(currentPlayerState));
     updateHash(ref.slug);
   } catch (e) {
     console.error('selectWorld failed', e);
@@ -191,7 +240,43 @@ export function resetWorld(): void {
   if (!currentWorldId) return;
   currentPlayerState = resetPlayerState(currentWorldId);
   search.set(searchStateFromPlayer(currentPlayerState));
+  reveal.set(revealStateFromPlayer(currentPlayerState));
   toast.set({ msg: 'Local progress for this world was reset.' });
+}
+
+// -------------------------------------------------------------------------
+// Reveal mutations (R1–R9). Each commits to the store and player state.
+// -------------------------------------------------------------------------
+function commitReveal(next: RevealState): void {
+  reveal.set(next);
+  if (currentWorldId && currentPlayerState) {
+    currentPlayerState.cellRevealResources = Object.fromEntries(next.cellRevealResources);
+    currentPlayerState.cellRevealNpcs = Object.fromEntries(next.cellRevealNpcs);
+    currentPlayerState.areaRevealHidden = Object.fromEntries(
+      [...next.areaRevealHidden].map((id) => [id, true as const]),
+    );
+    savePlayerState(currentWorldId, currentPlayerState);
+  }
+}
+
+/** Toggle one cell's resource/NPC reveal (R3). */
+export function setCellReveal(cellId: Id, kind: 'resources' | 'npcs', value: boolean): void {
+  const w = get(world);
+  const cell = w?.cells.find((c) => c.id === cellId);
+  if (!cell) return;
+  commitReveal(setCellRevealPure(get(reveal), cell, kind, value));
+}
+
+/** Per-area reveal-hidden toggle (R9, tiles-only). */
+export function setAreaRevealHidden(areaId: Id, value: boolean): void {
+  commitReveal(setAreaHiddenPure(get(reveal), areaId, value));
+}
+
+/** Global reveal sweep over currently-rendered cells (R5/R6). */
+export function globalReveal(kind: 'resources' | 'npcs', desired: boolean): void {
+  const w = get(world);
+  if (!w) return;
+  commitReveal(globalRevealPure(w, get(reveal), kind, desired));
 }
 
 // -------------------------------------------------------------------------
@@ -202,6 +287,14 @@ function searchStateFromPlayer(ps: PlayerState): SearchState {
     disabledResourceIds: new Set(ps.search.disabledResourceIds),
     disabledNpcTypeIds: new Set(ps.search.disabledNpcTypeIds),
     excludedAreaIds: new Set(ps.search.excludedAreaIds),
+  };
+}
+
+function revealStateFromPlayer(ps: PlayerState): RevealState {
+  return {
+    cellRevealResources: new Map(Object.entries(ps.cellRevealResources)),
+    cellRevealNpcs: new Map(Object.entries(ps.cellRevealNpcs)),
+    areaRevealHidden: new Set(Object.keys(ps.areaRevealHidden)),
   };
 }
 

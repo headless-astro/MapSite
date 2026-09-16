@@ -9,6 +9,7 @@
 import L from 'leaflet';
 import type { Catalog, Cell, Id, Marker, World } from '../model/types';
 import { bilinear, worldToLatLng } from '../model/geometry';
+import { assetUrl } from '../paths';
 import {
   getIcon,
   indexTaxonomy,
@@ -149,13 +150,19 @@ export class MarkerLayerManager {
     const cls = marker.kind === 'npc' ? 'marker-icon npc' : 'marker-icon';
     let inner = marker.kind === 'npc' ? '◆' : '●';
     if (icon) {
+      // Escape BOTH branches: icon.value is contributor-controlled and flows into
+      // innerHTML via Leaflet's divIcon. Emoji are visually unaffected by escaping;
+      // a malicious "<img onerror=…>" emoji value would otherwise run as script.
       inner =
         icon.type === 'emoji'
-          ? icon.value
-          : `<img src="${escapeHtml(icon.value)}" width="16" height="16" alt="" />`;
+          ? escapeHtml(icon.value)
+          : `<img src="${escapeHtml(assetUrl(icon.value))}" alt="" />`; // sized by .marker-icon img CSS
     }
-    const color = icon?.color ? ` style="border-color:${escapeHtml(icon.color)}"` : '';
-    return `<div class="${cls}"${color}>${inner}</div>`;
+    const styles: string[] = [];
+    if (icon?.color) styles.push(`border-color:${escapeHtml(icon.color)}`);
+    if (marker.size) styles.push(`--marker-size:${Number(marker.size)}px`); // per-marker override
+    const style = styles.length ? ` style="${styles.join(';')}"` : '';
+    return `<div class="${cls}"${style}>${inner}</div>`;
   }
 }
 
