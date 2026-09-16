@@ -1,11 +1,16 @@
 This ZIP mirrors the repository's SOURCE layout.
 
 To publish your changes:
-1. Unzip it into the repository ROOT. It adds/updates:
+1. In the repository ROOT, DELETE the old  data-src/  and  public/assets/  folders.
+   (Unzipping only adds/overwrites files, so anything you deleted in the editor
+   would otherwise survive as a leftover file and come back on the next build.)
+2. Unzip this file into the repository ROOT. It recreates:
      data-src/        (the map data you edited — one small file per cell)
-     public/assets/   (tile & icon images)
-2. Create a branch, commit the changes, and open a Pull Request.
-3. The maintainer reviews and merges; the site rebuilds automatically.
+     public/assets/   (tile & icon images still in use)
+3. Optional local check: run  npm run build:data  and open the player view.
+4. Create a branch, commit the changes (git add -A data-src public/assets),
+   and open a Pull Request.
+5. The maintainer reviews and merges; the site rebuilds automatically.
 
 Why per-cell files: you edit data-src/worlds/<world>/cells/<cell>.json, so two
 people editing different cells never conflict in Git.

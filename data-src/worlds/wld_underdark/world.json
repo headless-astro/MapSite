@@ -13,6 +13,7 @@
     },
     "searchRespectsReveal": true
   },
+  "connections": [],
   "id": "wld_underdark",
   "name": "Underdark",
   "order": 1,

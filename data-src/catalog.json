@@ -1,5 +1,50 @@
 {
+  "enemies": [],
   "icons": {
+    "ic_loc_1vpMXmgP": {
+      "type": "img",
+      "value": "assets/icons/5d6cf88954a012c5.png"
+    },
+    "ic_loc_DgRd5Aeb": {
+      "type": "img",
+      "value": "assets/icons/2692a9d5fb853adf.png"
+    },
+    "ic_loc_H1DfM2Bl": {
+      "type": "img",
+      "value": "assets/icons/bdf5a6bfb5deed34.png"
+    },
+    "ic_loc_PIISqAP9": {
+      "type": "img",
+      "value": "assets/icons/fa679637a013c571.png"
+    },
+    "ic_loc_SVyM4h7F": {
+      "type": "img",
+      "value": "assets/icons/cf22f3d1f45ef5bd.png"
+    },
+    "ic_loc_ZBGQTtBD": {
+      "type": "img",
+      "value": "assets/icons/b60915871876016a.png"
+    },
+    "ic_loc_iTxqODz1": {
+      "type": "img",
+      "value": "assets/icons/2e9ad43632ff6319.png"
+    },
+    "ic_loc_iYSZdqbP": {
+      "type": "img",
+      "value": "assets/icons/2e71a490d08128f5.png"
+    },
+    "ic_loc_oS16zzUM": {
+      "type": "img",
+      "value": "assets/icons/956ef503234c74d3.png"
+    },
+    "ic_loc_qDtHsdaz": {
+      "type": "img",
+      "value": "assets/icons/590c372c8a6db069.png"
+    },
+    "ic_loc_y2Dah7xT": {
+      "type": "img",
+      "value": "assets/icons/d554b787fadc5d63.png"
+    },
     "ic_res_1tKDCiFk": {
       "type": "img",
       "value": "assets/icons/88a07d5574a10411.png"
@@ -109,6 +154,109 @@
       "value": "assets/icons/072e18b3890bf96d.png"
     }
   },
+  "locations": [
+    {
+      "children": [
+        {
+          "icon": "ic_loc_1vpMXmgP",
+          "id": "loc_1vpMXmgP",
+          "kind": "resource",
+          "name": "Stall",
+          "order": 2
+        },
+        {
+          "icon": "ic_loc_ZBGQTtBD",
+          "id": "loc_ZBGQTtBD",
+          "kind": "resource",
+          "name": "Quarter",
+          "order": 3
+        },
+        {
+          "icon": "ic_loc_iYSZdqbP",
+          "id": "loc_iYSZdqbP",
+          "kind": "resource",
+          "name": "Shop Quarter",
+          "order": 1
+        },
+        {
+          "icon": "ic_loc_oS16zzUM",
+          "id": "loc_oS16zzUM",
+          "kind": "resource",
+          "name": "Guildhouse",
+          "order": 0
+        },
+        {
+          "icon": "ic_loc_y2Dah7xT",
+          "id": "loc_y2Dah7xT",
+          "kind": "resource",
+          "name": "Quarter, Monster Friendly",
+          "order": 4
+        }
+      ],
+      "id": "type_BTVLqeLV",
+      "kind": "group",
+      "name": "Quarter",
+      "order": 0
+    },
+    {
+      "children": [
+        {
+          "icon": "ic_loc_DgRd5Aeb",
+          "id": "loc_DgRd5Aeb",
+          "kind": "resource",
+          "name": "Cave, UD Connection",
+          "order": 0
+        },
+        {
+          "icon": "ic_loc_PIISqAP9",
+          "id": "loc_PIISqAP9",
+          "kind": "resource",
+          "name": "Mines",
+          "order": 2
+        },
+        {
+          "icon": "ic_loc_SVyM4h7F",
+          "id": "loc_SVyM4h7F",
+          "kind": "resource",
+          "name": "Cave, No UD Connection",
+          "order": 1
+        }
+      ],
+      "id": "type_OEAr91aH",
+      "kind": "group",
+      "name": "Cave",
+      "order": 1
+    },
+    {
+      "children": [
+        {
+          "icon": "ic_loc_H1DfM2Bl",
+          "id": "loc_H1DfM2Bl",
+          "kind": "resource",
+          "name": "Outgoing Portal",
+          "order": 2
+        },
+        {
+          "icon": "ic_loc_iTxqODz1",
+          "id": "loc_iTxqODz1",
+          "kind": "resource",
+          "name": "Two-Way Portal",
+          "order": 0
+        },
+        {
+          "icon": "ic_loc_qDtHsdaz",
+          "id": "loc_qDtHsdaz",
+          "kind": "resource",
+          "name": "Destination Portal",
+          "order": 1
+        }
+      ],
+      "id": "type_tgb2NkIh",
+      "kind": "group",
+      "name": "Portals",
+      "order": 2
+    }
+  ],
   "npcTypes": [],
   "resources": [
     {

@@ -13,6 +13,7 @@
     },
     "searchRespectsReveal": true
   },
+  "connections": [],
   "id": "wld_surface",
   "name": "Surface",
   "order": 0,
