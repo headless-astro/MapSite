@@ -13,6 +13,7 @@
     },
     "searchRespectsReveal": true
   },
+  "connections": [],
   "id": "wld_surface",
   "name": "Surface",
   "schemaVersion": 1,
@@ -96,6 +97,15 @@
           ]
         },
         {
+          "id": "mrk_WUjE2QHq",
+          "kind": "location",
+          "refId": "loc_oS16zzUM",
+          "uv": [
+            0.8826601909747597,
+            0.18284253858555077
+          ]
+        },
+        {
           "id": "mrk_X3FB661O",
           "kind": "resource",
           "refId": "res_jrmbYZaX",
@@ -113,6 +123,15 @@
           "uv": [
             0.9407891494861879,
             0.11709766740517155
+          ]
+        },
+        {
+          "id": "mrk_c27C84Q2",
+          "kind": "location",
+          "refId": "loc_oS16zzUM",
+          "uv": [
+            0.8840239949414384,
+            0.1052055423451327
           ]
         },
         {
