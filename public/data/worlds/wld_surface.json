@@ -154,6 +154,10 @@
         {
           "id": "mrk_b2yIv9VB",
           "kind": "location",
+          "link": {
+            "cellId": "cell_Ydde5gtL",
+            "worldId": "wld_rlYsfKGH"
+          },
           "nameOverride": "C, Mountain Caves",
           "refId": "loc_SVyM4h7F",
           "size": 50,
@@ -280,6 +284,10 @@
         {
           "id": "mrk_1gfwsLQp",
           "kind": "location",
+          "link": {
+            "cellId": "cell_Ydde5gtL",
+            "worldId": "wld_rlYsfKGH"
+          },
           "nameOverride": "A, Mountain Caves",
           "refId": "loc_SVyM4h7F",
           "size": 50,
@@ -472,6 +480,10 @@
         {
           "id": "mrk_olrPL0i5",
           "kind": "location",
+          "link": {
+            "cellId": "cell_Ydde5gtL",
+            "worldId": "wld_rlYsfKGH"
+          },
           "nameOverride": "B, Mountain Caves",
           "refId": "loc_SVyM4h7F",
           "size": 50,
@@ -570,6 +582,10 @@
         {
           "id": "mrk_i7VpYiKr",
           "kind": "location",
+          "link": {
+            "cellId": "cell_Ydde5gtL",
+            "worldId": "wld_rlYsfKGH"
+          },
           "nameOverride": "F, City Port",
           "refId": "loc_SVyM4h7F",
           "size": 50,

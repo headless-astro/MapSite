@@ -42,6 +42,10 @@
     {
       "id": "mrk_Fe9lgXKr",
       "kind": "location",
+      "link": {
+        "cellId": "cell_iKKdg4cg",
+        "worldId": "wld_rlYsfKGH"
+      },
       "nameOverride": "D, Abandoned Tunnels",
       "refId": "loc_SVyM4h7F",
       "uv": [
@@ -52,6 +56,10 @@
     {
       "id": "mrk_JPx07ivI",
       "kind": "location",
+      "link": {
+        "cellId": "cell_ZsJqM2hu",
+        "worldId": "wld_surface"
+      },
       "nameOverride": "F, City Port",
       "refId": "loc_isk4IPj8",
       "uv": [
@@ -62,6 +70,10 @@
     {
       "id": "mrk_QYUPONH4",
       "kind": "location",
+      "link": {
+        "cellId": "cell_FfwHR3J0",
+        "worldId": "wld_surface"
+      },
       "nameOverride": "B, Old Mine Road",
       "refId": "loc_isk4IPj8",
       "uv": [
@@ -72,6 +84,10 @@
     {
       "id": "mrk_SrfEQwp2",
       "kind": "location",
+      "link": {
+        "cellId": "cell_1lEpzlCR",
+        "worldId": "wld_surface"
+      },
       "nameOverride": "C, Fortress City",
       "refId": "loc_isk4IPj8",
       "uv": [
@@ -82,6 +98,10 @@
     {
       "id": "mrk_VquasDlQ",
       "kind": "location",
+      "link": {
+        "cellId": "cell_iKKdg4cg",
+        "worldId": "wld_rlYsfKGH"
+      },
       "nameOverride": "G, Abandoned Tunnels",
       "refId": "loc_SVyM4h7F",
       "uv": [
@@ -92,6 +112,10 @@
     {
       "id": "mrk_Z4Fi5Dkk",
       "kind": "location",
+      "link": {
+        "cellId": "cell_iKKdg4cg",
+        "worldId": "wld_rlYsfKGH"
+      },
       "nameOverride": "E, Abandoned Tunnels",
       "refId": "loc_SVyM4h7F",
       "uv": [
@@ -102,6 +126,10 @@
     {
       "id": "mrk_ek2zpQEy",
       "kind": "location",
+      "link": {
+        "cellId": "cell_FfwHR3J0",
+        "worldId": "wld_surface"
+      },
       "nameOverride": "A, Old Mine Road",
       "refId": "loc_isk4IPj8",
       "uv": [

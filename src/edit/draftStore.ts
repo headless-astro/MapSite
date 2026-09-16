@@ -11,6 +11,7 @@ import type {
   Id,
   Marker,
   MarkerKind,
+  MarkerLink,
   TaxKind,
   TaxNode,
   Vec2,
@@ -405,6 +406,25 @@ export function addMarkerAtWorldPoint(worldPos: Vec2): void {
   updateActiveWorld((w) => ({
     ...w,
     cells: w.cells.map((c) => (c.id === cell.id ? { ...c, markers: [...c.markers, marker] } : c)),
+  }));
+}
+
+/** Jump target for one marker (world + cell); null removes it. */
+export function setMarkerLink(cellId: Id, markerId: Id, link: MarkerLink | null): void {
+  updateActiveWorld((w) => ({
+    ...w,
+    cells: w.cells.map((c) =>
+      c.id === cellId
+        ? {
+            ...c,
+            markers: c.markers.map((m) => {
+              if (m.id !== markerId) return m;
+              const { link: _drop, ...rest } = m;
+              return link ? { ...rest, link: { worldId: link.worldId, cellId: link.cellId } } : rest;
+            }),
+          }
+        : c,
+    ),
   }));
 }
 

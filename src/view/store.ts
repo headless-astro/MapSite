@@ -7,11 +7,13 @@ import type {
   Catalog,
   Id,
   Manifest,
+  MarkerLink,
   RevealKey,
   TaxKind,
   World,
   WorldRef,
 } from '../model/types';
+import { tileVisible } from '../logic/revealController';
 import {
   buildWorldSearchIndex,
   DISABLED_KEY,
@@ -51,6 +53,37 @@ export const warnings = writable<string[]>([]);
 export const toast = writable<{ msg: string; error?: boolean } | null>(null);
 /** The cell whose notes are open in the side panel (cleared when the world changes). */
 export const selectedCellId = writable<Id | null>(null);
+/** One-shot request for the map to center on a cell of the loaded world (after a jump). */
+export const focusRequest = writable<{ cellId: Id; seq: number } | null>(null);
+let focusSeq = 0;
+
+/** Name of a world by id, from the manifest. */
+export function worldName(worldId: Id): string {
+  return get(manifest)?.worlds.find((w) => w.id === worldId)?.name ?? 'another world';
+}
+
+/** Follow a marker link: switch world if needed, then center on the target cell and open its notes. */
+export async function jumpToLink(link: MarkerLink): Promise<void> {
+  const m = get(manifest);
+  if (!m?.worlds.some((w) => w.id === link.worldId)) {
+    toast.set({ msg: 'That link points to a world that is not published.', error: true });
+    return;
+  }
+  await selectWorld(link.worldId);
+  const w = get(world);
+  const cell = w?.cells.find((c) => c.id === link.cellId);
+  if (!w || w.id !== link.worldId || !cell) {
+    toast.set({ msg: 'That link points to a cell that no longer exists.', error: true });
+    return;
+  }
+  focusRequest.set({ cellId: cell.id, seq: ++focusSeq });
+  selectedCellId.set(cell.id);
+  if (!tileVisible(cell, get(reveal))) {
+    toast.set({ msg: `${cell.name} is a hidden location. Reveal its area to show it.` });
+  } else {
+    toast.set({ msg: `${cell.name} · ${w.name}` });
+  }
+}
 
 // Global (not per-world) display preferences, persisted separately.
 export interface DisplayPrefs {

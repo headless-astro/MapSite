@@ -202,6 +202,12 @@ export interface Cell {
   markers: Marker[];
 }
 
+/** Jump target for a marker: switch to that world and center on that cell (e.g. an entrance → the interior). */
+export interface MarkerLink {
+  worldId: Id;
+  cellId: Id;
+}
+
 export interface Marker {
   id: Id;
   kind: MarkerKind;
@@ -210,6 +216,7 @@ export interface Marker {
   /** normalized position within the cell image: [u, v] in [0,1]. */
   uv: Vec2;
   nameOverride?: string;
+  link?: MarkerLink;
   /** Per-marker diameter in CSS px; overrides the world's view.markerSize. */
   size?: number;
   /** author escape hatch: never shown regardless of reveal/search. */

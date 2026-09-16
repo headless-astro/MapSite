@@ -11,6 +11,7 @@
     deleteMarker,
     deleteMarkers,
     setMarkerName,
+    setMarkerLink,
     setMarkerSizeOverride,
     deleteConnection,
     deleteConnections,
@@ -114,6 +115,33 @@
   }
   function markerName(m: { kind: string; refId: string | null; nameOverride?: string }) {
     return m.nameOverride || typeName(m);
+  }
+  // Jump links: which marker's link editor is open, and the world picked before a cell is chosen.
+  let linkEditing = $state<string | null>(null);
+  let linkDraftWorld = $state('');
+  const linkWorldId = $derived.by(() => {
+    const m = cell?.markers.find((x) => x.id === linkEditing);
+    return m?.link?.worldId ?? linkDraftWorld;
+  });
+  const linkCells = $derived(
+    ($worlds.find((w) => w.id === linkWorldId)?.cells ?? []).slice().sort((a, b) => a.name.localeCompare(b.name)),
+  );
+  function linkSummary(link: { worldId: string; cellId: string }): string {
+    const w = $worlds.find((x) => x.id === link.worldId);
+    const c = w?.cells.find((x) => x.id === link.cellId);
+    return `${w?.name ?? '(missing world)'} › ${c?.name ?? '(missing cell)'}`;
+  }
+  function toggleLinkEditor(m: { id: string; link?: { worldId: string } }) {
+    linkEditing = linkEditing === m.id ? null : m.id;
+    linkDraftWorld = m.link?.worldId ?? '';
+  }
+  function pickLinkWorld(m: { id: string }, worldId: string) {
+    linkDraftWorld = worldId;
+    if (cell) setMarkerLink(cell.id, m.id, null); // a new world needs a new cell
+  }
+  function pickLinkCell(m: { id: string }, cellId: string) {
+    if (!cell) return;
+    setMarkerLink(cell.id, m.id, cellId && linkWorldId ? { worldId: linkWorldId, cellId } : null);
   }
   async function editMarkerName(cellId: string, m: { id: string; nameOverride?: string }) {
     const n = await promptDialog('Custom name for this marker (leave blank to show the type name)', m.nameOverride ?? '', {
@@ -243,6 +271,12 @@
         </span>
         {#if !$multiSelect}
           <button class="iconbtn" title="Custom name" onclick={() => editMarkerName(cell.id, m)}>name</button>
+          <button
+            class="iconbtn"
+            class:on={!!m.link}
+            title="Link: players can jump from this marker to a cell in another world"
+            onclick={() => toggleLinkEditor(m)}>link</button
+          >
           <input
             class="msize"
             type="number"
@@ -257,6 +291,32 @@
           <button class="iconbtn danger" title="Delete marker" onclick={() => deleteMarker(cell.id, m.id)}>del</button>
         {/if}
       </div>
+      {#if m.link && linkEditing !== m.id}
+        <div class="insp-linksum muted">↗ {linkSummary(m.link)}</div>
+      {/if}
+      {#if linkEditing === m.id && !$multiSelect}
+        <div class="insp-link">
+          <select value={linkWorldId} onchange={(e) => pickLinkWorld(m, (e.target as HTMLSelectElement).value)} aria-label="Link world">
+            <option value="">— world —</option>
+            {#each $worlds as w (w.id)}
+              <option value={w.id}>{w.name}</option>
+            {/each}
+          </select>
+          <select
+            value={m.link?.cellId ?? ''}
+            disabled={!linkWorldId}
+            onchange={(e) => pickLinkCell(m, (e.target as HTMLSelectElement).value)}
+            aria-label="Link cell"
+          >
+            <option value="">— cell —</option>
+            {#each linkCells as c (c.id)}
+              <option value={c.id}>{c.name}</option>
+            {/each}
+          </select>
+          <button class="iconbtn" title="Remove the link" disabled={!m.link} onclick={() => pickLinkCell(m, '')}>clear</button>
+          <button class="iconbtn" title="Close" onclick={() => (linkEditing = null)}>done</button>
+        </div>
+      {/if}
     {/each}
 
     <h2 style="margin-top:12px">Connections ({links.length})</h2>

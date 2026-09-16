@@ -8,7 +8,7 @@
 
 import L from 'leaflet';
 import { DEFAULT_MARKER_SIZE } from '../model/types';
-import type { Catalog, Cell, Id, Marker, MarkerKind, World } from '../model/types';
+import type { Catalog, Cell, Id, Marker, MarkerKind, MarkerLink, World } from '../model/types';
 import { bilinear, worldToLatLng } from '../model/geometry';
 import { assetUrl } from '../paths';
 import {
@@ -62,10 +62,17 @@ export function bindMarkerName(m: L.Marker, marker: Marker, size: number): void 
 
 export type MarkerPredicate = (marker: Marker, cell: Cell) => boolean;
 
+/** Wiring for marker jump links: what to do on "Go to", and how to name a world id. */
+export interface JumpHandlers {
+  jump: (link: MarkerLink) => void;
+  worldName: (worldId: Id) => string;
+}
+
 export class MarkerLayerManager {
   private entries: MarkerEntry[] = [];
   private visible: MarkerPredicate = () => true;
   private rafHandle: number | null = null;
+  private jumpHandlers: JumpHandlers | null = null;
 
   // Inverted indexes for targeted updates / counts (built once per world).
   readonly byRef: Record<MarkerKind, Map<Id, MarkerEntry[]>> = {
@@ -117,6 +124,11 @@ export class MarkerLayerManager {
     this.scheduleRefresh();
   }
 
+  /** Enable "Go to …" buttons in popups of markers that carry a link. */
+  setJumpHandlers(handlers: JumpHandlers | null): void {
+    this.jumpHandlers = handlers;
+  }
+
   /** Coalesce rapid toggles into a single frame of DOM work. */
   scheduleRefresh(): void {
     if (this.rafHandle != null) return;
@@ -161,10 +173,33 @@ export class MarkerLayerManager {
       iconSize: [0, 0], // sizing handled by .marker-icon CSS
     });
     const m = L.marker(e.latLng, { icon, pane: this.pane, title: e.label });
-    const note = e.marker.note ? `<div class="muted">${escapeHtml(e.marker.note)}</div>` : '';
-    m.bindPopup(`<strong>${escapeHtml(e.label)}</strong>${note}`);
+    // Popup content is built fresh on each open so the jump button always has live handlers.
+    m.bindPopup(() => this.popupContent(e));
     bindMarkerName(m, e.marker, e.size);
     return m;
+  }
+
+  private popupContent(e: MarkerEntry): HTMLElement {
+    const root = document.createElement('div');
+    const title = document.createElement('strong');
+    title.textContent = e.label;
+    root.appendChild(title);
+    if (e.marker.note) {
+      const note = document.createElement('div');
+      note.className = 'muted';
+      note.textContent = e.marker.note;
+      root.appendChild(note);
+    }
+    const link = e.marker.link;
+    const jump = this.jumpHandlers;
+    if (link && jump) {
+      const btn = document.createElement('button');
+      btn.className = 'btn small accent popup-jump';
+      btn.textContent = `Go to ${jump.worldName(link.worldId)} →`;
+      btn.addEventListener('click', () => jump.jump(link));
+      root.appendChild(btn);
+    }
+    return root;
   }
 
   private iconHtmlFor(marker: Marker, catalog: Catalog, tax: TaxIndex): string {

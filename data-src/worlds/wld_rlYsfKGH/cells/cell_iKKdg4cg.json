@@ -93,6 +93,10 @@
     {
       "id": "mrk_fohTvzHy",
       "kind": "location",
+      "link": {
+        "cellId": "cell_Ydde5gtL",
+        "worldId": "wld_rlYsfKGH"
+      },
       "nameOverride": "D, Mountain Caves",
       "refId": "loc_SVyM4h7F",
       "uv": [
@@ -123,6 +127,10 @@
     {
       "id": "mrk_qGw5JIV4",
       "kind": "location",
+      "link": {
+        "cellId": "cell_Ydde5gtL",
+        "worldId": "wld_rlYsfKGH"
+      },
       "nameOverride": "G, Mountain Caves",
       "refId": "loc_SVyM4h7F",
       "uv": [
@@ -153,6 +161,10 @@
     {
       "id": "mrk_yYaKgWXa",
       "kind": "location",
+      "link": {
+        "cellId": "cell_Ydde5gtL",
+        "worldId": "wld_rlYsfKGH"
+      },
       "nameOverride": "E, Mountain Caves",
       "refId": "loc_SVyM4h7F",
       "uv": [

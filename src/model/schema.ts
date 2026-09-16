@@ -6,7 +6,18 @@
 // unusable (not an object / missing required arrays).
 
 import { MARKER_SIZE_MAX, MARKER_SIZE_MIN, SCHEMA_VERSION, TAX_KINDS } from './types';
-import type { Catalog, Cell, Connection, Manifest, Marker, RevealDefaults, TaxNode, Vec2, World } from './types';
+import type {
+  Catalog,
+  Cell,
+  Connection,
+  Manifest,
+  Marker,
+  MarkerLink,
+  RevealDefaults,
+  TaxNode,
+  Vec2,
+  World,
+} from './types';
 import { forestOf, indexTaxonomy } from './taxonomy';
 
 export interface ValidationResult<T> {
@@ -168,6 +179,17 @@ export function validateWorld(
       if (m.size !== undefined) {
         m.size = sanitizeMarkerSize(m.size, `marker ${m.id} size`, warnings);
         if (m.size === undefined) delete m.size;
+      }
+      // Jump link: needs both ids; a link into THIS world must point at one of its cells
+      // (other worlds are checked when the player jumps, since only one world is loaded).
+      if (m.link !== undefined) {
+        const l = m.link as Partial<MarkerLink> | null;
+        const shapeOk = !!l && typeof l.worldId === 'string' && typeof l.cellId === 'string';
+        const localOk = !shapeOk || l.worldId !== world.id || world.cells.some((c) => c.id === l.cellId);
+        if (!shapeOk || !localOk) {
+          warnings.push(`Marker ${m.id} on cell ${cell.id} has an invalid link; dropped.`);
+          delete m.link;
+        }
       }
       // Custom name: plain text; empty or non-text means "no custom name".
       if (m.nameOverride !== undefined) {

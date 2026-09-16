@@ -13,6 +13,9 @@
     renderState,
     displayPrefs,
     selectedCellId,
+    focusRequest,
+    jumpToLink,
+    worldName,
   } from './store';
   import CellPanel from './CellPanel.svelte';
   import WorldSwitcher from './WorldSwitcher.svelte';
@@ -35,6 +38,10 @@
       toggleCellReveal: setCellReveal,
       onCellSelected: (id) => selectedCellId.set(id),
     });
+    ctl.setJumpHandlers({ jump: (link) => void jumpToLink(link), worldName });
+    const unsubFocus = focusRequest.subscribe((req) => {
+      if (req && ctl) ctl.focusCell(req.cellId);
+    });
 
     const unsub = renderState.subscribe(({ world, catalog, search, reveal }) => {
       if (!ctl || !world || !catalog) return;
@@ -55,6 +62,7 @@
     return () => {
       unsub();
       unsubPrefs();
+      unsubFocus();
       window.removeEventListener('resize', onResize);
       ctl?.destroy();
       ctl = null;

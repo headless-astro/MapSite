@@ -392,6 +392,16 @@ label.struct-cell { display: flex; align-items: center; gap: 6px; }
   cursor: pointer; text-decoration: underline dotted;
 }
 .linkbtn:hover { text-decoration: underline; }
+.iconbtn.on { color: var(--accent); border-color: var(--accent); }
+.insp-linksum { font-size: 11px; padding: 0 0 4px 14px; }
+.insp-link { display: flex; align-items: center; gap: 4px; padding: 2px 0 6px 14px; }
+.insp-link select {
+  flex: 1; min-width: 0; font: inherit; font-size: 12px; padding: 2px 4px;
+  background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 5px;
+}
+.popup-jump { display: block; margin-top: 8px; }
+.cell-flash { animation: cell-flash 1.6s ease-out forwards; }
+@keyframes cell-flash { from { opacity: 1; } to { opacity: 0; } }
 .insp-marker .msize {
   width: 52px; font: inherit; font-size: 12px; padding: 1px 4px;
   background: var(--panel-2); color: var(--text); border: 1px solid var(--border); border-radius: 5px;

@@ -9,7 +9,8 @@ TypeScript, hosted on GitHub Pages.
 
 - **Viewer**: worlds, areas, tiles (rotation allowed), markers, search by resource, location
   and enemy taxonomy and by NPC type, area filter, world switching (`#/w/<slug>`), cell labels, area outlines, cell
-  connections, cell notes in a side panel, spoiler system (hidden tiles and markers revealed
+  connections, cell notes in a side panel, marker links that jump to a cell in another world,
+  spoiler system (hidden tiles and markers revealed
   per area or per cell).
 - **Editor** (local only, `npm run dev` then `?edit=1`, not shipped in builds): drag images
   in as tiles, move/scale/rotate them, manage worlds/areas/cells, write cell notes, the

@@ -16,7 +16,7 @@ import {
   type RevealState,
 } from '../logic/revealController';
 import { CellLayerManager } from './cellLayer';
-import { MarkerLayerManager } from './markerLayer';
+import { MarkerLayerManager, type JumpHandlers } from './markerLayer';
 import { AreaLayerManager } from './areaLayer';
 import { LinkLayerManager } from './linkLayer';
 import { buildCellPopup, type CellRevealHandlers } from './cellPopup';
@@ -83,6 +83,33 @@ export class MapController {
   /** Provide the store callbacks the cell popup invokes. */
   setRevealHandlers(handlers: CellRevealHandlers): void {
     this.revealHandlers = handlers;
+  }
+
+  /** Provide the store callback for marker jump links ("Go to <world>"). */
+  setJumpHandlers(handlers: JumpHandlers): void {
+    this.markers.setJumpHandlers(handlers);
+  }
+
+  /**
+   * Center the view on one cell of the loaded world and flash its outline, e.g.
+   * after a jump. Returns false if the cell doesn't exist here.
+   */
+  focusCell(cellId: string): boolean {
+    const cell = this.world?.cells.find((c) => c.id === cellId);
+    if (!cell || !this.world) return false;
+    this.map.closePopup();
+    const latlngs = cell.geometry.corners.map((p) => L.latLng(worldToLatLng(p)));
+    this.map.fitBounds(L.latLngBounds(latlngs), { padding: [80, 80], maxZoom: this.world.view.maxZoom });
+    const flash = L.polygon(latlngs, {
+      pane: LABELS_PANE,
+      color: '#3b6fd4',
+      weight: 4,
+      fill: false,
+      interactive: false,
+      className: 'cell-flash',
+    }).addTo(this.map);
+    setTimeout(() => flash.remove(), 1600);
+    return true;
   }
 
   private onViewChange = (): void => {

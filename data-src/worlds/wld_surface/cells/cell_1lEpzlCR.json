@@ -127,6 +127,10 @@
     {
       "id": "mrk_b2yIv9VB",
       "kind": "location",
+      "link": {
+        "cellId": "cell_Ydde5gtL",
+        "worldId": "wld_rlYsfKGH"
+      },
       "nameOverride": "C, Mountain Caves",
       "refId": "loc_SVyM4h7F",
       "size": 50,

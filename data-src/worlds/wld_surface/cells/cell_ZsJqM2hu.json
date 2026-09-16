@@ -42,6 +42,10 @@
     {
       "id": "mrk_i7VpYiKr",
       "kind": "location",
+      "link": {
+        "cellId": "cell_Ydde5gtL",
+        "worldId": "wld_rlYsfKGH"
+      },
       "nameOverride": "F, City Port",
       "refId": "loc_SVyM4h7F",
       "size": 50,

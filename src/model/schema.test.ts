@@ -167,6 +167,38 @@ describe('validateWorld (defensive repair)', () => {
     expect(warnings).toHaveLength(1);
   });
 
+  it('keeps well-formed marker links and drops broken or dangling local ones', () => {
+    const raw = {
+      schemaVersion: 1,
+      id: 'w',
+      slug: 'w',
+      name: 'W',
+      view: { minZoom: -4, maxZoom: 4 },
+      config: { searchRespectsReveal: true, declutter: { enabled: false, hideMarkersBelowZoom: null } },
+      areas: [],
+      cells: [
+        baseCell({ id: 'a', areaId: null }),
+        baseCell({
+          id: 'b',
+          areaId: null,
+          markers: [
+            { id: 'other_world', kind: 'location', refId: 'loc_crypt', uv: [0.5, 0.5], link: { worldId: 'wld_interiors', cellId: 'cell_x' } },
+            { id: 'local_ok', kind: 'location', refId: 'loc_crypt', uv: [0.5, 0.5], link: { worldId: 'w', cellId: 'a' } },
+            { id: 'local_dangling', kind: 'location', refId: 'loc_crypt', uv: [0.5, 0.5], link: { worldId: 'w', cellId: 'zzz' } },
+            { id: 'malformed', kind: 'location', refId: 'loc_crypt', uv: [0.5, 0.5], link: { worldId: 5 } },
+          ],
+        }),
+      ],
+    };
+    const { value, warnings } = validateWorld(raw, catalog);
+    const links = Object.fromEntries(value.cells[1].markers.map((m) => [m.id, m.link]));
+    expect(links.other_world).toEqual({ worldId: 'wld_interiors', cellId: 'cell_x' });
+    expect(links.local_ok).toEqual({ worldId: 'w', cellId: 'a' });
+    expect(links.local_dangling).toBeUndefined();
+    expect(links.malformed).toBeUndefined();
+    expect(warnings).toHaveLength(2);
+  });
+
   it('sanitizes a per-marker size override the same way', () => {
     const raw = {
       schemaVersion: 1,
